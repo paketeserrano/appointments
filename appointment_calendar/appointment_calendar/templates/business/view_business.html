@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Business: {{business.0.name}}</h1>
+    <p>{{business.0.description}}</p>
+    <a href="{% url 'add_business_event'  business.0.id %}">Add Event</a>
+    <br>
+    <h2>Business Hours</h2>
+    {% for hour in business_hours %}
+        <table>
+            <tr>
+                <td>{{hour.weekday}}</td>
+                <td>{{hour.from_hour}}</td>
+                <td>{{hour.to_hour}}</td>
+            </tr>
+        </table>
+    {% endfor %}
+    <br>
+    <h2>Days Closed or Holidays</h2>
+    {% for day in special_days %}
+        <table>
+            <tr>
+                <td>{{day.date}}</td>
+                <td>{{day.from_hour}}</td>
+                <td>{{day.to_hour}}</td>
+            </tr>
+        </table>
+    {% endfor %}
+{% endblock %}

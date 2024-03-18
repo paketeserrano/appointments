@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style=""float:right><p>Hello, {{ user.username|default:'Guest' }}!</p></div>
+<div><a href="{% url 'add_business'%}">Add Business</a></div>
+<br>
+
+<h1>Your Businesses</h1>
+<ul>
+    {% for business in accounts %}
+        <li>{{business.name}}</li>
+        <li>{{business.id}}</li>
+        <!li><a href="{% url 'view_business' business.id %}">{{business.name}}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <form action="{% url 'appointment' business_id=form.business_id event_id=form.event_id %}" method="post">
+        {% csrf_token %}
+        <table>
+            {{ form }}
+        </table>
+        <input type="submit" value="Submit"> 
+    </form>
+{% endblock %}
