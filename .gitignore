@@ -8,6 +8,8 @@ media
 
 # App files #
 .appointment_calendar/appt_calendar_app/libs/credentials.json
+appointment_calendar/appt_calendar_app/libs/credentials.json
+./appointment_calendar/appt_calendar_app/libs/credentials.json
 
 # Backup files # 
 *.bak 
