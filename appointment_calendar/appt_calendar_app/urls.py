@@ -9,6 +9,5 @@ urlpatterns = [
     path("add_business/", views.add_business, name="add_business"),
     path("view_business/<int:business_id>/", views.view_business, name="view_business"),
     path("add_business_event/<int:business_id>/", views.add_business_event, name="add_business_event"),
-    path('test/<int:pepe>', views.HomePageView.as_view(), name = 'home_page'),
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
 ] 

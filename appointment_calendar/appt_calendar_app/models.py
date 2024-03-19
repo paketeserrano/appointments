@@ -50,6 +50,11 @@ class Event(models.Model):
     def __str__(this):
         return this.name
     
+APPOINTMENT_STATUS = [
+    ("ACTIVE", "ACTIVE"),
+    ("CANCELLED", "CANCELLED"),
+]
+
 class Appointment(models.Model):
     invitees = models.ManyToManyField(Invitee)
     date = models.DateField()
@@ -57,6 +62,7 @@ class Appointment(models.Model):
     event = models.ForeignKey(Event, on_delete = models.CASCADE)
     location = models.CharField(max_length = 120)
     worker = models.ForeignKey(CustomUser, on_delete = models.CASCADE)
+    status = models.CharField(max_length = 40, choices = APPOINTMENT_STATUS, default='ACTIVE')
 
     def __str__(this):
         return f"Appt scheduled"

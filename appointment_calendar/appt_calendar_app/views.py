@@ -12,20 +12,9 @@ from formtools.wizard.views import SessionWizardView
 from datetime import datetime, timedelta
 import time
 from .libs.send_emails import gmail_send, gmail_compose, gmail_credentials
-#####################################################################
-##    CBV Testing
+from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
-
-class HomePageView(TemplateView):
-    template_name = "test.html"
-
-
-
-#####################################################################
-
-
-
 
 def addMins(tm, mins):
     fulldate = datetime(100, 1, 1, tm.hour, tm.minute, tm.second)
@@ -262,6 +251,21 @@ class DashboardView(ListView):
         queryset = Account.objects.filter(admins__id= self.request.user.id)
         print('------------------------> queryset: ' + str(queryset))
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = datetime.today()
+        end_date = today + timedelta(days=30)
+        appointments = Appointment.objects.filter(worker__id = self.request.user.id, date__gte = today, date__lte = end_date).order_by('date')
+        # group appointments by date
+        grouped_appointments = {}
+        for appt in appointments:
+            if appt.date in grouped_appointments:
+                grouped_appointments[appt.date].append(appt)
+            else:
+                grouped_appointments[appt.date] = [appt]
+        context['appointments'] = grouped_appointments
+        return context
 
 def user_registration(request):
     if request.method == 'POST':  
