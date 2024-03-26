@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError  
 from django.forms.fields import EmailField  
 from django.forms.forms import Form 
-from .models import Account, Event
+from .models import Account, Event, Appointment, Invitee
 import json
 
 
@@ -113,3 +113,21 @@ class CreateEventForm(forms.ModelForm):
     class Meta:
         model = Event 
         fields = ['name', 'duration', 'location', 'account', 'event_workers'] 
+
+class AppointmentCancelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AppointmentCancelForm, self).__init__(*args, **kwargs)
+
+        # Only show the invitees for this appointment
+        appointment = kwargs['instance']
+        self.fields['invitees'].queryset = Invitee.objects.filter(appointment = appointment)
+
+    class Meta:
+        model = Appointment
+        fields = ('event', 'date', 'time', 'invitees')
+        widgets = {
+            'event': forms.Select(attrs={"disabled":"disabled"}),
+            'invitees': forms.SelectMultiple(attrs={"disabled":"disabled"}),
+            'date': forms.TextInput(attrs={"disabled":"disabled"}),
+            'time': forms.TextInput(attrs={"disabled":"disabled"})
+        }

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+    <style>
+        .field-name {
+            background-color: rgb(237, 240, 241) !important;
+            width: 25%; /* Adjust the width as needed */
+        }
+        .table {
+            table-layout: fixed; /* Helps ensure the column width is respected */
+        }
+        .table td, .table th {
+            word-wrap: break-word; /* Ensure content fits within the cell */
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block content %}
+<h1>Appointment Details</h1>
+<div class="container mt-5">
+    <h2>Appointment Details</h2>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td class="field-name">Date</td>
+                <td>{{ appointment.date }}</td>
+            </tr>
+            <tr>
+                <td class="field-name">Time</td>
+                <td>{{ appointment.time }}</td>
+            </tr>
+            <tr>
+                <td class="field-name">Location</td>
+                <td>{{ appointment.location }}</td>
+            </tr>
+            <tr>
+                <td class="field-name">Status</td>
+                <td id="appointmentStatus">{{ appointment.status }}</td>
+            </tr>
+            <tr>
+                <td class="field-name">Worker</td>
+                <td>{{ appointment.worker.user.first_name }} {{ appointment.worker.user.last_name }}</td>
+            </tr>
+            <tr>
+                <td class="field-name">Event</td>
+                <td>{{ appointment.event.name }}</td>
+            </tr>
+            <tr>
+                <td class="field-name">Invitees</td>
+                <td>
+                    <ul>
+                        {% for invitee in appointment.invitees.all %}
+                            <li>{{ invitee.name }}</li> 
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% if show_cancel_button %}
+        <button id="cancelButton" class="btn btn-danger mt-3" {% if appointment.status == 'CANCELLED' %} disabled {%endif%}>Cancel Appointment</button>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#cancelButton').click(function() {
+            $.post('{% url "appointment_cancel" appointment.id %}', {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                appointment_id: '{{ appointment.id }}'
+            }, function(response) {
+                alert(response.message);
+                if(response.status === 'success') {
+                    $('#cancelButton').prop('disabled', true);
+                    $('#appointmentStatus').text('Status: CANCELLED');
+                }
+            });
+        });
+    });
+    </script>
+{% endblock extra_script %}

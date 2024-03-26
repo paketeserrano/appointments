@@ -1,29 +1,360 @@
 {% extends 'base.html' %}
 
+{% block extra_css %}
+<style>
+    .table-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .table-row:last-child {
+      border-bottom: 0;
+    }
+
+    .table-button {
+      white-space: nowrap;
+    }
+  </style>
+{% endblock extra_css %}
+
 {% block content %}
-    <h1>Business: {{business.0.name}}</h1>
-    <p>{{business.0.description}}</p>
-    <a href="{% url 'add_business_event'  business.0.id %}">Add Event</a>
+    <h1>Business: {{business.name}}</h1>
+    <p>{{business.description}}</p>
+    <h1>Events</h1>
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for event in events%}
+                <div class="col">
+                    <div class="card booking-card">
+                    <div class="card-header">
+                        <input type="checkbox" aria-label="Checkbox for following text input">
+                        <i class="fas fa-cog settings-icon"></i>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{event.name}}</h5>
+                        <p class="card-text">{{event.duration}} mins</p>
+                        <a href="#" class="btn btn-link p-0" aria-label="View booking page">View event page</a>
+                    </div>
+                    <div class="card-footer">
+                        <div class="form-check form-switch d-inline-block">
+                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                        <label class="form-check-label" for="flexSwitchCheckDefault">Copy link</label>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary toggle-btn">Turn On</button>
+                    </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <a href="{% url 'add_business_event'  business.id %}">Add Event</a>
     <br>
-    <h2>Business Hours</h2>
-    {% for hour in business_hours %}
-        <table>
-            <tr>
-                <td>{{hour.weekday}}</td>
-                <td>{{hour.from_hour}}</td>
-                <td>{{hour.to_hour}}</td>
-            </tr>
-        </table>
-    {% endfor %}
+    <h2>Workers</h2>
+    <div class="container my-4">
+        <div class="table-responsive">
+            {% for worker in business.account_workers.all %}
+                <div class="table-row">
+                    <span>{{worker.user.first_name}} {{worker.user.last_name}}</span>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
+                            </svg>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
+                            <li><a class="dropdown-item" href="{% url 'worker_remove' business.id  worker.id %}">Remove Worker</a></li>
+                            <li><a class="dropdown-item" href="{% url 'worker_detail' business.id worker.id %}">View Worker</a></li>
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+      </div>
     <br>
-    <h2>Days Closed or Holidays</h2>
-    {% for day in special_days %}
-        <table>
-            <tr>
-                <td>{{day.date}}</td>
-                <td>{{day.from_hour}}</td>
-                <td>{{day.to_hour}}</td>
-            </tr>
-        </table>
-    {% endfor %}
+    
+    <div class="container mt-5">
+        <h2>Business Hours</h2>
+        <div class="d-flex justify-content-end align-items-center mb-3">            
+            <div class="button-group">
+                <button id="editButton" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button id="saveButton" class="btn btn-success d-none">
+                    <i class="fas fa-check"></i> Save
+                </button>
+                <button id="cancelButton" class="btn btn-danger d-none">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+        
+    
+        <div id="businessHours">
+            {% for hour in business_hours %}
+                <div class="row mb-2 hour-entry" data-weekday="{{ hour.weekday }}">
+                    <div class="col-4">
+                        <span class="weekday">{{ hour.weekday }}</span>
+                    </div>
+                    <div class="col-4">
+                        <span class="from-hour">{{ hour.from_hour }}</span>
+                    </div>
+                    <div class="col-4">
+                        <span class="to-hour">{{ hour.to_hour }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>    
+        <br>
+        <!-- Days Closed or Holidays Section -->
+        <div class="container mt-5" id="specialDays">
+            <h2>Days Closed or Holidays</h2>
+            {% for day in special_days %}
+                <div class="table-row special-day-entry" data-day-id="{{ day.id }}">
+                    <span class="date">{{ day.date }}</span> <!-- Added class="date" -->
+                    <span class="from-hour">{{ day.from_hour }}</span> <!-- Added class="from-hour" -->
+                    <span class="to-hour">{{ day.to_hour }}</span> <!-- Added class="to-hour" -->                
+                    <!-- Dropdown Button -->
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
+                            <li><a class="dropdown-item delete-day" href="#">Delete</a></li>
+                            <li><a class="dropdown-item edit-day" href="#">Edit</a></li>
+                        </ul>
+                    </div>
+                    <!-- Edit and Delete Actions -->
+                    <div class="edit-actions d-none">
+                        <button class="btn btn-success commit-edit">Save</button>
+                        <button class="btn btn-danger cancel-edit">Cancel</button>
+                    </div>
+                </div>
+                </div>
+            {% endfor %}
+            <button id="addSpecialDayButton" class="btn btn-primary mt-3">
+                <i class="fas fa-plus"></i> Add New
+            </button>
+            <div id="addSpecialDayForm" class="d-none mt-3">
+                <div class="table-row">
+                    <input type="date" id="newDate" class="form-control">
+                    <input type="time" id="newFromHour" class="form-control">
+                    <input type="time" id="newToHour" class="form-control">
+                </div>
+                <button id="commitNewSpecialDay" class="btn btn-success mt-2">Commit</button>
+                <button id="cancelNewSpecialDay" class="btn btn-danger mt-2">Cancel</button>
+            </div>
+        </div>
+
+    </div>
 {% endblock %}
+
+{% block extra_script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    var originalHours = {};
+
+    $("#editButton").click(function() {
+        originalHours = {}; // Reset original hours
+        $("#businessHours .hour-entry").each(function() {
+            var weekday = $(this).data('weekday');
+            var fromHourSpan = $(this).find('.from-hour');
+            var toHourSpan = $(this).find('.to-hour');
+            var fromHour = fromHourSpan.text().trim();
+            var toHour = toHourSpan.text().trim();
+
+            console.log('fromHour: ' + fromHour)
+            console.log('toHour: ' + toHour)
+
+            originalHours[weekday] = { from: fromHour, to: toHour };
+
+            console.log('fromHour: ' + fromHour)
+            console.log('toHour: ' + toHour)
+
+            // Creating time input elements with the initial values
+            var fromInput = $('<input>', {
+                type: 'time',
+                class: 'form-control',
+                value: fromHour
+            });
+
+            var toInput = $('<input>', {
+                type: 'time',
+                class: 'form-control',
+                value: toHour
+            });
+
+            fromHourSpan.html(fromInput);
+            toHourSpan.html(toInput);
+        });
+
+        $("#editButton").addClass('d-none');
+        $("#saveButton").removeClass('d-none');
+        $("#cancelButton").removeClass('d-none');
+    });
+    $("#cancelButton").click(function() {
+        $("#businessHours .hour-entry").each(function() {
+            var weekday = $(this).data('weekday');
+            $(this).find('.from-hour').html(originalHours[weekday].from);
+            $(this).find('.to-hour').html(originalHours[weekday].to);
+        });
+
+        $("#editButton").removeClass('d-none');
+        $("#saveButton").addClass('d-none');
+        $("#cancelButton").addClass('d-none');
+    });
+
+    $("#saveButton").click(function() {
+        var newHours = {};
+        $("#businessHours .hour-entry").each(function() {
+            var weekday = $(this).data('weekday');
+            var fromHour = $(this).find('.from-hour input').val();
+            var toHour = $(this).find('.to-hour input').val();
+
+            newHours[weekday] = { from: fromHour, to: toHour };
+        });
+
+        $.post('/update_business_hours/', {hours: newHours}, function(response) {
+            if(response.success) {
+                $("#businessHours .hour-entry").each(function() {
+                    var weekday = $(this).data('weekday');
+                    $(this).find('.from-hour').text(newHours[weekday].from);
+                    $(this).find('.to-hour').text(newHours[weekday].to);
+                });
+
+                $("#editButton").removeClass('d-none');
+                $("#saveButton").addClass('d-none');
+                $("#cancelButton").addClass('d-none');
+            } else {
+                // Handle error
+                alert("There was an error saving the new hours.");
+            }
+        });
+    });
+
+    $("#addSpecialDayButton").click(function() {
+        $(this).addClass('d-none'); // Hide "Add New" button
+        $("#addSpecialDayForm").removeClass('d-none'); // Show inputs and buttons
+    });
+
+    $("#cancelNewSpecialDay").click(function() {
+        $("#addSpecialDayForm").addClass('d-none'); // Hide form
+        $("#addSpecialDayButton").removeClass('d-none'); // Show "Add New" button
+        // Reset inputs
+        $("#newDate").val('');
+        $("#newFromHour").val('');
+        $("#newToHour").val('');
+    });
+
+    $("#commitNewSpecialDay").click(function() {
+        var newDate = $("#newDate").val();
+        var newFromHour = $("#newFromHour").val();
+        var newToHour = $("#newToHour").val();
+
+        // Post the new hours to the server
+        $.post('/path_to_your_endpoint/', {
+            date: newDate,
+            from_hour: newFromHour,
+            to_hour: newToHour
+            // Add any other required data
+        }, function(response) {
+            if(response.success) {
+                // Reload the section or dynamically update the list without reloading...
+                $("#addSpecialDayForm").addClass('d-none');
+                $("#addSpecialDayButton").removeClass('d-none');
+                // Optionally reset form inputs
+                $("#newDate").val('');
+                $("#newFromHour").val('');
+                $("#newToHour").val('');
+            } else {
+                // Handle errors, such as displaying a message to the user
+                alert("Error saving the new special day.");
+            }
+        });
+    });
+
+    // Function to make a day entry editable
+    function makeEditable($row) {
+        var currentDate = $row.find('.date').text().trim();
+        var currentFromHour = $row.find('.from-hour').text().trim();
+        var currentToHour = $row.find('.to-hour').text().trim();
+
+        $row.data('original-date', currentDate);
+        $row.data('original-from-hour', currentFromHour);
+        $row.data('original-to-hour', currentToHour);
+
+        $row.find('.date').html(`<input type="date" value="${currentDate}" class="form-control">`);
+        $row.find('.from-hour').html(`<input type="time" value="${currentFromHour}" class="form-control">`);
+        $row.find('.to-hour').html(`<input type="time" value="${currentToHour}" class="form-control">`);
+        $row.find('.edit-actions').removeClass('d-none');
+        $row.find('.dropdown').addClass('d-none');
+    }
+
+    // Delete Action
+    $(".delete-day").click(function(e) {
+        e.preventDefault();
+        var $row = $(this).closest('.special-day-entry');
+        var dayId = $row.data('day-id');
+        // Placeholder for delete endpoint
+        $.post('/delete_special_day/', {id: dayId}, function(response) {
+            if(response.success) {
+                $row.remove(); // Remove the row from the DOM
+            } else {
+                alert("Error deleting the special day.");
+            }
+        });
+    });
+
+    // Edit Action
+    $(".edit-day").click(function(e) {
+        e.preventDefault();
+        var $row = $(this).closest('.special-day-entry');
+        makeEditable($row);
+    });
+
+    // Confirm Edit Action
+    $(".commit-edit").click(function() {
+        var $row = $(this).closest('.special-day-entry');
+        var newDate = $row.find('input[type="date"]').val();
+        var newFromHour = $row.find('input[type="time"]').first().val();
+        var newToHour = $row.find('input[type="time"]').last().val();
+        var dayId = $row.data('day-id');
+        
+        // Placeholder for update endpoint
+        $.post('/update_special_day/', {id: dayId, date: newDate, from_hour: newFromHour, to_hour: newToHour}, function(response) {
+            if(response.success) {
+                $row.find('.date').text(newDate);
+                $row.find('.from-hour').text(newFromHour);
+                $row.find('.to-hour').text(newToHour);
+                $row.find('.edit-actions').addClass('d-none');
+                $row.find('.dropdown').removeClass('d-none');
+            } else {
+                alert("Error updating the special day.");
+            }
+        });
+    });
+
+    $(".cancel-edit").click(function() {
+        var $row = $(this).closest('.special-day-entry');
+        // Retrieve the original text values stored in the jQuery data
+        var originalDate = $row.data('original-date');
+        var originalFromHour = $row.data('original-from-hour');
+        var originalToHour = $row.data('original-to-hour');
+
+        // Update the HTML of the date, from-hour, and to-hour spans to show the original text
+        $row.find('.date').html(`<span>${originalDate}</span>`);
+        $row.find('.from-hour').html(`<span>${originalFromHour}</span>`);
+        $row.find('.to-hour').html(`<span>${originalToHour}</span>`);
+
+        // Hide the edit actions (save and cancel buttons) and show the dropdown again
+        $row.find('.edit-actions').addClass('d-none');
+        $row.find('.dropdown').removeClass('d-none');
+    });
+
+});    
+</script>
+
+{% endblock extra_script %}

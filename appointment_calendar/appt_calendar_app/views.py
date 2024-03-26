@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404
-from .forms import AppointmentForm, SignUpForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
+from .forms import AppointmentForm, SignUpForm, AppointmentCancelForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import Appointment, Event, Account, Invitee, CustomUser, OpenningTime, SpecialDay
@@ -14,7 +14,84 @@ import time
 from .libs.send_emails import gmail_send, gmail_compose, gmail_credentials
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
+from django.views.generic import View
+
+class AppointmentCancelView(UpdateView):
+    model = Appointment    
+    template_name = "appointments/cancel_appointment.html"
+    form_class = AppointmentCancelForm
+
+class AppointmentView(View):
+    show_cancel_button = False
+    
+    def get(self, request, *args, **kwargs):
+        appointment_id = kwargs.get('appointment_id')
+        appointment = get_object_or_404(Appointment, id=appointment_id)
+        return render(request, 'appointments/appointment_detail.html', {
+            'appointment': appointment,
+            'show_cancel_button': self.show_cancel_button
+        })
+
+    def post(self, request, *args, **kwargs):
+        appointment_id = request.POST.get('appointment_id')
+        appointment = get_object_or_404(Appointment, id=appointment_id)
+        if appointment.status != 'CANCELLED':
+            appointment.status = 'CANCELLED'
+            appointment.save()
+            response = {'status': 'success', 'message': 'Appointment cancelled successfully'}
+        else:
+            response = {'status': 'failed', 'message': 'Appointment already cancelled'}
+        return JsonResponse(response)
+    
+class BusinessWorkerView(View):
+    show_remove_button = False
+    
+    def get(self, request, *args, **kwargs):
+        worker_id = kwargs.get('worker_id')
+        account_id = kwargs.get('account_id')
+        worker = get_object_or_404(CustomUser, id=worker_id)
+        account = get_object_or_404(Account, id=account_id)
+        if worker in account.account_workers.all():
+            # Events the worker has assign for a particular business
+            events = Event.objects.filter(account_id=account_id, event_workers__id=worker_id)
+            # Appointments for that user for this business in the next 30 days
+            today = datetime.today()
+            end_date = today + timedelta(days=30)
+            appointments = Appointment.objects.filter(worker_id = worker_id, event__account = account, date__gte = today, date__lte = end_date)
+            # group appointments by date
+            grouped_appointments = {}
+            for appt in appointments:
+                if appt.date in grouped_appointments:
+                    grouped_appointments[appt.date].append(appt)
+                else:
+                    grouped_appointments[appt.date] = [appt]
+
+            return render(request, 'worker_detail.html', {
+                'worker': worker,
+                'events': events,
+                'appointments': grouped_appointments,
+                'account_id': account_id,
+                'show_remove_button': self.show_remove_button
+            })
+        else:
+            raise Exception("Error: The worker is not assigned to the account")
+
+    def post(self, request, *args, **kwargs):
+        worker_id = self.kwargs['worker_id']
+        account_id = self.kwargs['account_id'] 
+        worker = get_object_or_404(CustomUser, id=worker_id)
+        account = get_object_or_404(Account, id=account_id)
+        if worker in account.account_workers.all():
+            account.account_workers.remove(worker)
+            # TODO: Remove the worker from the events for that business
+            response = {'status': 'success', 'message': 'Worker removed successfully from your business'}
+        else:
+            response = {'status': 'failed', 'message': 'Appointment already cancelled'}
+
+        return JsonResponse(response)
+    
 
 def addMins(tm, mins):
     fulldate = datetime(100, 1, 1, tm.hour, tm.minute, tm.second)
@@ -196,7 +273,7 @@ class BookingCreateWizardView(SessionWizardView):
         return render(self.request, 'appointments/appointment_done.html', {
             "progress_width": "100"
         })        
-
+'''
 def appointment(request, business_id, event_id):
     if request.method == 'POST':
         form = AppointmentForm(request.POST, business_id = business_id, event_id = event_id)
@@ -226,15 +303,15 @@ def appointment(request, business_id, event_id):
                 from_email=settings.EMAIL_HOST_USER,
                 recipient_list=['farrones@yahoo.com']
             )
-            '''
+            
             # Testing send emails with OAuth2
-            mail_subject = "Test Email"
-            mail_body = "Hola nen!"
-            creds = gmail_credentials()
-            email_recipient = 'farrones@yahoo.com'
-            mail_content = gmail_compose(mail_subject, email_recipient, mail_body)
-            gmail_send(creds, mail_content)           
-            '''
+            #mail_subject = "Test Email"
+            #mail_body = "Hola nen!"
+            #creds = gmail_credentials()
+            #email_recipient = 'farrones@yahoo.com'
+            #mail_content = gmail_compose(mail_subject, email_recipient, mail_body)
+            #gmail_send(creds, mail_content)           
+            
 
             return HttpResponse('Form successfully submitted') 
 
@@ -242,7 +319,7 @@ def appointment(request, business_id, event_id):
         form = AppointmentForm(business_id = business_id, event_id = event_id)
         context = {'form': form}
         return render(request, 'appointment.html', context)
-
+'''
 class DashboardView(ListView):
     context_object_name = 'accounts'
     template_name = 'dashboard.html'
@@ -297,13 +374,26 @@ def add_business(request):
         return render(request, 'business/add_business.html', context)
     
 def view_business(request, business_id = -1):
-    business = Account.objects.filter(pk=business_id).values()
-    business_hours = OpenningTime.objects.filter(account = business_id).values()
-    special_days = SpecialDay.objects.filter(account = business_id).values()
+    business = Account.objects.get(pk=business_id)
+    business_hours = OpenningTime.objects.filter(account = business_id)
+    special_days = SpecialDay.objects.filter(account = business_id)
+    events = Event.objects.filter(account_id=business_id)
 
+    for business_hour in business_hours:
+        business_hour.to_hour = business_hour.to_hour.strftime('%H:%M')
+        business_hour.from_hour = business_hour.from_hour.strftime('%H:%M')
+
+    for special_day in special_days:
+        special_day.to_hour = special_day.to_hour.strftime('%H:%M')
+        special_day.from_hour = special_day.from_hour.strftime('%H:%M')
+
+    print(business_hours[0].from_hour)
+    
     context = {'business' : business,
                'business_hours' : business_hours,
-               'special_days' : special_days}
+               'special_days' : special_days,
+               'events' : events}
+               
     return render(request, 'business/view_business.html', context) 
 
 def add_business_event(request, business_id = -1):
