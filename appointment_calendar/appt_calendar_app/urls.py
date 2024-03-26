@@ -15,4 +15,6 @@ urlpatterns = [
     path("view_business/<int:business_id>/", views.view_business, name="view_business"),
     path("add_business_event/<int:business_id>/", views.add_business_event, name="add_business_event"),
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
+    path("business_hour/<int:id>", views.BusinessHourView.as_view(), name="business_hour"),
+    path("business_hour/", views.BusinessHourView.as_view(), name="business_hour_no_param"),
 ] 

@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse, Http404
 from .forms import AppointmentForm, SignUpForm, AppointmentCancelForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
 from django.conf import settings
 from django.core.mail import send_mail
-from .models import Appointment, Event, Account, Invitee, CustomUser, OpenningTime, SpecialDay
+from .models import Appointment, Event, Account, Invitee, CustomUser, OpenningTime, SpecialDay, WEEKDAYS
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core import serializers
@@ -17,6 +17,42 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.views.generic import View
+
+class BusinessHourView(View):
+    def post(self, request, *args, **kwargs):
+        
+        hour_id = kwargs.get('id', None)
+        weekday = request.POST.get('weekday')
+        from_hour = request.POST.get('from_hour')
+        to_hour = request.POST.get('to_hour')
+        account_id = request.POST.get('account_id')
+
+        print(f'hour_id: {hour_id}' )
+        print(f'id: {hour_id}' )
+        print(f'weekday: {weekday}' )
+        print(f'from_hour: {from_hour}' )
+        print(f'to_hour: {to_hour}' )
+        print(f'account_id: {account_id}' )
+
+        if hour_id:
+            # Update existing hour
+            opening_time = get_object_or_404(OpenningTime, pk=hour_id)
+            opening_time.weekday = weekday
+            opening_time.from_hour = from_hour
+            opening_time.to_hour = to_hour
+        else:
+            # Create new hour
+            account = get_object_or_404(Account, pk=account_id)
+            opening_time = OpenningTime(account=account, weekday=weekday, from_hour=from_hour, to_hour=to_hour)
+        
+        opening_time.save()
+        return JsonResponse({'success': True, 'hour_id': opening_time.pk})
+
+    def delete(self, request, id, *args, **kwargs):
+        print(f'---------> {id}' )
+        opening_time = get_object_or_404(OpenningTime, pk=id)
+        opening_time.delete()
+        return JsonResponse({'success': True})
 
 class AppointmentCancelView(UpdateView):
     model = Appointment    
@@ -380,6 +416,7 @@ def view_business(request, business_id = -1):
     events = Event.objects.filter(account_id=business_id)
 
     for business_hour in business_hours:
+        print(f'Day: {business_hour}')
         business_hour.to_hour = business_hour.to_hour.strftime('%H:%M')
         business_hour.from_hour = business_hour.from_hour.strftime('%H:%M')
 
@@ -392,7 +429,8 @@ def view_business(request, business_id = -1):
     context = {'business' : business,
                'business_hours' : business_hours,
                'special_days' : special_days,
-               'events' : events}
+               'events' : events,
+               'available_days': WEEKDAYS}
                
     return render(request, 'business/view_business.html', context) 
 

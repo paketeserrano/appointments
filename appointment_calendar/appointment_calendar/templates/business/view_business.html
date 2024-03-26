@@ -75,164 +75,298 @@
       </div>
     <br>
     
-    <div class="container mt-5">
+    <div class="container mt-5" id="businessHours">
         <h2>Business Hours</h2>
-        <div class="d-flex justify-content-end align-items-center mb-3">            
-            <div class="button-group">
-                <button id="editButton" class="btn btn-primary">
-                    <i class="fas fa-edit"></i> Edit
+        {% for hour in business_hours %}
+        <div class="table-row hour-entry" data-hour-id="{{ hour.id }}" data-url="{% url 'business_hour' hour.id %}">
+            <span class="weekday">{{ hour.get_weekday_display }}</span>
+            <span class="from-hour">{{ hour.from_hour }}</span>
+            <span class="to-hour">{{ hour.to_hour }}</span>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v"></i>
                 </button>
-                <button id="saveButton" class="btn btn-success d-none">
-                    <i class="fas fa-check"></i> Save
-                </button>
-                <button id="cancelButton" class="btn btn-danger d-none">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item delete-hour" href="#">Delete</a></li>
+                    <li><a class="dropdown-item edit-hour" href="#">Edit</a></li>
+                </ul>
+            </div>
+            <div class="edit-actions d-none">
+                <button class="btn btn-success commit-hour-edit">Save</button>
+                <button class="btn btn-danger cancel-hour-edit">Cancel</button>
             </div>
         </div>
-        
-    
-        <div id="businessHours">
-            {% for hour in business_hours %}
-                <div class="row mb-2 hour-entry" data-weekday="{{ hour.weekday }}">
-                    <div class="col-4">
-                        <span class="weekday">{{ hour.weekday }}</span>
-                    </div>
-                    <div class="col-4">
-                        <span class="from-hour">{{ hour.from_hour }}</span>
-                    </div>
-                    <div class="col-4">
-                        <span class="to-hour">{{ hour.to_hour }}</span>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>    
-        <br>
-        <!-- Days Closed or Holidays Section -->
-        <div class="container mt-5" id="specialDays">
-            <h2>Days Closed or Holidays</h2>
-            {% for day in special_days %}
-                <div class="table-row special-day-entry" data-day-id="{{ day.id }}">
-                    <span class="date">{{ day.date }}</span> <!-- Added class="date" -->
-                    <span class="from-hour">{{ day.from_hour }}</span> <!-- Added class="from-hour" -->
-                    <span class="to-hour">{{ day.to_hour }}</span> <!-- Added class="to-hour" -->                
-                    <!-- Dropdown Button -->
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
-                            <li><a class="dropdown-item delete-day" href="#">Delete</a></li>
-                            <li><a class="dropdown-item edit-day" href="#">Edit</a></li>
-                        </ul>
-                    </div>
-                    <!-- Edit and Delete Actions -->
-                    <div class="edit-actions d-none">
-                        <button class="btn btn-success commit-edit">Save</button>
-                        <button class="btn btn-danger cancel-edit">Cancel</button>
-                    </div>
-                </div>
-                </div>
-            {% endfor %}
-            <button id="addSpecialDayButton" class="btn btn-primary mt-3">
-                <i class="fas fa-plus"></i> Add New
-            </button>
-            <div id="addSpecialDayForm" class="d-none mt-3">
-                <div class="table-row">
-                    <input type="date" id="newDate" class="form-control">
-                    <input type="time" id="newFromHour" class="form-control">
-                    <input type="time" id="newToHour" class="form-control">
-                </div>
-                <button id="commitNewSpecialDay" class="btn btn-success mt-2">Commit</button>
-                <button id="cancelNewSpecialDay" class="btn btn-danger mt-2">Cancel</button>
+        {% endfor %}
+        <button id="addHourButton" class="btn btn-primary mt-3">
+            <i class="fas fa-plus"></i> Add New
+        </button>
+        <div id="addHourForm" class="d-none mt-3">
+            <div class="table-row">
+                <select class="form-control" id="newWeekday">
+                    {% for available_day in available_days %}
+                        <option value="{{available_day.0}}">{{available_day.1}}</option>
+                    {%endfor%}
+                </select>
+                <input type="time" id="newFromHour" class="form-control">
+                <input type="time" id="newToHour" class="form-control">
             </div>
+            <button id="commitNewHour" class="btn btn-success mt-2">Commit</button>
+            <button id="cancelNewHour" class="btn btn-danger mt-2">Cancel</button>
         </div>
-
     </div>
+    <br>
+    <!-- Days Closed or Holidays Section -->
+    <div class="container mt-5" id="specialDays">
+        <h2>Days Closed or Holidays</h2>
+        {% for day in special_days %}
+            <div class="table-row special-day-entry" data-day-id="{{ day.id }}">
+                <span class="date">{{ day.date }}</span> <!-- Added class="date" -->
+                <span class="from-hour">{{ day.from_hour }}</span> <!-- Added class="from-hour" -->
+                <span class="to-hour">{{ day.to_hour }}</span> <!-- Added class="to-hour" -->                
+                <!-- Dropdown Button -->
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
+                        <li><a class="dropdown-item delete-day" href="#">Delete</a></li>
+                        <li><a class="dropdown-item edit-day" href="#">Edit</a></li>
+                    </ul>
+                </div>
+                <!-- Edit and Delete Actions -->
+                <div class="edit-actions d-none">
+                    <button class="btn btn-success commit-edit">Save</button>
+                    <button class="btn btn-danger cancel-edit">Cancel</button>
+                </div>
+            </div>
+        {% endfor %}
+        <button id="addSpecialDayButton" class="btn btn-primary mt-3">
+            <i class="fas fa-plus"></i> Add New
+        </button>
+        <div id="addSpecialDayForm" class="d-none mt-3">
+            <div class="table-row">
+                <input type="date" id="newDate" class="form-control">
+                <input type="time" id="newDateFromHour" class="form-control">
+                <input type="time" id="newDateToHour" class="form-control">
+            </div>
+            <button id="commitNewSpecialDay" class="btn btn-success mt-2">Commit</button>
+            <button id="cancelNewSpecialDay" class="btn btn-danger mt-2">Cancel</button>
+        </div>
+    </div>
+    
 {% endblock %}
 
 {% block extra_script %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
-$(document).ready(function() {
-    var originalHours = {};
+    available_week_days = []
+    {% for day in available_days %}
+        available_week_days.push({'id' : {{day.0}} , 'label' : '{{day.1}}' })
+    {%endfor%}
 
-    $("#editButton").click(function() {
-        originalHours = {}; // Reset original hours
-        $("#businessHours .hour-entry").each(function() {
-            var weekday = $(this).data('weekday');
-            var fromHourSpan = $(this).find('.from-hour');
-            var toHourSpan = $(this).find('.to-hour');
-            var fromHour = fromHourSpan.text().trim();
-            var toHour = toHourSpan.text().trim();
+$(document).ready(function() {    
 
-            console.log('fromHour: ' + fromHour)
-            console.log('toHour: ' + toHour)
+    function makeHoursEditable($row) {
+        var weekday = $row.find('.weekday').text().trim();
+        var fromHour = $row.find('.from-hour').text().trim();
+        var toHour = $row.find('.to-hour').text().trim();
 
-            originalHours[weekday] = { from: fromHour, to: toHour };
+        // Store original values
+        $row.data('original', {weekday: weekday, fromHour: fromHour, toHour: toHour});
 
-            console.log('fromHour: ' + fromHour)
-            console.log('toHour: ' + toHour)
+        weekday_control_html = '<select class="form-control">'
+        for (i = 0; i < available_week_days.length; i++){
+            selected = ''
+            if (available_week_days[i]["label"] == weekday){
+                selected = 'selected'
+            }
+            weekday_control_html += '<option ' + selected + ' value="' + available_week_days[i]["id"] + '">' + available_week_days[i]["label"] + '</option>'
+        }           
 
-            // Creating time input elements with the initial values
-            var fromInput = $('<input>', {
-                type: 'time',
-                class: 'form-control',
-                value: fromHour
-            });
+        $row.find('.weekday').html(weekday_control_html);
+        $row.find('.from-hour').html('<input type="time" class="form-control" value="' + fromHour + '">');
+        $row.find('.to-hour').html('<input type="time" class="form-control" value="' + toHour + '">');
 
-            var toInput = $('<input>', {
-                type: 'time',
-                class: 'form-control',
-                value: toHour
-            });
+        // Show Save and Cancel buttons
+        $row.find('.edit-actions').removeClass('d-none');
+        $row.find('.dropdown').addClass('d-none');
+    }
 
-            fromHourSpan.html(fromInput);
-            toHourSpan.html(toInput);
-        });
-
-        $("#editButton").addClass('d-none');
-        $("#saveButton").removeClass('d-none');
-        $("#cancelButton").removeClass('d-none');
-    });
-    $("#cancelButton").click(function() {
-        $("#businessHours .hour-entry").each(function() {
-            var weekday = $(this).data('weekday');
-            $(this).find('.from-hour').html(originalHours[weekday].from);
-            $(this).find('.to-hour').html(originalHours[weekday].to);
-        });
-
-        $("#editButton").removeClass('d-none');
-        $("#saveButton").addClass('d-none');
-        $("#cancelButton").addClass('d-none');
+    // Edit business hour
+    $(document).on('click', '.edit-hour', function() {
+        var $row = $(this).closest('.hour-entry');
+        makeHoursEditable($row);
     });
 
-    $("#saveButton").click(function() {
-        var newHours = {};
-        $("#businessHours .hour-entry").each(function() {
-            var weekday = $(this).data('weekday');
-            var fromHour = $(this).find('.from-hour input').val();
-            var toHour = $(this).find('.to-hour input').val();
+    // Cancel edit
+    $(document).on('click', '.cancel-hour-edit', function() {
+        var $row = $(this).closest('.hour-entry');
+        var original = $row.data('original');
 
-            newHours[weekday] = { from: fromHour, to: toHour };
-        });
+        // Restore original values
+        $row.find('.weekday').html('<span>' + original.weekday + '</span>');
+        $row.find('.from-hour').html('<span>' + original.fromHour + '</span>');
+        $row.find('.to-hour').html('<span>' + original.toHour + '</span>');
 
-        $.post('/update_business_hours/', {hours: newHours}, function(response) {
+        // Hide Save and Cancel buttons, show dropdown
+        $row.find('.edit-actions').addClass('d-none');
+        $row.find('.dropdown').removeClass('d-none');
+    });
+
+    // Commit edit
+    $(document).on('click', '.commit-hour-edit', function() {
+        var $row = $(this).closest('.hour-entry');
+        var hourId = $row.data('hour-id');
+        var url = $row.data('url');
+        var weekday = $row.find('.weekday select').val();
+        var fromHour = $row.find('.from-hour input').val();
+        var toHour = $row.find('.to-hour input').val();
+
+        console.log('hourId: ' + hourId )
+        console.log('weekday: ' + weekday )
+        console.log('fromHour: ' + fromHour )
+        console.log('toHour: ' + toHour )
+
+        // Post to server
+        $.post(url, {
+            weekday: weekday,
+            from_hour: fromHour,
+            to_hour: toHour,
+            account_id: {{business.id}},
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+        }, function(response) {
             if(response.success) {
-                $("#businessHours .hour-entry").each(function() {
-                    var weekday = $(this).data('weekday');
-                    $(this).find('.from-hour').text(newHours[weekday].from);
-                    $(this).find('.to-hour').text(newHours[weekday].to);
-                });
+                // Update the display
+                weekday_label = weekday
+                for (i = 0; i < available_week_days.length; i++){
+                    if (available_week_days[i]["id"] == weekday){
+                        weekday_label = available_week_days[i]["label"]
+                    }
+                }     
+                $row.find('.weekday').html('<span>' + weekday_label + '</span>');
+                $row.find('.from-hour').html('<span>' + fromHour + '</span>');
+                $row.find('.to-hour').html('<span>' + toHour + '</span>');
 
-                $("#editButton").removeClass('d-none');
-                $("#saveButton").addClass('d-none');
-                $("#cancelButton").addClass('d-none');
+                // Hide Save and Cancel buttons, show dropdown
+                $row.find('.edit-actions').addClass('d-none');
+                $row.find('.dropdown').removeClass('d-none');
             } else {
-                // Handle error
-                alert("There was an error saving the new hours.");
+                alert("Error updating the business hour.");
             }
         });
+    });
+
+    // Add new business hour
+    $("#addHourButton").click(function() {
+        $("#addHourForm").removeClass('d-none');
+        $(this).addClass('d-none');
+    });
+
+    // Cancel new hour
+    $("#cancelNewHour").click(function() {
+        $("#addHourForm").addClass('d-none');
+        $("#addHourButton").removeClass('d-none');
+        // Reset form values
+        $("#newWeekday").val('');
+        $("#newFromHour").val('');
+        $("#newToHour").val('');
+    });
+
+    $("#commitNewHour").click(function() {
+        var newDate = $("#newWeekday").val();
+        var newFromHour = $("#newFromHour").val();
+        var newToHour = $("#newToHour").val();
+
+        // Post the new hours to the server
+        $.post("{% url 'business_hour_no_param' %}", {
+            weekday: newDate,
+            from_hour: newFromHour,
+            to_hour: newToHour,
+            account_id: {{business.id}},
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            // Add any other required data
+        }, function(response) {
+            if(response.success) {
+                var weekdayText = $("#newWeekday option:selected").text();
+                var newHourHtml = `
+                <div class="table-row hour-entry" data-hour-id="${response.hour_id}">
+                    <span class="weekday">${weekdayText}</span>
+                    <span class="from-hour">${newFromHour}</span>
+                    <span class="to-hour">${newToHour}</span>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item delete-hour" href="#">Delete</a></li>
+                            <li><a class="dropdown-item edit-hour" href="#">Edit</a></li>
+                        </ul>
+                    </div>
+                    <div class="edit-actions d-none">
+                        <button class="btn btn-success commit-hour-edit">Save</button>
+                        <button class="btn btn-danger cancel-hour-edit">Cancel</button>
+                    </div>
+                </div>`;
+                
+                // Append the new entry to the business hours list
+                $("#addHourButton").before(newHourHtml);
+                
+                // Reset the form and hide it
+                $("#addHourForm").addClass('d-none');
+                $("#addHourButton").removeClass('d-none');
+                $("#newWeekday").val('');
+                $("#newFromHour").val('');
+                $("#newToHour").val('');
+            } else {
+                // Handle errors, such as displaying a message to the user
+                alert("Error saving the new special day.");
+            }
+        });
+    });
+
+    // Event handler for Delete action
+    $(document).on('click', '.delete-hour', function(e) {
+        e.preventDefault(); // Prevent default action of the anchor tag
+
+        var $row = $(this).closest('.hour-entry'); // Get the closest hour entry row
+        var hourId = $row.data('hour-id'); // Assume each hour entry has a data-hour-id attribute
+        var url = $row.data('url');
+        console.log('hourId: ' + hourId)
+
+        // Show confirmation dialog
+        var confirmDelete = confirm("Are you sure you want to delete this business hour?");
+        if (confirmDelete) {
+            // User confirmed deletion
+            $.ajax({
+                url: url,
+                method: 'DELETE', // Specifying the method as DELETE
+                data: {
+                    account_id: {{business.id}}
+                    // Include any other necessary data
+                },
+                headers: {
+                    'X-CSRFToken': '{{csrf_token}}' // Include the CSRF token in the request header
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Successfully deleted on the server, now remove the row
+                        $row.remove();
+                        alert("Business hour deleted successfully.");
+                    } else {
+                        // Handle failure
+                        alert("Error: Could not delete the business hour.");
+                    }
+                },
+                error: function() {
+                    // Handle AJAX failure
+                    alert("Error communicating with the server.");
+                }
+            });
+        } 
+        else {
+            // User canceled deletion
+            console.log("Deletion canceled.");
+        }
     });
 
     $("#addSpecialDayButton").click(function() {
@@ -245,20 +379,20 @@ $(document).ready(function() {
         $("#addSpecialDayButton").removeClass('d-none'); // Show "Add New" button
         // Reset inputs
         $("#newDate").val('');
-        $("#newFromHour").val('');
-        $("#newToHour").val('');
+        $("#newDateFromHour").val('');
+        $("#newDateToHour").val('');
     });
 
     $("#commitNewSpecialDay").click(function() {
         var newDate = $("#newDate").val();
-        var newFromHour = $("#newFromHour").val();
-        var newToHour = $("#newToHour").val();
+        var newDateFromHour = $("#newDateFromHour").val();
+        var newDateToHour = $("#newDateToHour").val();
 
         // Post the new hours to the server
         $.post('/path_to_your_endpoint/', {
             date: newDate,
-            from_hour: newFromHour,
-            to_hour: newToHour
+            from_hour: newDateFromHour,
+            to_hour: newDateToHour
             // Add any other required data
         }, function(response) {
             if(response.success) {
@@ -267,8 +401,8 @@ $(document).ready(function() {
                 $("#addSpecialDayButton").removeClass('d-none');
                 // Optionally reset form inputs
                 $("#newDate").val('');
-                $("#newFromHour").val('');
-                $("#newToHour").val('');
+                $("#newDateFromHour").val('');
+                $("#newDateToHour").val('');
             } else {
                 // Handle errors, such as displaying a message to the user
                 alert("Error saving the new special day.");
