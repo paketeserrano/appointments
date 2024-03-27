@@ -1,16 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 
 {% block content %}
-<div style="float:right"><p>Hello, {{ user.username|default:'Guest' }}!</p></div>
-<div><a href="{% url 'add_business'%}">Add Business</a></div>
-<br>
 
-<h1>Your Businesses</h1>
-<ul>
-    {% for business in accounts %}
-        <li><a href="{% url 'view_business' business.id %}">{{business.name}}</a></li>
-    {% endfor %}
-</ul>
 <h1>Your Appointments</h1>
 
 <div class="accordion" id="userAppointments">
@@ -43,6 +34,17 @@
       </div>
   </div>
 {% endfor %}
+
+<div><a href="{% url 'add_business'%}">Add Business</a></div>
+<br>
+
+<h1>Your Businesses</h1>
+<ul>
+    {% for business in accounts %}
+        <li><a href="{% url 'view_business' business.id %}">{{business.name}}</a></li>
+    {% endfor %}
+</ul>
+
 </div>
 
 {% endblock %}

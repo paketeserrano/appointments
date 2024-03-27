@@ -16,7 +16,56 @@ from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
-from django.views.generic import View
+from django.views.generic import View, DetailView
+from django.contrib.auth.views import LoginView
+
+class EventDetailView(DetailView):
+    model = Event
+    template_name = 'events/event_details.html'  
+    context_object_name = 'event'
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+    redirect_authenticated_user = True  # Redirect users who are already logged in
+    next_page = reverse_lazy('dashboard')  # Redirect to dashboard after login
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add custom context here
+        return context
+    
+class LoggedOutView(TemplateView):
+    template_name = 'registration/logged_out.html'
+
+class UserProfileView(TemplateView):
+    template_name = 'users/profile.html'
+
+class AccountListView(ListView):
+    show_dropdown = False
+    model = Account
+    context_object_name = 'accounts'
+
+    def get(self, request, *args, **kwargs):
+        # Get the user's accounts
+        user_accounts = self.get_queryset()
+        # If only one account is assigned, redirect to that account's detail page
+        if user_accounts.count() == 1 and self.show_dropdown:
+            return redirect('appointment_wizard', business_id=user_accounts.first().pk) 
+        
+        # Otherwise, continue with the normal flow
+        return super(AccountListView, self).get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        if self.show_dropdown:
+            return ['business/business_list_for_appointment.html']
+        else:
+            self.paginate_by = 10
+            return ['business/business_list.html']
+
+    def get_queryset(self):
+        # Assuming you have a method to get the custom user
+        user = CustomUser.objects.get(user=self.request.user)
+        return Account.objects.filter(admins=user)
 
 class SpecialDayView(View):
     def post(self, request, *args, **kwargs):
@@ -439,13 +488,20 @@ def add_business(request):
     if request.method == 'POST':
         form = CreateAccountForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('/')
-        pass
-    elif request.method == 'GET':
+            # Save the form to create an Account object but do not commit to the database yet
+            new_account = form.save(commit=False)
+            new_account.save()  # Save the new Account object to the database
+            # Add the current user as an admin of the new account
+            new_account.admins.add(CustomUser.objects.get(user=request.user))
+            # If there are many-to-many fields included in the form, save the form with commit=True to save those relationships
+            form.save_m2m()
+            return redirect('business-list')
+    else:
         form = CreateAccountForm()
-        context = {'form': form}
-        return render(request, 'business/add_business.html', context)
+
+    context = {'form': form}
+    return render(request, 'business/add_business.html', context)
+
     
 def view_business(request, business_id = -1):
     business = Account.objects.get(pk=business_id)
@@ -454,15 +510,12 @@ def view_business(request, business_id = -1):
     events = Event.objects.filter(account_id=business_id)
 
     for business_hour in business_hours:
-        print(f'Day: {business_hour}')
         business_hour.to_hour = business_hour.to_hour.strftime('%H:%M')
         business_hour.from_hour = business_hour.from_hour.strftime('%H:%M')
 
     for special_day in special_days:
         special_day.to_hour = special_day.to_hour.strftime('%H:%M')
         special_day.from_hour = special_day.from_hour.strftime('%H:%M')
-
-    print(business_hours[0].from_hour)
     
     context = {'business' : business,
                'business_hours' : business_hours,
@@ -476,8 +529,12 @@ def add_business_event(request, business_id = -1):
     if request.method == 'POST':
         form = CreateEventForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('/view_business/' + str(business_id))
+            new_event = form.save(commit=False)
+            business = Account.objects.get(pk=business_id)
+            new_event.account = business
+            new_event.save()
+            form.save_m2m()
+            return redirect('view_business', business_id = business_id)
         
     elif request.method == 'GET':
         form = CreateEventForm()

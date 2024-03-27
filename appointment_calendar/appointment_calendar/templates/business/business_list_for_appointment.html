@@ -1,0 +1,29 @@
+{% extends 'base2.html' %}
+
+{% block content %}
+<h1>Add Appointment</h1>
+<h3>Select the business wher you want to add the appointment</h3>
+
+<div class="mb-3">
+    <select class="form-select" id="select_business_dropdown">
+        {% for account in accounts %}
+            <option value="{% url 'appointment_wizard' account.id %}">{{account.name}}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<button id="appointmentButton" class="btn btn-primary">Select</button>
+{% endblock content %}
+
+{% block extra_script %}
+
+<script>
+    $(document).ready(function(){
+        $('#appointmentButton').click(function(){
+            var url = $('#select_business_dropdown').val();
+            window.location.href = url
+        });
+    });
+</script>
+
+{% endblock extra_script %}

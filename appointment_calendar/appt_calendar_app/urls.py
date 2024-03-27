@@ -1,5 +1,7 @@
 from django.urls import path,include, re_path
 from . import views
+from django.contrib.auth.views import LogoutView
+from appointment_calendar import settings
 
 urlpatterns = [    
     path('appointment_wizard/<int:business_id>', views.BookingCreateWizardView.as_view(), name='appointment_wizard'),
@@ -19,4 +21,11 @@ urlpatterns = [
     path("business_hour/", views.BusinessHourView.as_view(), name="business_hour_no_param"),
     path('special_day/', views.SpecialDayView.as_view(), name='special_day_create'),
     path('special_day/<int:id>/', views.SpecialDayView.as_view(), name='special_day_update_delete'),
+    path('businesses/', views.AccountListView.as_view(show_dropdown = False), name='business-list'),
+    path('businesses/dropdown', views.AccountListView.as_view(show_dropdown = True), name='business_list_dropdown'),
+    path('logout/', LogoutView.as_view(next_page=settings.LOGOUT_REDIRECT_URL), name='logout'),
+    path('profile/', views.UserProfileView.as_view(), name='profile'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
+    path('logged_out/', views.LoggedOutView.as_view(), name='logged_out'),
+    path('events/<int:pk>/', views.EventDetailView.as_view(), name='event_detail'),
 ] 

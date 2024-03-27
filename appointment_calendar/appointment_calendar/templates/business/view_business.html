@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 
 {% block extra_css %}
 <style>
@@ -36,7 +36,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{event.name}}</h5>
                         <p class="card-text">{{event.duration}} mins</p>
-                        <a href="#" class="btn btn-link p-0" aria-label="View booking page">View event page</a>
+                        <a href="{% url 'event_detail' event.id %}" class="btn btn-link p-0" aria-label="View booking page">View event page</a>
                     </div>
                     <div class="card-footer">
                         <div class="form-check form-switch d-inline-block">
@@ -157,7 +157,6 @@
 {% endblock %}
 
 {% block extra_script %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
     available_week_days = []
     {% for day in available_days %}

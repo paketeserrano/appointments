@@ -112,7 +112,7 @@ class CreateAccountForm(forms.ModelForm):
 class CreateEventForm(forms.ModelForm):
     class Meta:
         model = Event 
-        fields = ['name', 'duration', 'location', 'account', 'event_workers'] 
+        fields = ['name', 'description', 'duration', 'location', 'event_workers'] 
 
 class AppointmentCancelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

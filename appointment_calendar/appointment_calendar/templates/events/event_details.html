@@ -1,0 +1,130 @@
+{% extends 'base2.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="event-details">
+      <h2>Details</h2>
+      
+      <!-- Name Field -->
+      <div class="form-group">
+        <div class="row">
+          <label for="name" class="col-12 col-md-3 col-form-label">Name:</label>
+          <div class="col-12 col-md-7">
+            <input type="text" readonly class="form-control-plaintext" id="name" value="{{ event.name }}">
+          </div>
+          <div class="col-12 col-md-2 text-right">
+            <button id="edit-name" onclick="edit('name')" class="btn btn-primary btn-sm">Edit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description Field -->
+      <div class="form-group">
+        <div class="row">
+          <label for="description" class="col-12 col-md-3 col-form-label">Description:</label>
+          <div class="col-12 col-md-7">
+            <input type="text" readonly class="form-control-plaintext" id="description" value="{{ event.description }}">
+          </div>
+          <div class="col-12 col-md-2 text-right">
+            <button id="edit-description" onclick="edit('description')" class="btn btn-primary btn-sm">Edit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Duration Field -->
+      <div class="form-group">
+        <div class="row">
+          <label for="duration" class="col-12 col-md-3 col-form-label">Duration (mins):</label>
+          <div class="col-12 col-md-7">
+            <input type="text" readonly class="form-control-plaintext" id="duration" value="{{ event.duration }}">
+          </div>
+          <div class="col-12 col-md-2 text-right">
+            <button id="edit-duration" onclick="edit('duration')" class="btn btn-primary btn-sm">Edit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Field -->
+      <div class="form-group">
+        <div class="row">
+          <label for="location" class="col-12 col-md-3 col-form-label">Location:</label>
+          <div class="col-12 col-md-7">
+            <input type="text" readonly class="form-control-plaintext" id="location" value="{{ event.location }}">
+          </div>
+          <div class="col-12 col-md-2 text-right">
+            <button id="edit-location" onclick="edit('location')" class="btn btn-primary btn-sm">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="event-workers">
+  <h2>Workers</h2>
+  <ul>
+    {% for worker in event.event_workers.all %}
+      <li>{{ worker.get_full_name }}</li>  
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock %}
+
+{% block extra_script %}
+
+<script>
+$(document).ready(function() {
+    $('button[id^="edit-"]').each(function() {
+        $(this).click(function() {
+            var fieldId = this.id.replace('edit-', '');
+            var $input = $('#' + fieldId);
+            var originalValue = $input.val();
+            $input.prop('readonly', false).removeClass('form-control-plaintext').addClass('form-control');
+
+            $(this).hide();
+
+            var saveBtn = $('<button>', {
+                text: 'Save',
+                class: 'btn btn-success btn-sm',
+                id: 'save-' + fieldId
+            }).click(function() { 
+                save(fieldId); 
+            });
+
+            var cancelBtn = $('<button>', {
+                text: 'Cancel',
+                class: 'btn btn-secondary btn-sm ml-2',
+                id: 'cancel-' + fieldId
+            }).click(function() { 
+                cancel(fieldId, originalValue); 
+            });
+
+            $(this).after(cancelBtn).after(saveBtn);
+        });
+    });
+});
+
+function save(fieldId) {
+    var $input = $('#' + fieldId);
+    // Here, you would typically make an AJAX call to your server to save the updated value
+    // For demonstration, we'll just log the value
+    console.log("Saving new value for " + fieldId + ": " + $input.val());
+
+    // Assuming the save was successful, revert UI
+    revertUI(fieldId, $input.val());
+}
+
+function cancel(fieldId, originalValue) {
+    // Revert UI without saving
+    revertUI(fieldId, originalValue);
+}
+
+function revertUI(fieldId, value) {
+    var $input = $('#' + fieldId);
+    $input.prop('readonly', true).removeClass('form-control').addClass('form-control-plaintext').val(value);
+    $('#edit-' + fieldId).show();
+    $('#save-' + fieldId).remove();
+    $('#cancel-' + fieldId).remove();
+}
+</script>
+
+{% endblock extra_script %}

@@ -41,6 +41,7 @@ class Invitee(models.Model):
 
 class Event(models.Model):
     name = models.CharField(max_length = 120)
+    description = models.CharField(max_length = 400, default='')
     duration = models.IntegerField()
     event_workers = models.ManyToManyField(CustomUser)
     # This field should contain the different locations options setup by the user
