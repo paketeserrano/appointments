@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse, Http404
+from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequest, HttpResponseNotFound
 from .forms import AppointmentForm, SignUpForm, AppointmentCancelForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
 from django.conf import settings
 from django.core.mail import send_mail
@@ -18,9 +18,47 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.views.generic import View
 
-class BusinessHourView(View):
+class SpecialDayView(View):
     def post(self, request, *args, **kwargs):
         
+        date = request.POST.get('date')
+        closed = request.POST.get('closed', False)
+        from_hour = request.POST.get('from_hour')
+        to_hour = request.POST.get('to_hour')
+        account_id = request.POST.get('account_id')
+
+        special_day_id = kwargs.get('id')
+
+        if special_day_id:
+            # Update existing SpecialDay
+            try:
+                special_day = SpecialDay.objects.get(pk=special_day_id)
+                special_day.date = date
+                special_day.closed = closed
+                special_day.from_hour = from_hour
+                special_day.to_hour = to_hour
+            except SpecialDay.DoesNotExist:
+                return HttpResponseNotFound(json.dumps({'error': 'SpecialDay not found'}), content_type="application/json")
+        else:
+            # Create new SpecialDay
+            account = get_object_or_404(Account, pk=account_id)
+            special_day = SpecialDay(account=account, date=date, closed=closed, from_hour=from_hour, to_hour=to_hour)
+
+        special_day.save()
+        return JsonResponse({'success': True, 'id': special_day.id})
+
+    def delete(self, request, *args, **kwargs):
+        special_day_id = kwargs.get('id')
+        if special_day_id is not None:
+            special_day = get_object_or_404(SpecialDay, pk=special_day_id)
+            special_day.delete()
+            return JsonResponse({'success': True})
+        else:
+            return HttpResponseBadRequest(json.dumps({'error': 'Missing SpecialDay id'}), content_type="application/json")
+
+class BusinessHourView(View):
+    def post(self, request, *args, **kwargs):
+
         hour_id = kwargs.get('id', None)
         weekday = request.POST.get('weekday')
         from_hour = request.POST.get('from_hour')

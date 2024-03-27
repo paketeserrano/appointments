@@ -17,4 +17,6 @@ urlpatterns = [
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
     path("business_hour/<int:id>", views.BusinessHourView.as_view(), name="business_hour"),
     path("business_hour/", views.BusinessHourView.as_view(), name="business_hour_no_param"),
+    path('special_day/', views.SpecialDayView.as_view(), name='special_day_create'),
+    path('special_day/<int:id>/', views.SpecialDayView.as_view(), name='special_day_update_delete'),
 ] 

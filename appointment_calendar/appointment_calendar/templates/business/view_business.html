@@ -119,7 +119,7 @@
     <div class="container mt-5" id="specialDays">
         <h2>Days Closed or Holidays</h2>
         {% for day in special_days %}
-            <div class="table-row special-day-entry" data-day-id="{{ day.id }}">
+            <div class="table-row special-day-entry" data-day-id="{{ day.id }}" data-url="{% url 'special_day_update_delete' day.id %}">
                 <span class="date">{{ day.date }}</span> <!-- Added class="date" -->
                 <span class="from-hour">{{ day.from_hour }}</span> <!-- Added class="from-hour" -->
                 <span class="to-hour">{{ day.to_hour }}</span> <!-- Added class="to-hour" -->                
@@ -389,17 +389,40 @@ $(document).ready(function() {
         var newDateToHour = $("#newDateToHour").val();
 
         // Post the new hours to the server
-        $.post('/path_to_your_endpoint/', {
+        $.post('{% url "special_day_create" %}', {
             date: newDate,
             from_hour: newDateFromHour,
-            to_hour: newDateToHour
-            // Add any other required data
-        }, function(response) {
+            to_hour: newDateToHour,
+            account_id: {{business.id}},
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }, function(response)  {
             if(response.success) {
-                // Reload the section or dynamically update the list without reloading...
+                // Dynamically create and insert the new special day entry above the "Add New" button
+                var newSpecialDayHtml = `<div class="table-row special-day-entry" data-day-id="${response.id}">
+                    <span class="date">${newDate}</span>
+                    <span class="from-hour">${newDateFromHour}</span>
+                    <span class="to-hour">${newDateToHour}</span>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item delete-day" href="#">Delete</a></li>
+                            <li><a class="dropdown-item edit-day" href="#">Edit</a></li>
+                        </ul>
+                    </div>
+                    <div class="edit-actions d-none">
+                        <button class="btn btn-success commit-edit">Save</button>
+                        <button class="btn btn-danger cancel-edit">Cancel</button>
+                    </div>
+                </div>`;
+
+                // Insert the new entry above the "Add New" button
+                $("#addSpecialDayButton").before(newSpecialDayHtml);
+
+                // Hide the form and reset form inputs
                 $("#addSpecialDayForm").addClass('d-none');
                 $("#addSpecialDayButton").removeClass('d-none');
-                // Optionally reset form inputs
                 $("#newDate").val('');
                 $("#newDateFromHour").val('');
                 $("#newDateToHour").val('');
@@ -407,7 +430,9 @@ $(document).ready(function() {
                 // Handle errors, such as displaying a message to the user
                 alert("Error saving the new special day.");
             }
-        });
+        }).fail(function() {
+            alert("Error communicating with the server.");
+        })
     });
 
     // Function to make a day entry editable
@@ -432,14 +457,41 @@ $(document).ready(function() {
         e.preventDefault();
         var $row = $(this).closest('.special-day-entry');
         var dayId = $row.data('day-id');
-        // Placeholder for delete endpoint
-        $.post('/delete_special_day/', {id: dayId}, function(response) {
-            if(response.success) {
-                $row.remove(); // Remove the row from the DOM
-            } else {
-                alert("Error deleting the special day.");
-            }
-        });
+        var url = $row.data('url');
+
+        // Show confirmation dialog
+        var confirmDelete = confirm("Are you sure you want to delete this day with special hours?");
+        if (confirmDelete) {
+            // User confirmed deletion
+            $.ajax({
+                url: url,
+                method: 'DELETE', 
+                data: {
+                    account_id: {{business.id}}
+                },
+                headers: {
+                    'X-CSRFToken': '{{csrf_token}}' // Include the CSRF token in the request header
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Successfully deleted on the server, now remove the row
+                        $row.remove();
+                        alert("Business hour deleted successfully.");
+                    } else {
+                        // Handle failure
+                        alert("Error: Could not delete the business hour.");
+                    }
+                },
+                error: function() {
+                    // Handle AJAX failure
+                    alert("Error communicating with the server.");
+                }
+            });
+        } 
+        else {
+            // User canceled deletion
+            console.log("Deletion canceled.");
+        }
     });
 
     // Edit Action
@@ -452,13 +504,19 @@ $(document).ready(function() {
     // Confirm Edit Action
     $(".commit-edit").click(function() {
         var $row = $(this).closest('.special-day-entry');
+        var url = $row.data('url');
         var newDate = $row.find('input[type="date"]').val();
         var newFromHour = $row.find('input[type="time"]').first().val();
         var newToHour = $row.find('input[type="time"]').last().val();
         var dayId = $row.data('day-id');
         
         // Placeholder for update endpoint
-        $.post('/update_special_day/', {id: dayId, date: newDate, from_hour: newFromHour, to_hour: newToHour}, function(response) {
+        $.post(url, {
+            date: newDate, 
+            from_hour: newFromHour, 
+            to_hour: newToHour,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }, function(response) {
             if(response.success) {
                 $row.find('.date').text(newDate);
                 $row.find('.from-hour').text(newFromHour);
