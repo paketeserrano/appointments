@@ -19,10 +19,30 @@ from django.views.generic.list import ListView
 from django.views.generic import View, DetailView
 from django.contrib.auth.views import LoginView
 
-class EventDetailView(DetailView):
-    model = Event
-    template_name = 'events/event_details.html'  
-    context_object_name = 'event'
+class EventDetailView(View):
+
+    def get(self, request, pk):
+        event = get_object_or_404(Event, pk=pk)
+        return render(request, 'events/event_details.html', {'event': event})
+
+    def post(self, request, pk):
+        event = get_object_or_404(Event, pk=pk)
+        
+        # Update event fields with data from request
+        event.name = request.POST.get('name', event.name)
+        event.description = request.POST.get('description', event.description)
+        event.duration = request.POST.get('duration', event.duration)
+        event.location = request.POST.get('location', event.location)
+        # Assuming `event_workers` and `account` are handled elsewhere or not updated directly here
+
+        event.save()
+        return JsonResponse({'message': 'Event updated successfully'}, status=200)
+
+    def delete(self, request, pk):
+        event = get_object_or_404(Event, pk=pk)
+        event.delete()
+        return JsonResponse({'message': 'Event deleted successfully'}, status=204)
+
 
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'

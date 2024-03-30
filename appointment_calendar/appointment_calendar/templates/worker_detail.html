@@ -35,7 +35,7 @@
   </style>
 {% endblock extra_css %}
 {% block content %}
-    <h1>Wroker: {{worker.user.first_name}} {{worker.user.last_name}}</h1>
+    <h1>Worker: {{worker.user.first_name}} {{worker.user.last_name}}</h1>
     <br>
     <h2>Worker Events</h2>
     <div class="container">
@@ -50,7 +50,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{event.name}}</h5>
                         <p class="card-text">{{event.duration}} mins</p>
-                        <a href="#" class="btn btn-link p-0" aria-label="View booking page">View event page</a>
+                        <a href="{% url 'event_detail' event.id %}" class="btn btn-link p-0" aria-label="View booking page">View event page</a>
                     </div>
                     <div class="card-footer">
                         <div class="form-check form-switch d-inline-block">

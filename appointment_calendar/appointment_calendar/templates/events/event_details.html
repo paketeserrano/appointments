@@ -1,4 +1,11 @@
 {% extends 'base2.html' %}
+
+{% block extra_css %}
+<style>
+
+</style>
+{% endblock extra_css %}
+
 {% block content %}
 <div class="container mt-5">
     <div class="event-details">
@@ -12,7 +19,7 @@
             <input type="text" readonly class="form-control-plaintext" id="name" value="{{ event.name }}">
           </div>
           <div class="col-12 col-md-2 text-right">
-            <button id="edit-name" onclick="edit('name')" class="btn btn-primary btn-sm">Edit</button>
+            <button id="edit-name" class="btn btn-primary btn-sm">Edit</button>
           </div>
         </div>
       </div>
@@ -25,7 +32,7 @@
             <input type="text" readonly class="form-control-plaintext" id="description" value="{{ event.description }}">
           </div>
           <div class="col-12 col-md-2 text-right">
-            <button id="edit-description" onclick="edit('description')" class="btn btn-primary btn-sm">Edit</button>
+            <button id="edit-description" class="btn btn-primary btn-sm">Edit</button>
           </div>
         </div>
       </div>
@@ -38,7 +45,7 @@
             <input type="text" readonly class="form-control-plaintext" id="duration" value="{{ event.duration }}">
           </div>
           <div class="col-12 col-md-2 text-right">
-            <button id="edit-duration" onclick="edit('duration')" class="btn btn-primary btn-sm">Edit</button>
+            <button id="edit-duration" class="btn btn-primary btn-sm">Edit</button>
           </div>
         </div>
       </div>
@@ -51,20 +58,48 @@
             <input type="text" readonly class="form-control-plaintext" id="location" value="{{ event.location }}">
           </div>
           <div class="col-12 col-md-2 text-right">
-            <button id="edit-location" onclick="edit('location')" class="btn btn-primary btn-sm">Edit</button>
+            <button id="edit-location" class="btn btn-primary btn-sm">Edit</button>
           </div>
         </div>
       </div>
     </div>
 </div>
 
-<div class="event-workers">
-  <h2>Workers</h2>
-  <ul>
-    {% for worker in event.event_workers.all %}
-      <li>{{ worker.get_full_name }}</li>  
-    {% endfor %}
-  </ul>
+<div class="container mt-5">
+    <h2>Event Workers</h2>
+    <ul class="list-group" id="workers-list">
+      {% for worker in event.event_workers.all %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ worker.user.first_name }} {{ worker.user.last_name }}
+
+            <div class="dropdown">
+                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
+                    <li><a class="dropdown-item" href="{% url 'worker_detail' event.account.id worker.id %}">View User</a></li>
+                    <li><a class="dropdown-item remove-worker" href="#" data-worker-id="{{ worker.id }}">Remove worker</a></li>                  
+                </ul>
+            </div>
+        </li>
+      {% endfor %}
+    </ul>
+    <button id="add-new-worker" class="btn btn-primary mt-3">+ Add New</button>
+  
+    <div id="new-worker-template" class="d-none">
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <select class="form-select">
+          <option value="">Select Worker</option>
+          <option value="worker1">Worker 1</option>
+          <option value="worker2">Worker 2</option>
+          <!-- Add more workers as needed -->
+        </select>
+        <div>
+          <button class="btn btn-success btn-sm mr-1">Save</button>
+          <button class="btn btn-secondary btn-sm">Cancel</button>
+        </div>
+      </li>
+    </div>
 </div>
 
 {% endblock %}
@@ -72,6 +107,7 @@
 {% block extra_script %}
 
 <script>
+
 $(document).ready(function() {
     $('button[id^="edit-"]').each(function() {
         $(this).click(function() {
@@ -101,16 +137,50 @@ $(document).ready(function() {
             $(this).after(cancelBtn).after(saveBtn);
         });
     });
+
+    // Event delegation to handle clicks on dynamically added dropdowns
+    $(document).on('click', '.dropdown-toggle', function(e) {
+        // Bootstrap 5 toggles the dropdown automatically, you don't need to call .dropdown('toggle')
+        // Just prevent the default action
+        e.preventDefault();
+    });
+
+    // Handler for the 'Remove worker' option
+    $(document).on('click', '.remove-worker', function(e) {
+        e.preventDefault();
+        var workerId = $(this).data('worker-id');
+        // Logic to remove worker goes here
+        console.log('Remove worker ID:', workerId);
+        // You can use an AJAX call here to remove the worker from the server
+    });
+
+
 });
 
 function save(fieldId) {
-    var $input = $('#' + fieldId);
-    // Here, you would typically make an AJAX call to your server to save the updated value
-    // For demonstration, we'll just log the value
-    console.log("Saving new value for " + fieldId + ": " + $input.val());
+    // Collect data from all editable fields
+    var eventData = {
+        name: $('#name').val(),
+        description: $('#description').val(),
+        duration: $('#duration').val(),
+        location: $('#location').val(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        // Add other fields as necessary
+    };
 
-    // Assuming the save was successful, revert UI
-    revertUI(fieldId, $input.val());
+    // AJAX call to send eventData to the server
+    $.post('{% url "event_detail" event.id %}', // The URL from Django template to your endpoint
+       eventData, // Data being sent in the request body
+       function(response) {
+           // Success callback
+           console.log('Event details updated successfully');
+           revertUIForAll();
+       },
+       'json' 
+        ).fail(function(xhr, status, error) {
+            // Error callback
+            console.error('Error updating event details:', error);
+        });
 }
 
 function cancel(fieldId, originalValue) {
@@ -125,6 +195,18 @@ function revertUI(fieldId, value) {
     $('#save-' + fieldId).remove();
     $('#cancel-' + fieldId).remove();
 }
+
+function revertUIForAll() {
+    // Revert UI for all fields to read-only
+    $('input[type="text"]').each(function() {
+        $(this).prop('readonly', true).removeClass('form-control').addClass('form-control-plaintext');
+        var fieldId = $(this).attr('id');
+        $('#edit-' + fieldId).show();
+        $('#save-' + fieldId).remove();
+        $('#cancel-' + fieldId).remove();
+    });
+}
+
 </script>
 
 {% endblock extra_script %}
