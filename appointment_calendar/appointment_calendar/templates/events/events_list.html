@@ -1,0 +1,59 @@
+{% extends 'base2.html' %}
+
+{% block content %}
+
+<div class="rc-card">
+    <h1>Events</h1>
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6">
+                <select id="business-filter" class="form-select" style="height: 50px; font-size: 1.25rem;">
+                    {% if businesses|length > 1 %}
+                        <option value="All">All</option>
+                    {% endif %}
+                    {% for business in businesses %}
+                        <option value="{{ business.id }}">{{ business.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="events-container">
+            {% for event in events %}
+            <div class="col event-card" data-business-id="{{ event.account.id }}">
+                <div class="card mx-auto" style=" height: 230px; border-radius: .75rem; box-shadow: 0 4px 8px rgba(0, 0, 0, .1);">
+                    <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, #C6F6D5);">
+                        <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{ event.name }}</h5>
+                        <p class="card-text mb-2" style="color: #718096;">{{ event.duration }} mins</p>
+                        <a href="{% url 'event_detail' event.id %}" class="mb-4 text-primary" style="color: #3182CE;">View event page</a>
+                    </div>
+                    <div class="card-footer" style="padding-top: 1rem; border-top: 1px solid #E2E8F0; background-color: transparent;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="#" class="btn btn-outline-primary" style="border-color: #3182CE; color: #3182CE;">Share</a>
+                            <button type="button" class="btn btn-primary" style="background-color: #4299E1; border-color: #4299E1;">Turn On</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block extra_script %}
+<script>
+$(document).ready(function(){
+    $('#business-filter').change(function(){
+        var selectedBusinessId = $(this).val();
+        $('.event-card').each(function(){
+            if(selectedBusinessId === 'All' || $(this).data('business-id').toString() === selectedBusinessId){
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+});
+</script>
+{% endblock extra_script %}

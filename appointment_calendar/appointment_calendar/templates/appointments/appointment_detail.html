@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 
 {% block extra_css %}
     <style>
@@ -16,53 +16,53 @@
 {% endblock extra_css %}
 
 {% block content %}
-<h1>Appointment Details</h1>
-<div class="container mt-5">
-    <h2>Appointment Details</h2>
-    <table class="table">
-        <tbody>
-            <tr>
-                <td class="field-name">Date</td>
-                <td>{{ appointment.date }}</td>
-            </tr>
-            <tr>
-                <td class="field-name">Time</td>
-                <td>{{ appointment.time }}</td>
-            </tr>
-            <tr>
-                <td class="field-name">Location</td>
-                <td>{{ appointment.location }}</td>
-            </tr>
-            <tr>
-                <td class="field-name">Status</td>
-                <td id="appointmentStatus">{{ appointment.status }}</td>
-            </tr>
-            <tr>
-                <td class="field-name">Worker</td>
-                <td>{{ appointment.worker.user.first_name }} {{ appointment.worker.user.last_name }}</td>
-            </tr>
-            <tr>
-                <td class="field-name">Event</td>
-                <td>{{ appointment.event.name }}</td>
-            </tr>
-            <tr>
-                <td class="field-name">Invitees</td>
-                <td>
-                    <ul>
-                        {% for invitee in appointment.invitees.all %}
-                            <li>{{ invitee.name }}</li> 
-                        {% endfor %}
-                    </ul>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<div class="rc-card">
+    <div class="container mt-5">
+        <h2>Appointment Details</h2>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td class="field-name">Date</td>
+                    <td>{{ appointment.date }}</td>
+                </tr>
+                <tr>
+                    <td class="field-name">Time</td>
+                    <td>{{ appointment.time }}</td>
+                </tr>
+                <tr>
+                    <td class="field-name">Location</td>
+                    <td>{{ appointment.location }}</td>
+                </tr>
+                <tr>
+                    <td class="field-name">Status</td>
+                    <td id="appointmentStatus">{{ appointment.status }}</td>
+                </tr>
+                <tr>
+                    <td class="field-name">Worker</td>
+                    <td>{{ appointment.worker.user.first_name }} {{ appointment.worker.user.last_name }}</td>
+                </tr>
+                <tr>
+                    <td class="field-name">Event</td>
+                    <td>{{ appointment.event.name }}</td>
+                </tr>
+                <tr>
+                    <td class="field-name">Invitees</td>
+                    <td>
+                        <ul>
+                            {% for invitee in appointment.invitees.all %}
+                                <li>{{ invitee.name }}</li> 
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-    {% if show_cancel_button %}
-        <button id="cancelButton" class="btn btn-danger mt-3" {% if appointment.status == 'CANCELLED' %} disabled {%endif%}>Cancel Appointment</button>
-    {% endif %}
+        {% if show_cancel_button %}
+            <button id="cancelButton" class="btn btn-danger mt-3" {% if appointment.status == 'CANCELLED' %} disabled {%endif%}>Cancel Appointment</button>
+        {% endif %}
+    </div>
 </div>
-
 {% endblock %}
 
 {% block extra_script %}

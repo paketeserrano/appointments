@@ -108,6 +108,11 @@ class CreateAccountForm(forms.ModelForm):
     class Meta:
         model = Account
         fields = ['name', 'description', 'account_workers']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'account_workers': forms.SelectMultiple(attrs={'class': 'form-control'}),
+        }
 
 class CreateEventForm(forms.ModelForm):
     class Meta:

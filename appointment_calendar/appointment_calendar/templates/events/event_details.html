@@ -7,69 +7,72 @@
 {% endblock extra_css %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="event-details">
-      <h2>Details</h2>
-      
-      <!-- Name Field -->
-      <div class="form-group">
-        <div class="row">
-          <label for="name" class="col-12 col-md-3 col-form-label">Name:</label>
-          <div class="col-12 col-md-7">
-            <input type="text" readonly class="form-control-plaintext" id="name" value="{{ event.name }}">
-          </div>
-          <div class="col-12 col-md-2 text-right">
-            <button id="edit-name" class="btn btn-primary btn-sm">Edit</button>
+<div class="rc-card">
+  <div class="container mt-5">
+      <div class="event-details">
+        <h2>Event Details</h2>
+        
+        <!-- Name Field -->
+        <div class="form-group">
+          <div class="row">
+            <label for="name" class="col-12 col-md-3 col-form-label">Name:</label>
+            <div class="col-12 col-md-7">
+              <input type="text" readonly class="form-control-plaintext" id="name" value="{{ event.name }}">
+            </div>
+            <div class="col-12 col-md-2 text-right">
+              <button id="edit-name" class="btn btn-primary btn-sm">Edit</button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Description Field -->
-      <div class="form-group">
-        <div class="row">
-          <label for="description" class="col-12 col-md-3 col-form-label">Description:</label>
-          <div class="col-12 col-md-7">
-            <input type="text" readonly class="form-control-plaintext" id="description" value="{{ event.description }}">
-          </div>
-          <div class="col-12 col-md-2 text-right">
-            <button id="edit-description" class="btn btn-primary btn-sm">Edit</button>
+        <!-- Description Field -->
+        <div class="form-group">
+          <div class="row">
+            <label for="description" class="col-12 col-md-3 col-form-label">Description:</label>
+            <div class="col-12 col-md-7">
+              <input type="text" readonly class="form-control-plaintext" id="description" value="{{ event.description }}">
+            </div>
+            <div class="col-12 col-md-2 text-right">
+              <button id="edit-description" class="btn btn-primary btn-sm">Edit</button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Duration Field -->
-      <div class="form-group">
-        <div class="row">
-          <label for="duration" class="col-12 col-md-3 col-form-label">Duration (mins):</label>
-          <div class="col-12 col-md-7">
-            <input type="text" readonly class="form-control-plaintext" id="duration" value="{{ event.duration }}">
-          </div>
-          <div class="col-12 col-md-2 text-right">
-            <button id="edit-duration" class="btn btn-primary btn-sm">Edit</button>
+        <!-- Duration Field -->
+        <div class="form-group">
+          <div class="row">
+            <label for="duration" class="col-12 col-md-3 col-form-label">Duration (mins):</label>
+            <div class="col-12 col-md-7">
+              <input type="text" readonly class="form-control-plaintext" id="duration" value="{{ event.duration }}">
+            </div>
+            <div class="col-12 col-md-2 text-right">
+              <button id="edit-duration" class="btn btn-primary btn-sm">Edit</button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Location Field -->
-      <div class="form-group">
-        <div class="row">
-          <label for="location" class="col-12 col-md-3 col-form-label">Location:</label>
-          <div class="col-12 col-md-7">
-            <input type="text" readonly class="form-control-plaintext" id="location" value="{{ event.location }}">
-          </div>
-          <div class="col-12 col-md-2 text-right">
-            <button id="edit-location" class="btn btn-primary btn-sm">Edit</button>
+        <!-- Location Field -->
+        <div class="form-group">
+          <div class="row">
+            <label for="location" class="col-12 col-md-3 col-form-label">Location:</label>
+            <div class="col-12 col-md-7">
+              <input type="text" readonly class="form-control-plaintext" id="location" value="{{ event.location }}">
+            </div>
+            <div class="col-12 col-md-2 text-right">
+              <button id="edit-location" class="btn btn-primary btn-sm">Edit</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+  </div>
 </div>
 
-<div class="container mt-5">
+<div class="rc-card">
+  <div class="container mt-5">
     <h2>Event Workers</h2>
     <ul class="list-group" id="workers-list">
       {% for worker in event.event_workers.all %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
+        <li class="list-group-item d-flex justify-content-between align-items-center" id="{{worker.id}}">
             {{ worker.user.first_name }} {{ worker.user.last_name }}
 
             <div class="dropdown">
@@ -90,16 +93,18 @@
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <select class="form-select">
           <option value="">Select Worker</option>
-          <option value="worker1">Worker 1</option>
-          <option value="worker2">Worker 2</option>
+          {% for worker in event.account.account_workers.all %}
+            <option value="{{worker.id}}">{{worker.user.first_name }} {{worker.user.last_name }}</option>
+          {% endfor%}
           <!-- Add more workers as needed -->
         </select>
         <div>
-          <button class="btn btn-success btn-sm mr-1">Save</button>
+          <button class="btn btn-success btn-sm mr-1 btn-save-new-worker">Save</button>
           <button class="btn btn-secondary btn-sm">Cancel</button>
         </div>
       </li>
     </div>
+  </div>
 </div>
 
 {% endblock %}
@@ -109,6 +114,58 @@
 <script>
 
 $(document).ready(function() {
+
+    // Event handler for 'Add new' button click
+    $('#add-new-worker').click(function() {
+        // Clone the template, remove the id attribute and the 'd-none' class
+        var newWorkerRow = $('#new-worker-template')
+                                .clone()
+                                .removeAttr('id')
+                                .removeClass('d-none');
+        
+        // Append it above the 'Add New' button
+        $(this).before(newWorkerRow);
+        
+        // Hide the 'Add New' button
+        $(this).hide();
+    });
+
+    // Event handler for 'Save' button click
+    $(document).on('click', '.btn-save-new-worker', function() {
+        // Get the selected worker name and value
+        var workerSelect = $(this).closest('.list-group-item').find('select');
+        var selectedValue = workerSelect.val();
+        var selectedText = workerSelect.find("option:selected").text();
+
+        if (selectedValue) {
+            // Create a new list item with the worker name
+            var newListHtml = '<li class="list-group-item d-flex justify-content-between align-items-center">' +
+                              selectedText + ' ' +
+                              '<!-- additional content for each worker here -->' +
+                              '</li>';
+
+            // Append the new list item
+            $('#workers-list').append(newListHtml);
+            
+            // Remove the new worker form row
+            $(this).closest('.list-group-item').remove();
+            
+            // Show the 'Add New' button again
+            $('#add-new-worker').show();
+        } else {
+            alert('Please select a worker.');
+        }
+    });
+
+    // Event handler for 'Cancel' button click
+    $(document).on('click', '.btn-save-new-worker', function() {
+        // Remove the form row
+        $(this).closest('.list-group-item').remove();
+        
+        // Show the 'Add New' button again
+        $('#add-new-worker').show();
+    });
+
     $('button[id^="edit-"]').each(function() {
         $(this).click(function() {
             var fieldId = this.id.replace('edit-', '');
@@ -145,25 +202,24 @@ $(document).ready(function() {
         e.preventDefault();
     });
 
-    // Handler for the 'Remove worker' option
-    $(document).on('click', '.remove-worker', function(e) {
-        e.preventDefault();
-        var workerId = $(this).data('worker-id');
-        // Logic to remove worker goes here
-        console.log('Remove worker ID:', workerId);
-        // You can use an AJAX call here to remove the worker from the server
-    });
-
-
 });
 
 function save(fieldId) {
+
+    var workerIds = $('#workers-list > li').map(function() {
+        return this.id; // 'this' refers to the current li element in the loop
+    }).get(); // .get() converts the jQuery object into a regular array
+
+    console.log(workerIds); // This will log the array of top-level worker IDs to the console
+
+
     // Collect data from all editable fields
     var eventData = {
         name: $('#name').val(),
         description: $('#description').val(),
         duration: $('#duration').val(),
         location: $('#location').val(),
+        worker_ids: JSON.stringify(workerIds),
         csrfmiddlewaretoken: '{{ csrf_token }}',
         // Add other fields as necessary
     };

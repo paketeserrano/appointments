@@ -15,7 +15,7 @@
         }
         .sidebar {
             padding-top: 56px;
-            background-color: #f4f5f7;
+            background-color: #dde6e4;
             min-height: 100vh;
             position: fixed;
             top: 0;
@@ -26,7 +26,7 @@
         }
         .content {
             margin-left: 250px; /* Same as sidebar width */
-            background-color: #f4f5f7;
+            background-color: #f8f9fa;
             min-height: 100vh;
             padding: 20px;
         }
@@ -49,6 +49,9 @@
         .sidebar .nav-link:hover {
             color: #007bff;
         }
+        .user-item {
+            margin-left: 10px;
+        }
         .burger-menu {
             display: none;
             cursor: pointer;
@@ -67,7 +70,7 @@
         
         .sidebar .btn-schedule {
             width: 60%; /* Make the button 60% of the sidebar width */
-            margin-left: 20%; /* Center the button by setting the left margin to 20% */
+            margin-left: 10px; /* Center the button by setting the left margin to 20% */
             margin-top: 15px; /* Add some space above the button */
         }
         
@@ -80,6 +83,13 @@
                 padding-top: 56px; /* Ensure content starts below the header on desktop view as well */
             }
         }   
+        .rc-card {
+            background-color: #ffffff; /* white background */
+            border-radius: 8px; /* rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* subtle shadow */
+            padding: 20px; /* space inside the card */
+            margin: 20px; /* space outside the card */
+        }
     </style>
 </head>
 <body>
@@ -90,35 +100,37 @@
         <a class="navbar-brand" href="#">ReservaClick</a>
     </nav>
 
-    <aside class="sidebar">
-        <div class="navbar-nav">
-            <a href="{% url 'dashboard' %}" class="nav-item nav-link">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-            </a>
-            <a href="{% url 'business-list' %}" class="nav-item nav-link">
-                <i class="fas fa-briefcase"></i> Businesses
-            </a>
-            <a href="" class="nav-item nav-link">
-                <i class="fas fa-calendar-alt"></i> Events
-            </a>
-        </div>
-        <div class="mt-auto">
-            <a href="{% url 'business_list_dropdown' %}" class="btn btn-primary btn-schedule mt-4">Schedule Time</a>
-
-            <div class="nav-item dropdown mt-4 text-center">
-                <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user"></i> {{ user.get_username }}
+    {% if user.is_authenticated %}
+        <aside class="sidebar">
+            <div class="navbar-nav">
+                <a href="{% url 'dashboard' %}" class="nav-item nav-link">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
-                <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                    <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                </ul>
+                <a href="{% url 'business-list' %}" class="nav-item nav-link">
+                    <i class="fas fa-briefcase"></i> Businesses
+                </a>
+                <a href="{% url 'events_list' %}" class="nav-item nav-link">
+                    <i class="fas fa-calendar-alt"></i> Events
+                </a>
             </div>
-        </div>
-    </aside>
+            <div class="mt-auto">
+                <a href="{% url 'business_list_dropdown' %}" class="btn btn-primary btn-schedule mt-4">Schedule Time</a>
 
-    <div class="content">
+                <div class="nav-item dropdown mt-4 user-item">
+                    <a href="#" class="nav-link dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user"></i> {{ user.get_username }}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+    {% endif %}
+
+    <div class="content text-sans-serif">
         {% block content %}
         <!-- Content goes here -->
         {% endblock content %}

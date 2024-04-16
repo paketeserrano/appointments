@@ -27,4 +27,5 @@ urlpatterns = [
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logged_out/', views.LoggedOutView.as_view(), name='logged_out'),
     path('events/<int:pk>/', views.EventDetailView.as_view(), name='event_detail'),
+    path('events/', views.EventsView.as_view(), name='events_list'),
 ] 

@@ -18,6 +18,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.views.generic import View, DetailView
 from django.contrib.auth.views import LoginView
+from django.db.models import Q
 
 class EventDetailView(View):
 
@@ -33,7 +34,13 @@ class EventDetailView(View):
         event.description = request.POST.get('description', event.description)
         event.duration = request.POST.get('duration', event.duration)
         event.location = request.POST.get('location', event.location)
-        # Assuming `event_workers` and `account` are handled elsewhere or not updated directly here
+        workerIds = json.loads(request.POST.get('worker_ids'))
+        
+        print('--------------------------')
+        print(request.POST.get('worker_ids'))
+        print('--------------------------')
+        workers = CustomUser.objects.filter(pk__in=workerIds)
+        event.event_workers.set(workers)
 
         event.save()
         return JsonResponse({'message': 'Event updated successfully'}, status=200)
@@ -485,6 +492,45 @@ class DashboardView(ListView):
             else:
                 grouped_appointments[appt.date] = [appt]
         context['appointments'] = grouped_appointments
+        return context
+    
+class EventsView(ListView):
+    context_object_name = 'events'
+    template_name = 'events/events_list.html'
+
+    def get_queryset(self):
+        current_user = CustomUser.objects.get(user=self.request.user)
+
+        # Query to find all events where the user is an admin in the account of the event
+        #admin_events = Event.objects.filter(account__admins=current_user)      
+
+        # Query to find all events where the user is listed as an event worker
+        #worker_events = Event.objects.filter(event_workers=current_user)  
+
+        all_user_events = Event.objects.filter(
+            Q(account__admins=current_user) | Q(event_workers=current_user)
+        ).distinct()
+
+        return all_user_events
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_user = CustomUser.objects.get(user=self.request.user)
+
+        # Query to find all Accounts where the current_user is an admin
+        accounts_as_admin = Account.objects.filter(admins=current_user)
+
+        # Query to find all Accounts associated with Events where the current_user is a worker
+        accounts_as_event_worker = Account.objects.filter(
+            event__event_workers=current_user
+        ).distinct()
+
+        # Combine both queries to get a unique set of Accounts
+        user_related_accounts = Account.objects.filter(
+            Q(id__in=accounts_as_admin) | Q(id__in=accounts_as_event_worker)
+        ).distinct()
+
+        context['businesses'] = user_related_accounts
         return context
 
 def user_registration(request):

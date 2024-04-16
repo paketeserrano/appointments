@@ -1,12 +1,49 @@
-{% extends 'base.html' %}  
-  
-{% block content %}  
-  
-<h2>Sign up</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Sign up</button>
-</form>
-  
-{% endblock content %}  
+{% extends 'base2.html' %}  <!-- Assuming 'base.html' includes Bootstrap -->
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center">Sign Up</h2>
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="form-group mb-3">
+                            {{ form.username.label_tag }}
+                            {{ form.username|add_class:"form-control" }}
+                            <small class="form-text text-muted">{{ form.username.help_text }}</small>
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.first_name.label_tag }}
+                            {{ form.first_name|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.last_name.label_tag }}
+                            {{ form.last_name|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.email.label_tag }}
+                            {{ form.email|add_class:"form-control" }}
+                            <small class="form-text text-muted">{{ form.email.help_text }}</small>
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.password1.label_tag }}
+                            {{ form.password1|add_class:"form-control" }}
+                            <small class="form-text text-muted">{{ form.password1.help_text }}</small>
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.password2.label_tag }}
+                            {{ form.password2|add_class:"form-control" }}
+                            <small class="form-text text-muted">{{ form.password2.help_text }}</small>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Sign up</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -21,37 +21,38 @@
 {% endblock extra_css %}
 
 {% block content %}
+<div class="rc-card">
     <h1>Business: {{business.name}}</h1>
     <p>{{business.description}}</p>
+</div>
+<div class="rc-card">
     <h1>Events</h1>
     <div class="container">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for event in events%}
-                <div class="col">
-                    <div class="card booking-card">
-                    <div class="card-header">
-                        <input type="checkbox" aria-label="Checkbox for following text input">
-                        <i class="fas fa-cog settings-icon"></i>
+            <div class="col">
+                <div class="card mx-auto" style="height: 230px; border-radius: .75rem; box-shadow: 0 4px 8px rgba(0, 0, 0, .1);">
+                    <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, #C6F6D5);">
+                        <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{event.name}}</h5>
+                        <p class="card-text mb-2" style="color: #718096;">{{event.duration}} mins</p>
+                        <a href="{% url 'event_detail' event.id %}"  class="mb-4 text-primary" style="color: #3182CE;">View event page</a>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{event.name}}</h5>
-                        <p class="card-text">{{event.duration}} mins</p>
-                        <a href="{% url 'event_detail' event.id %}" class="btn btn-link p-0" aria-label="View booking page">View event page</a>
-                    </div>
-                    <div class="card-footer">
-                        <div class="form-check form-switch d-inline-block">
-                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
-                        <label class="form-check-label" for="flexSwitchCheckDefault">Copy link</label>
+                    <div class="card-footer" style="padding-top: 1rem; border-top: 1px solid #E2E8F0; background-color: transparent;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="#" class="btn btn-outline-primary" style="border-color: #3182CE; color: #3182CE;">Share</a>
+                            <button type="button" class="btn btn-primary" style="background-color: #4299E1; border-color: #4299E1;">Turn On</button>
                         </div>
-                        <button type="button" class="btn btn-outline-primary toggle-btn">Turn On</button>
-                    </div>
                     </div>
                 </div>
+            </div>
             {% endfor %}
         </div>
     </div>
+    
     <a href="{% url 'add_business_event'  business.id %}">Add Event</a>
+</div>
     <br>
+<div class="rc-card">
     <h2>Workers</h2>
     <div class="container my-4">
         <div class="table-responsive">
@@ -72,9 +73,10 @@
                 </div>
             {% endfor %}
         </div>
-      </div>
+    </div>
+</div>
     <br>
-    
+<div class="rc-card">   
     <div class="container mt-5" id="businessHours">
         <h2>Business Hours</h2>
         {% for hour in business_hours %}
@@ -114,8 +116,10 @@
             <button id="cancelNewHour" class="btn btn-danger mt-2">Cancel</button>
         </div>
     </div>
+</div>
     <br>
     <!-- Days Closed or Holidays Section -->
+<div class="rc-card">
     <div class="container mt-5" id="specialDays">
         <h2>Days Closed or Holidays</h2>
         {% for day in special_days %}
@@ -153,7 +157,7 @@
             <button id="cancelNewSpecialDay" class="btn btn-danger mt-2">Cancel</button>
         </div>
     </div>
-    
+</div>   
 {% endblock %}
 
 {% block extra_script %}

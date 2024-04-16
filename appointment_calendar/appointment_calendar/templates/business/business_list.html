@@ -5,10 +5,10 @@
         width: 400px; /* Adjusted width */
         height: auto; /* Adjust height as necessary */
         border-radius: 8px;
-        background-image: linear-gradient(to bottom right, #4b6cb7, #182848);
+        background-image: linear-gradient(to bottom right, #dde6e4, #b7d6b4);
         padding: 20px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        color: white;
+        color: black;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -19,7 +19,7 @@
     .cards-container {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-around; /* This centers the cards and handles spacing */
+        justify-content: start; 
     }
 
     .card-content h2 {
@@ -33,7 +33,7 @@
     }
 
     .card-link {
-        color: white;
+        color: #000000;
         text-decoration: none;
         font-weight: bold;
         margin-top: 15px;
@@ -68,43 +68,49 @@
 {% endblock extra_css%}
 
 {% block content %}
-<h1>Businesses</h1>
+<div class="rc-card">
+    <h1>Businesses</h1>
 
-<div class="cards-container">
-    {% if accounts %}
-        {% for account in accounts %}
-        <div class="card">
-            <div class="card-content">
-            <h2>{{account.name}}</h2>
-            <p>{{account.description}}</p>
-            <a href="{% url 'view_business' account.id %}" class="card-link">View →</a>
+    <div class="cards-container">
+        {% if accounts %}
+            {% for account in accounts %}
+            <div class="card">
+                <div class="card-content">
+                <h2>{{account.name}}</h2>
+                <p>{{account.description}}</p>
+                <a href="{% url 'view_business' account.id %}" class="card-link">View →</a>
+                </div>
             </div>
-        </div>
-        {% endfor %}
-    {% else %}
-        <div class="alert alert-info" role="alert">
-            You don't have any business, create a new one.
-        </div>
-        <a href="{% url 'add_business' %}" class="btn btn-primary">Create Business</a>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                You don't have any business, create a new one.
+            </div>
+            <a href="{% url 'add_business' %}" class="btn btn-primary">Create Business</a>
+        {% endif %}
+    </div>
+    <div class="mt-3" style="text-align: right;">
+        <a href="{% url 'add_business'%}" class="btn btn-outline-primary" style="border-color: #3182CE; color: #3182CE;">Add Business</a>
+    </div>
+
+    {% if is_paginated %}
+    <div class="pagination">
+        <span class="page-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+        
+        <span class="page-current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+        </span>
+    </div>
     {% endif %}
 </div>
-{% if is_paginated %}
-<div class="pagination">
-    <span class="page-links">
-      {% if page_obj.has_previous %}
-        <a href="?page=1">&laquo; first</a>
-        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-      {% endif %}
-      
-      <span class="page-current">
-        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-      </span>
-      
-      {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">next</a>
-        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-      {% endif %}
-    </span>
-  </div>
-{% endif %}
 {% endblock content %}
