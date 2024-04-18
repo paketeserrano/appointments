@@ -47,6 +47,7 @@ class Event(models.Model):
     # This field should contain the different locations options setup by the user
     location = models.CharField(max_length = 120)
     account = models.ForeignKey(Account, on_delete = models.CASCADE)
+    active = models.BooleanField(default=False)
 
     def __str__(this):
         return this.name
@@ -63,7 +64,7 @@ class Appointment(models.Model):
     event = models.ForeignKey(Event, on_delete = models.CASCADE)
     location = models.CharField(max_length = 120)
     worker = models.ForeignKey(CustomUser, on_delete = models.CASCADE)
-    status = models.CharField(max_length = 40, choices = APPOINTMENT_STATUS, default='ACTIVE')
+    status = models.CharField(max_length = 40, choices = APPOINTMENT_STATUS, default='ACTIVE')    
 
     def __str__(this):
         return f"Appt scheduled"

@@ -1,10 +1,4 @@
 {% extends 'appointments/base.html' %}
-{% load static %}
-
-
-{% block extra_css %}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-{% endblock extra_css %}
 
 {% block side_text %}
     <div class="booking-cta">
@@ -34,9 +28,6 @@
                 </div>
             </div>
         {% endfor %}
-        <p>>Business id:{{business_id}}</p>
-        <p>>Event id:{{event_id}}</p>
-        <p>>Worker id:{{worker_id}}</p>
 
         {% if wizard.steps.current == "DateTime" %}
         <!-- Time List START -->

@@ -360,11 +360,14 @@ class BookingCreateWizardView(SessionWizardView):
             today = datetime.today().strftime('%Y-%m-%d')
             time_list = build_available_time_slots(business_id, event_id, worker_id, today)
 
+        # Make sure that business_id is always populted at this point
+        business = Account.objects.get(pk=business_id)
+
         context.update({
             "progress_width": self.progress_width,
             "booking_bg": 'booking_bg.jpg',
             "description": 'Select your Appt',
-            "title": 'Big Appointment Title',
+            "title": business.name,
             "get_available_time" : time_list,
             "business_id" : business_id,
             "event_id" : event_id,
@@ -411,6 +414,7 @@ class BookingCreateWizardView(SessionWizardView):
         data = dict((key, value) for form in form_list for key,
                     value in form.cleaned_data.items())
         print(data)
+
         # Create the appointment
         invitee = Invitee(name = data['user_name'], email = data['user_email'], phone_number = data['user_mobile'])
         invitee.save()
@@ -420,8 +424,104 @@ class BookingCreateWizardView(SessionWizardView):
         appointment.save()
         appointment.invitees.add(invitee)
 
+        # Send confirmation email
+        subject = 'Your appointment with ' + event.account.name + ' | ' + event.name
+        message = 'Your appointment ' + event.name + ' at ' + event.account.name + ' with ' + appointment.worker.user.first_name + ' ' + \
+                   appointment.worker.user.last_name + ' is on ' + appointment.date.strftime('%d-%m-%Y') +' at ' + appointment.time.strftime('%H:%M:%S')  + ' .'
+        
+        html_message = f"""
+        <html>
+        <head>
+            <style>
+                body {{
+                    font-family: 'Arial', sans-serif;
+                    background-color: #f4f4f4;
+                    color: #333;
+                    line-height: 1.6;
+                    padding: 20px;
+                }}
+                .content {{
+                    background-color: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    margin: auto;
+                    width: 100%;
+                    max-width: 600px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    text-align: center; /* Centers the text for the whole content div */
+                }}
+                .details-card {{
+                    background-color: white;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                    border: 2px solid #ccc; /* Adds a light grey border */
+                }}
+                .appointment-details {{
+                    font-size: 16px;
+                    margin-bottom: 10px;
+                    text-align: left; /* Aligns text to the left within the card */
+                }}
+                .highlight {{
+                    color: #007bff;
+                    font-weight: bold;
+                    font-size: 18px;
+                }}
+                .button {{
+                    display: block; /* Makes the button a block element to fill the width of its container */
+                    width: 50%;
+                    min-width: 180px; /* Ensures the button is not too narrow on smaller screens */
+                    height: 35px;
+                    background-color: #ccc;
+                    color: #333;
+                    border-radius: 5px;
+                    text-decoration: none;
+                    line-height: 35px;
+                    font-size: 14px;
+                    margin: 10px auto 20px; /* Centers the button horizontally */
+                }}
+                .cancel-text {{
+                    font-size: 12px;
+                    text-align: center;
+                    margin-top: 20px;
+                    margin-bottom: 5px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="content">
+                <h2>Thank You and Congratulations!</h2>
+                <p>We are pleased to confirm your appointment. Here are the details:</p>
+                <div class="details-card">
+                    <p class="appointment-details">Your appointment: <span class="highlight">{event.name}</span></p>
+                    <p class="appointment-details">Location: <span class="highlight">{event.account.name}</span></p>
+                    <p class="appointment-details">With: <span class="highlight">{appointment.worker.user.first_name} {appointment.worker.user.last_name}</span></p>
+                    <p class="appointment-details">Date: <span class="highlight">{appointment.date.strftime('%d-%m-%Y')}</span></p>
+                    <p class="appointment-details">Time: <span class="highlight">{appointment.time.strftime('%H:%M:%S')}</span></p>
+                </div>
+                <p class="cancel-text">Do you need to cancel this appointment?</p>
+                <a href="http://example.com/cancel_appointment/{appointment.id}" class="button">Cancel Appointment</a>
+            </div>
+        </body>
+        </html>
+        """
+
+        send_mail(            
+            subject=subject,
+            message=message,
+            from_email= f"{event.account.name} via ReservaClick <{settings.EMAIL_HOST_USER}>",
+            recipient_list=['farrones@yahoo.com'],
+            html_message=html_message
+        )
+
         return render(self.request, 'appointments/appointment_done.html', {
-            "progress_width": "100"
+            "progress_width": "100",
+            "event" : event,
+            "appointment" : appointment,
+            "invitee" : invitee,
+            "description": event.name,
+            "title": event.account.name
         })        
 '''
 def appointment(request, business_id, event_id):

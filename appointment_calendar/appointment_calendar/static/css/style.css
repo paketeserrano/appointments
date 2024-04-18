@@ -80,13 +80,13 @@ a:hover {
 .booking-cta h1 {
   font-size: 52px;
   text-transform: uppercase;
-  color: #4fa3e3;
+  color: #000000;
   font-weight: 400;
 }
 
 .booking-cta p {
   font-size: 22px;
-  color: #dfe5e9;
+  color: #000000;
 }
 
 .primary-card {
