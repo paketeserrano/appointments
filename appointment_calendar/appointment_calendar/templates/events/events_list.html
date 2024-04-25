@@ -14,6 +14,12 @@
     .card-footer .btn, .card-footer .form-switch {
         margin-top: 10px; /* Add space between buttons when stacked */
     }
+    .clickable-row {
+      cursor: pointer;
+    }
+    .clickable-row:hover {
+        background-color: #f0f0f0;
+    }
 </style>
 {% endblock extra_css %}
 
@@ -36,7 +42,7 @@
         </div>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="events-container">
             {% for event in events %}
-            <div class="col event-card" data-business-id="{{ event.account.id }}">
+            <div class="col event-card" data-business-id="{{ event.account.id }}" data-event-id="{{ event.id }}">
                 <div class="card h-100 mx-auto" style="border-radius: .75rem; box-shadow: 0 4px 8px rgba(0, 0, 0, .1);">
                     <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, #C6F6D5);">
                         <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{ event.name }}</h5>
@@ -46,11 +52,15 @@
                     <div class="card-footer" style="border-top: 1px solid #E2E8F0; background-color: transparent;">
                         <div class="row align-items-center">
                             <div class="col-5">
-                                <a href="#" class="btn btn-outline-primary w-100">Share</a>
+                                <a href="#" class="btn btn-outline-primary w-100 share-btn" data-bs-toggle="tooltip"
+                                    data-appointment-url="{{domain}}{% url 'client_appointment_for_event' event.account.id event.id %}" 
+                                    data-appointment-worker-url="{{domain}}{% url 'client_appointment_for_event_worker' event.account.id event.id current_user.id %}">
+                                    Share
+                                </a>
                             </div>
                             <div class="col-7">
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="toggleEvent{{ forloop.counter }}">
+                                    <input class="form-check-input" type="checkbox" id="toggleEvent{{ forloop.counter }}" {% if event.active %}checked{% endif %}>
                                     <label class="form-check-label toggle-label" for="toggleEvent{{ forloop.counter }}" style="color: #4299E1;">
                                         {% if not event.active %}
                                             Turn On
@@ -69,11 +79,99 @@
     </div>
 </div>
 
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareEventName" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="shareEventName"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <tbody>
+              <tr class="share-option clickable-row" style="text-align: center;" data-option="share-event">
+                <td>Share event</td>
+              </tr>
+              <tr class="share-option clickable-row" style="text-align: center;" data-option="share-as-worker">
+                <td>Share with me as worker</td>
+              </tr>
+              <tr class="share-option clickable-row" style="text-align: center;" data-option="cancel">
+                <td>Cancel</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock content %}
 
 {% block extra_script %}
 <script>
 $(document).ready(function(){
+
+    // Click event for 'Share' button
+    $('.share-btn').click(function() {
+        var appointmentUrl = $(this).data('appointment-url');
+        var appointmentWorkerUrl = $(this).data('appointment-worker-url');
+        console.log("appointmentUrl: " + appointmentUrl)
+        console.log("appointmentWorkerUrl: " + appointmentWorkerUrl)
+        var eventName = $(this).closest('.event-card').find('.card-title').text();
+        $('#shareEventName').text(eventName);  // Set the event name in the modal
+        $('#shareModal')
+            .data('appointment-url', appointmentUrl)
+            .data('appointment-worker-url', appointmentWorkerUrl)
+            .modal('show');  // Store event ID and business ID and show the modal
+    });
+
+        // Click events for modal options
+    $('.share-option').click(function() {
+        var option = $(this).data('option');
+        var appointmentUrl = $('#shareModal').data('appointment-url');
+        var appointmentWorkerUrl = $('#shareModal').data('appointment-worker-url');
+        var button = $(this).closest('.modal-content').find('.share-btn'); 
+
+        // Handle each option click
+        var fullUrl = '';
+        if(option === 'share-event') {
+            fullUrl = appointmentUrl;
+        } else if(option === 'share-as-worker') {
+            fullUrl = appointmentWorkerUrl;
+        } else if(option === 'cancel') {
+            $('#shareModal').modal('hide');
+        }
+
+        if (fullUrl) {
+            // Copy the URL to clipboard
+            navigator.clipboard.writeText(fullUrl).then(function() {
+                button.attr('title', 'URL copied to clipboard!').tooltip('show');
+
+                // Set timeout to hide tooltip after 2 seconds
+                setTimeout(function() {
+                    button.tooltip('hide');
+                }, 4000);
+
+            }).catch(function(err) {
+                button.attr('title', 'Failed to copy URL.').tooltip('show');
+
+                // Set timeout to hide tooltip after 4 seconds
+                setTimeout(function() {
+                    button.tooltip('hide');
+                }, 4000);
+                console.error('Could not copy text: ', err);
+            });
+        }        
+
+        // Close the modal after selection
+        $('#shareModal').modal('hide');
+    });
+
+    $(function () {
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    });
+
     $('#business-filter').change(function(){
         var selectedBusinessId = $(this).val();
         $('.event-card').each(function(){
@@ -92,6 +190,27 @@ $(document).ready(function(){
         } else {
             label.text('Turn On'); // If the checkbox is not checked, set label to "Turn On"
         }
+
+        var checkbox = $(this);
+        var eventId = checkbox.closest('.event-card').data('event-id'); // Ensure each card has a data-event-id attribute
+        var isActive = checkbox.is(':checked');
+
+        // Using jQuery's $.post method to send the POST request
+        $.post({
+            url: "{% url 'toggle_event_active' %}",
+            data: {
+                'event_id': eventId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                checkbox.next('label').text(response.event_active ? 'Turn Off' : 'Turn On');
+                console.log('Event status updated successfully.');
+            },
+            error: function(xhr, errmsg, err) {
+                console.error('Error updating event status: ' + errmsg);
+                checkbox.prop('checked', !isActive); // revert the checkbox if there was an error
+            }
+        });
     });
 });
 </script>

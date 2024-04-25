@@ -12,13 +12,15 @@ from formtools.wizard.views import SessionWizardView
 from datetime import datetime, timedelta
 import time
 from .libs.send_emails import gmail_send, gmail_compose, gmail_credentials
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from django.contrib.sites.shortcuts import get_current_site
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.views.generic import View, DetailView
 from django.contrib.auth.views import LoginView
 from django.db.models import Q
+from django.views.decorators.http import require_POST
 
 class EventDetailView(View):
 
@@ -210,6 +212,7 @@ class BusinessWorkerView(View):
             today = datetime.today()
             end_date = today + timedelta(days=30)
             appointments = Appointment.objects.filter(worker_id = worker_id, event__account = account, date__gte = today, date__lte = end_date)
+            
             # group appointments by date
             grouped_appointments = {}
             for appt in appointments:
@@ -218,12 +221,21 @@ class BusinessWorkerView(View):
                 else:
                     grouped_appointments[appt.date] = [appt]
 
+            # Current Custom User
+            current_user = CustomUser.objects.get(user=self.request.user)
+
+            # NOTE: Domain to build the links to the events. Use full_event_url if domain doesn't work in production
+            domain = get_current_site(self.request).domain
+            full_event_url = self.request.build_absolute_uri(domain)            
+
             return render(request, 'worker_detail.html', {
                 'worker': worker,
                 'events': events,
                 'appointments': grouped_appointments,
                 'account_id': account_id,
-                'show_remove_button': self.show_remove_button
+                'show_remove_button': self.show_remove_button,
+                'current_user' : current_user,
+                'domain' : domain
             })
         else:
             raise Exception("Error: The worker is not assigned to the account")
@@ -333,10 +345,15 @@ class BookingCreateWizardView(SessionWizardView):
     form_list = APPOINTMENT_STEP_FORMS    
     progress_width = 25
     initial_dict = { }
+    client_appointment = False
 
     def get_context_data(self, form, **kwargs):    
         print('-------------------- get_context_data')    
         context = super().get_context_data(form=form, **kwargs)
+        # This is the base template of the appointment_wizard. If it is the client making the appointment we will change this base
+        base_template = 'appointments/base.html'
+        if self.client_appointment:
+            base_template = 'appointments/base_client_appointment.html'
         time_list = []
         if self.steps.current == 'DateTime':
             time_list= []
@@ -363,31 +380,63 @@ class BookingCreateWizardView(SessionWizardView):
         # Make sure that business_id is always populted at this point
         business = Account.objects.get(pk=business_id)
 
+        appointment_description = 'Select your Appt'
+        if event_id:
+            event = Event.objects.get(id=event_id)
+            appointment_description = event.name
+
         context.update({
             "progress_width": self.progress_width,
             "booking_bg": 'booking_bg.jpg',
-            "description": 'Select your Appt',
+            "description": appointment_description,
             "title": business.name,
             "get_available_time" : time_list,
             "business_id" : business_id,
             "event_id" : event_id,
             "worker_id" : worker_id,
+            "client_appointment" : self.client_appointment,
+            "base_template" : base_template,
         })
 
         return context
     
     def get_form_initial(self, step):
+        # Determine the type of Wizard.
+        # Only business_id info -> Complete wizard: Select Event, Worker, Time and User Info
+        # business_id and event_id -> Select Worker, Time and Info
+        # business_id, event_id and worker_id selected -> Select Time and Info
+        business_id = self.kwargs['business_id']
+
+        event_id = None
+        if 'event_id' in self.kwargs:
+            event_id = self.kwargs['event_id']
+
+        worker_id = None
+        if 'worker_id' in self.kwargs:
+            worker_id = self.kwargs['worker_id']
+
+        print(f"business_id: {business_id}")
+        print(f"event_id: {event_id}")
+
         if step == 'Event':
-            print('In get form initial - Event')
-            business_id = self.kwargs['business_id']            
+            print('In get form initial - Event')           
             self.initial_dict['Event'] = {'business_id': business_id}
         elif step == 'Worker': 
             print('In get form initial - Worker')
-            if 'Event-events' in self.request.POST:
-                print(f'Event-events: {self.request.POST.get("Event-events")}')
+            # Get the event_id from url or from the post request
+            # If event_id is coming from the url then set event key so the state of the class is the same as if all screens are executed
+            if event_id:
+                self.initial_dict['Event'] = {'business_id': business_id}
+                self.initial_dict['Worker'] = {'event_id': event_id} 
+            elif 'Event-events' in self.request.POST:
                 self.initial_dict['Worker'] = {'event_id': self.request.POST.get('Event-events')} 
         elif step == 'DateTime':
-            if 'Worker-workers' in self.request.POST:
+            # If event_id is coming from the url then set event and worker keys so the state of the class is the same as if all screens are executed
+            if worker_id:
+                self.initial_dict['DateTime'] = {'worker_id': worker_id} 
+                self.initial_dict['Event'] = {'business_id': business_id}
+                self.initial_dict['Worker'] = {'event_id': event_id} 
+            elif 'Worker-workers' in self.request.POST:
                 self.initial_dict['DateTime'] = {'worker_id': self.request.POST.get('Worker-workers')} 
 
         return self.initial_dict
@@ -415,11 +464,23 @@ class BookingCreateWizardView(SessionWizardView):
                     value in form.cleaned_data.items())
         print(data)
 
+        event_id = None
+        if 'event_id' in self.kwargs:
+            event_id = self.kwargs['event_id']
+        else:
+            event_id = data['events']
+
+        worker_id = None
+        if 'worker_id' in self.kwargs:
+            worker_id = self.kwargs['worker_id']
+        else:
+            worker_id = data['workers']
+
         # Create the appointment
         invitee = Invitee(name = data['user_name'], email = data['user_email'], phone_number = data['user_mobile'])
         invitee.save()
-        event = Event.objects.get(id = data['events'])
-        custom_user = CustomUser.objects.get(id = data['workers'])
+        event = Event.objects.get(id = event_id)
+        custom_user = CustomUser.objects.get(id = worker_id)
         appointment = Appointment(event = event, date = data['date'], time = data['time'], worker = custom_user, location='Default' )
         appointment.save()
         appointment.invitees.add(invitee)
@@ -630,7 +691,16 @@ class EventsView(ListView):
             Q(id__in=accounts_as_admin) | Q(id__in=accounts_as_event_worker)
         ).distinct()
 
+        current_user = CustomUser.objects.get(user=self.request.user)
+
+        # NOTE: Domain to build the links to the events. Use full_event_url if domain doesn't work in production
+        domain = get_current_site(self.request).domain
+        full_event_url = self.request.build_absolute_uri(domain)
+
         context['businesses'] = user_related_accounts
+        context['current_user'] = current_user
+        context['domain'] = domain
+
         return context
 
 def user_registration(request):
@@ -708,3 +778,11 @@ def add_business_event(request, business_id = -1):
             'form': form,
             'business_id': business_id}
         return render(request, 'add_business_event.html', context)
+    
+@require_POST
+def toggle_event_active(request):
+    event_id = request.POST.get('event_id')
+    event = get_object_or_404(Event, id=event_id)
+    event.active = not event.active
+    event.save()
+    return JsonResponse({'status': 'success', 'event_active': event.active})

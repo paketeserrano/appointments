@@ -3,8 +3,20 @@ from . import views
 from django.contrib.auth.views import LogoutView
 from appointment_calendar import settings
 
+conditions_skip_event = {'Event': False}
+conditions_skip_event_worker = {'Event': False,
+                                'Worker': False}
+
 urlpatterns = [    
-    path('appointment_wizard/<int:business_id>', views.BookingCreateWizardView.as_view(), name='appointment_wizard'),
+    # Paths to set up an appointment within the admin page
+    path('appointment_wizard/<int:business_id>', views.BookingCreateWizardView.as_view(client_appointment=False), name='appointment_wizard'),
+    path('appointment_wizard/<int:business_id>/<int:event_id>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event), name='appointment_for_event'),
+    path('appointment_wizard/<int:business_id>/<int:event_id>/<int:worker_id>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event_worker), name='appointment_for_event_worker'),
+    # Paths to set up an appointment for clients
+    path('client_appointment/<int:business_id>', views.BookingCreateWizardView.as_view(client_appointment=True), name='client_appointment'),
+    path('client_appointment/<int:business_id>/<int:event_id>', views.BookingCreateWizardView.as_view(client_appointment=True, condition_dict = conditions_skip_event), name='client_appointment_for_event'),
+    path('client_appointment/<int:business_id>/<int:event_id>/<int:worker_id>', views.BookingCreateWizardView.as_view(client_appointment=True, condition_dict = conditions_skip_event_worker), name='client_appointment_for_event_worker'),
+
     path('cancel_appointment/<pk>', views.AppointmentCancelView.as_view(), name='cancel_appointment'),
     path('appointment/<int:appointment_id>/cancel', views.AppointmentView.as_view(show_cancel_button=True), name='appointment_cancel'),
     path('appointment/<int:appointment_id>/', views.AppointmentView.as_view(show_cancel_button=False), name='appointment_detail'),
@@ -28,4 +40,5 @@ urlpatterns = [
     path('logged_out/', views.LoggedOutView.as_view(), name='logged_out'),
     path('events/<int:pk>/', views.EventDetailView.as_view(), name='event_detail'),
     path('events/', views.EventsView.as_view(), name='events_list'),
+    path('toggle-event-active/', views.toggle_event_active, name='toggle_event_active'),
 ] 
