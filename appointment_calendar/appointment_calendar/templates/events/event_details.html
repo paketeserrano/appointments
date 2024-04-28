@@ -107,6 +107,28 @@
   </div>
 </div>
 
+<div class="rc-card">
+      <div class="container mt-5">
+          <h2>Event UI Settings</h2>
+          <!-- Toggle Visibility -->
+          <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="is_visible" {% if event_ui.is_visible %}checked{% endif %}>
+              <label class="form-check-label" for="is_visible">Is Visible</label>
+          </div>
+          <!-- Image Preview and Upload -->
+          <div class="mb-3">
+              <label for="eventImage" class="form-label">Event Image</label>
+              <img src="{{ event_ui.image.url|default:'/media/events/placeholder.jpg' }}" id="imagePreview" class="img-fluid mb-2" style="max-height: 200px;">
+              <input type="file" class="form-control" id="eventImage" accept="image/png, image/jpeg">
+          </div>
+          <!-- Save and Cancel Buttons -->
+          <div class="text-end">
+              <button type="button" class="btn btn-primary" id="saveSettings">Save</button>
+              <button type="button" class="btn btn-secondary" id="cancelSettings">Cancel</button>
+          </div>
+      </div>
+</div>
+
 {% endblock %}
 
 {% block extra_script %}
@@ -114,6 +136,31 @@
 <script>
 
 $(document).ready(function() {
+
+    let originalImage = $('#imagePreview').attr('src');
+    let originalVisibility = $('#is_visible').is(':checked');
+
+    $('#eventImage').change(function(e) {
+        if (e.target.files && e.target.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                $('#imagePreview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    $('#saveSettings').click(function() {
+      savePage(1)
+    })
+
+    $('#cancelSettings').click(function() {
+        $('#imagePreview').attr('src', originalImage);
+        $('#is_visible').prop('checked', originalVisibility);
+
+        // Clear the file input
+        $('#eventImage').val(null); 
+    });
 
     // Event handler for 'Add new' button click
     $('#add-new-worker').click(function() {
@@ -180,7 +227,7 @@ $(document).ready(function() {
                 class: 'btn btn-success btn-sm',
                 id: 'save-' + fieldId
             }).click(function() { 
-                save(fieldId); 
+                savePage(fieldId); 
             });
 
             var cancelBtn = $('<button>', {
@@ -204,7 +251,7 @@ $(document).ready(function() {
 
 });
 
-function save(fieldId) {
+function savePage(fieldId) {
 
     var workerIds = $('#workers-list > li').map(function() {
         return this.id; // 'this' refers to the current li element in the loop
@@ -214,29 +261,33 @@ function save(fieldId) {
 
 
     // Collect data from all editable fields
-    var eventData = {
-        name: $('#name').val(),
-        description: $('#description').val(),
-        duration: $('#duration').val(),
-        location: $('#location').val(),
-        worker_ids: JSON.stringify(workerIds),
-        csrfmiddlewaretoken: '{{ csrf_token }}',
-        // Add other fields as necessary
-    };
+    var formData = new FormData();
+    formData.append('name', $('#name').val());
+    formData.append('description', $('#description').val());
+    formData.append('duration', $('#duration').val());
+    formData.append('location', $('#location').val());
+    formData.append('worker_ids', JSON.stringify(workerIds));
+    formData.append('is_visible', $('#is_visible').is(':checked'));
+    formData.append('image', $('#eventImage')[0].files[0]);  // Assumes there is a file selected
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');  // Ensure CSRF token is included
 
-    // AJAX call to send eventData to the server
-    $.post('{% url "event_detail" event.id %}', // The URL from Django template to your endpoint
-       eventData, // Data being sent in the request body
-       function(response) {
-           // Success callback
-           console.log('Event details updated successfully');
-           revertUIForAll();
-       },
-       'json' 
-        ).fail(function(xhr, status, error) {
-            // Error callback
+    $.ajax({
+        url: '{% url "event_detail" event.id %}',
+        type: 'POST',
+        data: formData,
+        processData: false,  // Important: tells jQuery not to process the data
+        contentType: false,  // Important: tells jQuery not to set contentType
+        success: function(response) {
+            console.log('Event details updated successfully');
+            // Keep the last saved values
+            originalImage = $('#imagePreview').attr('src');
+            originalVisibility = $('#is_visible').is(':checked');
+            revertUIForAll();
+        },
+        error: function(xhr, status, error) {
             console.error('Error updating event details:', error);
-        });
+        }
+    });
 }
 
 function cancel(fieldId, originalValue) {

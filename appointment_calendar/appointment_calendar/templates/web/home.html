@@ -1,0 +1,38 @@
+{% extends './web_base.html' %}
+
+{% load static %}
+
+{% block extra_css %}    
+    <link rel="stylesheet" href="{% static 'css/web_home.css' %}">
+    <style>
+        .hero-image {
+            background-image: url('{{ business_ui.header_image.url }}'); /* Path to your hero image */
+            height: 70vh; /* Adjust height as necessary */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block content %}
+
+    <div class="hero-image">
+        <div class="hero-text">
+            <h1>{{business.name}}</h1>
+            <p>{{business.description}}</p>
+        </div>
+    </div>
+
+    <!-- "Who We Are" Section -->
+    <section class="who-we-are">
+        <div class="container">
+            <div class="section-header">
+                <h2>Who We Are</h2>
+            </div>
+            <p class="text-muted">{{ business_ui.description|linebreaksbr|safe }}</p>
+        </div>
+    </section>
+
+{% endblock content %}

@@ -188,6 +188,43 @@
         </div>
     </div>
 </div>   
+
+<div class="rc-card card">
+    <div class="container mt-5">
+        <h2 class="card-title">Business UI Settings</h2>
+        <div class="card-body">
+            <!-- Toggle Visibility -->
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="is_visible" {% if business_ui.is_visible %}checked{% endif %}>
+                <label class="form-check-label" for="is_visible">Is Visible</label>
+                <i class="fas fa-question-circle ms-2" onclick="showTooltip(this);" data-bs-toggle="tooltip" data-bs-placement="right" title="Toggle to make your business visible or invisible to customers."></i>                
+            </div>
+            <!-- Business Description -->
+            <div class="mb-3">
+                <label for="businessDescription" class="form-label">
+                    Business Description
+                    <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="Provide a detailed description of your business."></i>
+                </label>
+                <textarea class="form-control" id="businessDescription" rows="3" maxlength="500" placeholder="Enter business description here..."></textarea>
+            </div>
+            <!-- Image Preview and Upload -->
+            <div class="mb-3">
+                <label for="businessHeaderImage" class="form-label">
+                    Business Header Image
+                    <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="Upload a header image for your business."></i>
+                </label>
+                <img src="{{ business_ui.header_image.url|default:'/media/businesses/placeholder.jpg' }}" id="headerImagePreview" class="img-fluid mb-2" style="max-height: 200px;">
+                <input type="file" class="form-control" id="businessHeaderImage" accept="image/png, image/jpeg">
+            </div>
+            <!-- Save and Cancel Buttons -->
+            <div class="text-end">
+                <button type="button" class="btn btn-primary" id="saveSettings">Save Changes</button>
+                <button type="button" class="btn btn-secondary" id="cancelSettings">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_script %}
@@ -197,7 +234,70 @@
         available_week_days.push({'id' : {{day.0}} , 'label' : '{{day.1}}' })
     {%endfor%}
 
+    $(function () {
+        $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+
+    // Function to show tooltip when the help icon is clicked
+    function showTooltip(icon) {
+        $(icon).tooltip('show');
+        // Hide the tooltip after some time automatically, optional
+        setTimeout(function() { $(icon).tooltip('hide'); }, 2000);
+    }
+
 $(document).ready(function() {    
+
+    let originalHeaderImage = $('#headerImagePreview').attr('src');
+    let originalVisibility = $('#is_visible').is(':checked');
+
+    $('#businessHeaderImage').change(function(e) {
+        if (e.target.files && e.target.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                $('#headerImagePreview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    $('#saveSettings').click(function() {
+        saveBusinessUI()
+    })
+
+    $('#cancelSettings').click(function() {
+        $('#headerImagePreview').attr('src', originalHeaderImage);
+        $('#is_visible').prop('checked', originalVisibility);
+
+        // Clear the file input
+        $('#businessHeaderImage').val(null); 
+    });
+
+    function saveBusinessUI() {
+
+        // Collect data from all editable fields
+        var formData = new FormData();
+        formData.append('description', $('#businessDescription').val());
+        formData.append('is_visible', $('#is_visible').is(':checked'));
+        formData.append('business_header_image', $('#businessHeaderImage')[0].files[0]);  // Assumes there is a file selected
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');  // Ensure CSRF token is included
+
+        $.ajax({
+            url: '{% url "update_business_ui" business.id %}',
+            type: 'POST',
+            data: formData,
+            processData: false,  // Important: tells jQuery not to process the data
+            contentType: false,  // Important: tells jQuery not to set contentType
+            success: function(response) {
+                console.log('Business UI details updated successfully');
+                // Keep the last saved values
+                originalImage = $('#headerImagePreview').attr('src');
+                originalVisibility = $('#is_visible').is(':checked');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating event details:', error);
+            }
+        });
+    }
 
     $('.form-check-input').change(function() {
         var label = $(this).next('label');

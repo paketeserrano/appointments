@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequ
 from .forms import AppointmentForm, SignUpForm, AppointmentCancelForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
 from django.conf import settings
 from django.core.mail import send_mail
-from .models import Appointment, Event, Account, Invitee, CustomUser, OpenningTime, SpecialDay, WEEKDAYS
+from .models import Appointment, Event, Account, Invitee, CustomUser, OpenningTime, SpecialDay, WEEKDAYS, EventUI, AccountUI
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core import serializers
@@ -21,30 +21,43 @@ from django.views.generic import View, DetailView
 from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.views.decorators.http import require_POST
+from django.core.files.storage import FileSystemStorage
 
 class EventDetailView(View):
 
     def get(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
-        return render(request, 'events/event_details.html', {'event': event})
+        event_ui, created = EventUI.objects.get_or_create(event=event)
+        print(f' Event UI: {event_ui}')
+        return render(request, 
+                      'events/event_details.html', 
+                      {'event': event,
+                       'event_ui': event_ui})
 
     def post(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
+        event_ui = EventUI.objects.get(event=event)
         
         # Update event fields with data from request
         event.name = request.POST.get('name', event.name)
         event.description = request.POST.get('description', event.description)
         event.duration = request.POST.get('duration', event.duration)
         event.location = request.POST.get('location', event.location)
-        workerIds = json.loads(request.POST.get('worker_ids'))
-        
-        print('--------------------------')
-        print(request.POST.get('worker_ids'))
-        print('--------------------------')
+
+        workerIds = json.loads(request.POST.get('worker_ids'))        
         workers = CustomUser.objects.filter(pk__in=workerIds)
         event.event_workers.set(workers)
 
-        event.save()
+        # Update EventUI model
+        event_ui.is_visible = request.POST.get('is_visible') == 'true'
+
+        # Handle image file upload
+        if 'image' in request.FILES:
+            image_file = request.FILES['image']
+            event_ui.image = image_file
+
+        # Save changes
+        event_ui.save()
         return JsonResponse({'message': 'Event updated successfully'}, status=200)
 
     def delete(self, request, pk):
@@ -739,27 +752,43 @@ def add_business(request):
     return render(request, 'business/add_business.html', context)
 
     
-def view_business(request, business_id = -1):
-    business = Account.objects.get(pk=business_id)
-    business_hours = OpenningTime.objects.filter(account = business_id)
-    special_days = SpecialDay.objects.filter(account = business_id)
-    events = Event.objects.filter(account_id=business_id)
+class ViewBusiness(TemplateView):
+    show_web = False
+    def get_template_names(self):
+        if self.show_web:
+            return ['web/home.html']
+        else:
+            return ['business/view_business.html']
 
-    for business_hour in business_hours:
-        business_hour.to_hour = business_hour.to_hour.strftime('%H:%M')
-        business_hour.from_hour = business_hour.from_hour.strftime('%H:%M')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        business_id = self.kwargs.get('business_id', -1)
+        business = get_object_or_404(Account, pk=business_id)
+        business_ui, created = AccountUI.objects.get_or_create(business=business)
+        business_hours = OpenningTime.objects.filter(account=business_id)
+        special_days = SpecialDay.objects.filter(account=business_id)
+        events = Event.objects.filter(account_id=business_id)
 
-    for special_day in special_days:
-        special_day.to_hour = special_day.to_hour.strftime('%H:%M')
-        special_day.from_hour = special_day.from_hour.strftime('%H:%M')
-    
-    context = {'business' : business,
-               'business_hours' : business_hours,
-               'special_days' : special_days,
-               'events' : events,
-               'available_days': WEEKDAYS}
-               
-    return render(request, 'business/view_business.html', context) 
+        # Format business hours and special days times
+        for business_hour in business_hours:
+            business_hour.to_hour = business_hour.to_hour.strftime('%H:%M')
+            business_hour.from_hour = business_hour.from_hour.strftime('%H:%M')
+
+        for special_day in special_days:
+            special_day.to_hour = special_day.to_hour.strftime('%H:%M')
+            special_day.from_hour = special_day.from_hour.strftime('%H:%M')
+
+        # Update context with all the details
+        context.update({
+            'business': business,
+            'business_ui': business_ui,
+            'business_hours': business_hours,
+            'special_days': special_days,
+            'events': events,
+            'available_days': WEEKDAYS,
+        })
+
+        return context
 
 def add_business_event(request, business_id = -1):
     if request.method == 'POST':
@@ -786,3 +815,29 @@ def toggle_event_active(request):
     event.active = not event.active
     event.save()
     return JsonResponse({'status': 'success', 'event_active': event.active})
+
+@require_POST
+def update_business_ui(request, business_id):
+    # Get the account instance
+    account = get_object_or_404(Account, pk=business_id)
+    
+    # Get the associated UI instance or create a new one if it doesn't exist
+    account_ui, created = AccountUI.objects.get_or_create(business=account)
+    
+    # Update the UI visibility
+    account_ui.is_visible = request.POST.get('is_visible') == 'true'
+
+    # Handle the header image upload
+    header_image = request.FILES.get('business_header_image')
+    if header_image:
+        # Save the header image using the `account_directory_path` method
+        account_ui.header_image.save(header_image.name, header_image)
+
+    # Update general business description
+    account_ui.description = request.POST.get('description')
+    
+    # Save the UI instance
+    account_ui.save()
+
+    # Return a response indicating success
+    return JsonResponse({'message': 'Business UI updated successfully', 'is_visible': account_ui.is_visible, 'header_image_url': account_ui.header_image.url})

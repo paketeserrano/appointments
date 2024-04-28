@@ -1,0 +1,69 @@
+body, html {
+    height: 100%;
+    margin: 0;
+}
+.header-bar {
+    background-color: #007bff; /* Different color for the header */
+    color: white;
+    padding: 20px 20px;
+    text-align: center;
+    position: fixed;
+    width: 100%;
+    z-index: 998; /* Lower than sidebar toggle but above other content */
+    top: 0;
+}
+.sidebar {
+    height: 100%;
+    width: 250px; /* Initial width for desktop */
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    padding-top: 80px; /* Adjusted for header and toggle button */
+    transition: 0.5s;
+}
+.sidebar a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+.sidebar a:hover {
+    color: #f1f1f1;
+}
+.main {
+    transition: margin-left 0.5s;
+    padding-top: 60px; /* Space for header bar */
+    margin-left: 250px; /* Initial margin for desktop */
+}
+#sidebarCollapse {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 999;
+    background: #111;
+    border: none;
+    outline: none;
+    color: white;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: none; /* Hidden by default */
+}
+@media screen and (max-width: 767px) {
+    #sidebarCollapse {
+        display: block;
+    }
+    .sidebar {
+        width: 0; /* Hidden on mobile by default */
+    }
+    .main {
+        margin-left: 0; /* No margin on mobile by default */
+    }
+}
