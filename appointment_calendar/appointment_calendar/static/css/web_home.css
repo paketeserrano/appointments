@@ -1,0 +1,24 @@
+.hero-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgb(0, 0, 0);
+    text-align: center;
+    width: 100%;
+}
+
+/* Ensure the main content area is pushed down by the header */
+.main {
+    padding-top: 60px; /* Height of the header bar plus some extra space */
+}
+
+/* Add custom styles for the "Who We Are" section here */
+.who-we-are {
+    white-space: pre-line; /* This CSS property will preserve line breaks */    
+}
+
+.who-we-are .section-header {
+    text-align: center; /* Centers the header text */
+}
+

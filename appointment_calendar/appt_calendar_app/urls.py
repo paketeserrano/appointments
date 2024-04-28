@@ -2,6 +2,7 @@ from django.urls import path,include, re_path
 from . import views
 from django.contrib.auth.views import LogoutView
 from appointment_calendar import settings
+from django.conf.urls.static import static
 
 conditions_skip_event = {'Event': False}
 conditions_skip_event_worker = {'Event': False,
@@ -12,6 +13,7 @@ urlpatterns = [
     path('appointment_wizard/<int:business_id>', views.BookingCreateWizardView.as_view(client_appointment=False), name='appointment_wizard'),
     path('appointment_wizard/<int:business_id>/<int:event_id>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event), name='appointment_for_event'),
     path('appointment_wizard/<int:business_id>/<int:event_id>/<int:worker_id>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event_worker), name='appointment_for_event_worker'),
+    
     # Paths to set up an appointment for clients
     path('client_appointment/<int:business_id>', views.BookingCreateWizardView.as_view(client_appointment=True), name='client_appointment'),
     path('client_appointment/<int:business_id>/<int:event_id>', views.BookingCreateWizardView.as_view(client_appointment=True, condition_dict = conditions_skip_event), name='client_appointment_for_event'),
@@ -25,7 +27,7 @@ urlpatterns = [
     path('get_available_time', views.get_available_time, name='get_available_time'),
     path('registration', views.user_registration, name='user_registration'),
     path("add_business/", views.add_business, name="add_business"),
-    path("view_business/<int:business_id>/", views.view_business, name="view_business"),
+    path("business/<int:business_id>/", views.ViewBusiness.as_view(show_web=False), name="view_business"),
     path("add_business_event/<int:business_id>/", views.add_business_event, name="add_business_event"),
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
     path("business_hour/<int:id>", views.BusinessHourView.as_view(), name="business_hour"),
@@ -41,4 +43,8 @@ urlpatterns = [
     path('events/<int:pk>/', views.EventDetailView.as_view(), name='event_detail'),
     path('events/', views.EventsView.as_view(), name='events_list'),
     path('toggle-event-active/', views.toggle_event_active, name='toggle_event_active'),
-] 
+
+    # Web pages section
+    path('business/<int:business_id>/web/', views.ViewBusiness.as_view(show_web = True), name='web_business'),
+    path('business/<int:business_id>/update_ui/', views.update_business_ui, name='update_business_ui'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

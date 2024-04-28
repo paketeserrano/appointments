@@ -30,6 +30,19 @@ class Account(models.Model):
 
     def __str__(this):
         return this.name  
+    
+def account_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/events/<account_id>/header_image_<filename>
+    return f'businesses/{instance.business.id}/header_image_{filename}'
+    
+class AccountUI(models.Model):
+    business = models.OneToOneField(Account, on_delete=models.CASCADE, related_name='ui')
+    is_visible = models.BooleanField(default=True)
+    header_image = models.ImageField(upload_to=account_directory_path, blank=True, null=True, default='businesses/placeholder.jpg')
+    description = models.CharField(max_length=500)
+
+    def __str__(self):
+        return f'UI for {self.business.name} with path: {self.header_image}'
 
 class Invitee(models.Model):
     email = models.EmailField(max_length = 240)
@@ -50,7 +63,19 @@ class Event(models.Model):
     active = models.BooleanField(default=False)
 
     def __str__(this):
-        return this.name
+        return this.name 
+    
+def event_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/events/<event_id>/profile_<filename>
+    return f'events/{instance.event.id}/profile_{filename}'
+
+class EventUI(models.Model):
+    event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='ui')
+    is_visible = models.BooleanField(default=True)
+    image = models.ImageField(upload_to=event_directory_path, blank=True, null=True, default='events/placeholder.jpg')
+
+    def __str__(self):
+        return f'UI for {self.event.name} with path: {self.image}'
     
 APPOINTMENT_STATUS = [
     ("ACTIVE", "ACTIVE"),
