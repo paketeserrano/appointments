@@ -150,3 +150,12 @@ class SpecialDay(models.Model):
     def __str__(self):
         return str(self.date)
     
+class BusinessAppearance(models.Model):
+    account = models.OneToOneField(Account, on_delete = models.CASCADE, related_name='appearance')
+    header_bar_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Stores the color of the header bar as a hex code.")
+    background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Stores the color of the background as a hex code.")
+    text_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Stores the color of the text as a hex code.")
+    section_header_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Stores the color of the sections header text as a hex code.")
+    def __str__(self):
+        return f"UI Configuration for Header Color {self.header_bar_color}" 
+    

@@ -28,16 +28,16 @@
     <!-- "Who We Are" Section -->
     <section class="who-we-are">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header section-header-font-color ">
                 <h2>Who We Are</h2>
             </div>
-            <p class="text-muted">{{ business_ui.description|linebreaksbr|safe }}</p>
+            <p>{{ business_ui.description|linebreaksbr|safe }}</p>
         </div>
     </section>
 
     <section class="section-home">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header section-header-font-color ">
                 <h2>Services</h2>
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -70,7 +70,7 @@
 
     <section class="section-home">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header section-header-font-color ">
                 <h2>Our Location</h2>
             </div>
             <div class="row">
@@ -84,7 +84,7 @@
 
     <section class="section-home">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header section-header-font-color ">
                 <h2>Our Personnel</h2>
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -114,7 +114,7 @@
 
     <section class="section-home">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header section-header-font-color ">
                 <h2>Our Work</h2>
             </div>
             <div class="row photo-row">
@@ -147,12 +147,11 @@
 <script>
     $(document).ready(function() {
         function updateMapWithAddress() {
-            console.log("Hellooooooooooooo")
             // Get the address text from an element with ID 'address' and encode it for URL usage
             var q = encodeURIComponent($('#address').text());
 
             // Update the 'src' attribute of the 'map' element to include the encoded address in the Google Maps URL
-            $('#storeLocationMap').attr('src', 'https://www.google.com/maps/embed/v1/place?key=AIzaSyAroGdNi-q-hoHrCz-De5acWQhPIMMPSfI&q=' + q);
+            $('#storeLocationMap').attr('src', 'https://www.google.com/maps/embed/v1/place?key={{gm_key}}&q=' + q);
         }
 
         updateMapWithAddress();

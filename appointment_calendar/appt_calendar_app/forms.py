@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError  
 from django.forms.fields import EmailField  
 from django.forms.forms import Form 
-from .models import Account, Event, Appointment, Invitee, Address
+from .models import Account, Event, Appointment, Invitee, Address, BusinessAppearance
 import json
 
 
@@ -147,3 +147,20 @@ class AppointmentCancelForm(forms.ModelForm):
             'date': forms.TextInput(attrs={"disabled":"disabled"}),
             'time': forms.TextInput(attrs={"disabled":"disabled"})
         }
+
+class BusinessAppearanceForm(forms.ModelForm):
+    class Meta:
+        model = BusinessAppearance
+        fields = ('header_bar_color', 'background_color', 'text_color', 'section_header_font_color') 
+        widgets = {
+            'header_bar_color': forms.TextInput(attrs={'type': 'color'}),
+            'background_color': forms.TextInput(attrs={'type': 'color'}),
+            'text_color': forms.TextInput(attrs={'type': 'color'}),
+            'section_header_font_color': forms.TextInput(attrs={'type': 'color'}),
+        }
+
+    def clean_header_bar_color(self):
+        color = self.cleaned_data.get('header_bar_color')
+        if not color.startswith('#') or len(color) != 7:
+            raise forms.ValidationError("Please enter a valid hex color code.")
+        return color

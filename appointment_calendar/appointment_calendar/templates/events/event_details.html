@@ -11,6 +11,12 @@
   .photo-row {
     margin-bottom: 20px;
   }
+
+  .photo-container {
+    border: 2px solid #ccc;  /* Adds a border, adjust color as needed */
+    border-radius: 15px;     /* Adjust this value to increase or decrease the rounding */
+    overflow: hidden;        /* Ensures the contents also conform to the rounded corners */
+  }
 </style>
 {% endblock extra_css %}
 
@@ -142,15 +148,39 @@
     <h2>Photos</h2>
     <button id="add-photo" class="btn btn-success">Add</button>
     <input type="file" id="photo-upload" accept=".jpg, .jpeg, .png" style="display: none;">
-    <button id="delete-photo" class="btn btn-danger">Delete</button>
+    <button id="delete-photo" class="btn btn-danger" disabled>Delete Selected</button>
     <div class="row photo-row">
       {% for image in event.photos.all|slice:":9" %}
-      <div class="col-md-4">
-        <img src="{{ image.image.url }}" class="photo-thumbnail">
+      <div class="col-md-4 mt-4">
+        <div class="photo-container p-2">
+          <input type="checkbox" class="photo-select" data-image-id="{{ image.id }}">
+          <img src="{{ image.image.url }}" class="photo-thumbnail">
+        </div>
       </div>
       {% endfor %}
     </div>
     <button class="btn btn-primary" id="load-more">Load More</button>
+  </div>
+</div>
+
+<!-- Bootstrap Modal for Confirmation of photo deletion -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Delete selected?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirm-delete">Confirm</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -206,6 +236,48 @@ $(document).ready(function() {
       var src = $(this).attr('src'); // Get the source from the clicked image
       $('#modal-image').attr('src', src); // Set the source in the modal image
       $('#imageModal').modal('show'); // Display the modal
+    });
+
+    // Handle checkbox changes
+    $('.photo-select').change(function() {
+      const selectedPhotos = $('.photo-select:checked').length;
+      $('#delete-photo').prop('disabled', selectedPhotos === 0);
+    });
+
+    // Handle delete button click
+    $('#delete-photo').click(function() {
+      $('#confirmDeleteModal').modal('show');
+    });
+
+    // Confirm deletion in modal
+    $('#confirm-delete').click(function() {
+      $('#confirmDeleteModal').modal('hide');
+      const selectedIds = $('.photo-select:checked').map(function() {
+        return $(this).data('image-id');
+      }).get();
+
+      // AJAX request to delete images      
+      $.ajax({
+        url: '{% url "delete_event_business_photos" %}', 
+        type: 'POST',
+        data: {
+          'image_ids': JSON.stringify(selectedIds),
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+          if(response.success) {
+            $('.photo-select:checked').each(function() {
+              $(this).closest('.col-md-4').fadeOut();
+            });
+          } else {
+            alert('Error deleting images.');
+          }
+        },
+        error: function() {
+          alert('Server error, please try again later.');
+        }
+      });
+      
     });
 
     // Event handler for 'Add new' button click

@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequest, HttpResponseNotFound
-from .forms import AppointmentForm, SignUpForm, AppointmentCancelForm, AddressForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
+from .forms import AppointmentForm, SignUpForm, BusinessAppearanceForm, AppointmentCancelForm, AddressForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
 from django.conf import settings
 from django.core.mail import send_mail
-from .models import Appointment, Event, Account, Invitee, CustomUser, OpenningTime, BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI
+from .models import Appointment, Event, Account, BusinessAppearance, Invitee, CustomUser, OpenningTime, BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core import serializers
@@ -22,6 +22,7 @@ from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.views.decorators.http import require_POST
 from django.core.files.storage import FileSystemStorage
+import os
 
 class EventDetailView(View):
 
@@ -781,6 +782,9 @@ class ViewBusiness(TemplateView):
             special_day.from_hour = special_day.from_hour.strftime('%H:%M')
 
         # Update context with all the details
+        print('---------------------')
+        print('business: ' + business.appearance.header_bar_color)
+        print('---------------------')
         context.update({
             'business': business,
             'business_ui': business_ui,
@@ -788,6 +792,7 @@ class ViewBusiness(TemplateView):
             'special_days': special_days,
             'events': events,
             'available_days': WEEKDAYS,
+            'gm_key': settings.GM_KP,
         })
 
         return context
@@ -908,3 +913,45 @@ def upload_photo(request, event_id):
         return JsonResponse({'success': False})
     
     return JsonResponse({'success': False})
+
+@require_POST
+def delete_photos(request):
+    try:
+        # Load image IDs from POST request; assuming JSON body
+        image_ids = request.POST.get('image_ids')
+        if image_ids:
+            image_ids = json.loads(image_ids)
+
+        # Query for the images
+        images = BusinessEventImageUpload.objects.filter(id__in=image_ids)
+
+        # Delete the files associated with the images
+        for image in images:
+            file_path = os.path.join(settings.MEDIA_ROOT, image.image.name)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        # Delete the image records
+        images.delete()
+
+        return JsonResponse({'success': True, 'message': 'Images deleted successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': 'Failed to delete images.', 'error': str(e)})
+    
+class BusinessAppearanceView(View):
+    template_name = 'business/business_appearance.html'
+
+    def get(self, request, *args, **kwargs):
+        account_id = kwargs.get('account_id')
+        appearance, created = BusinessAppearance.objects.get_or_create(account_id=account_id)
+        form = BusinessAppearanceForm(instance=appearance)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        account_id = kwargs.get('account_id')
+        appearance, created = BusinessAppearance.objects.get_or_create(account_id=account_id)
+        form = BusinessAppearanceForm(request.POST, instance=appearance)
+        if form.is_valid():
+            form.save()
+            return redirect('business_appearance', account_id = account_id)
+        return render(request, self.template_name, {'form': form})

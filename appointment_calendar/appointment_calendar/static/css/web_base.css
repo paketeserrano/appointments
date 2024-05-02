@@ -81,3 +81,12 @@ body, html {
 .card-text-font{
     font-size: 15px;
 }
+
+.section-header {
+    text-align: center; /* Centers the header text */
+    margin-bottom: 15px;    
+}
+
+.section-header h2 {
+    font-size: 45px;
+}

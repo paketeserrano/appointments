@@ -37,10 +37,10 @@
             </div>
         </div>
         <div class="col-md-9 p-2"> <!-- Half width on medium screens and above -->
-            <div class="bg-white shadow-lg rounded-lg p-4">
+            <div class="bg-white shadow-lg rounded-lg p-4 section-header section-header-font-color">
                 <h2 class="text-lg font-bold text-center">{{custom_user.user.first_name | capfirst }} {{custom_user.user.last_name | capfirst }}</h2>
             </div>
-            <div class="bg-white shadow-lg rounded-lg p-4">
+            <div class="bg-white shadow-lg rounded-lg p-4 section-header section-header-font-color">
                 <p class="text-zinc-700">{{ custom_user.presentation}}</p>
             </div>
             <div class="bg-white shadow-lg rounded-lg p-4">
@@ -54,15 +54,15 @@
         </div>
     </div>
 
-    <div class="row justify-content-center p-2">
-        <div class="bg-white shadow-lg rounded-lg p-4">
+    <div class="row justify-content-center p-2 ">
+        <div class="bg-white shadow-lg rounded-lg p-4 section-header section-header-font-color">
             <h2 class="text-lg font-bold text-center">Experience</h2>
             <p class="text-zinc-700">{{custom_user.experience}}</p>
         </div>
     </div>
 
-    <div class="p-2">
-        <div class="bg-white shadow-lg rounded-lg p-4">
+    <div class="row justify-content-center p-2">
+        <div class="bg-white shadow-lg rounded-lg p-4 section-header section-header-font-color">
             <h2 class="text-lg font-bold text-center">My Work</h2>
             <div class="row"> <!-- Bootstrap grid for uniformity -->
                 <div class="col-6">
