@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError  
 from django.forms.fields import EmailField  
 from django.forms.forms import Form 
-from .models import Account, Event, Appointment, Invitee
+from .models import Account, Event, Appointment, Invitee, Address
 import json
 
 
@@ -104,6 +104,17 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
 
+class AddressForm(forms.ModelForm):
+    class Meta:
+        model = Address
+        fields = ['address', 'city', 'province', 'country']
+        widgets = {
+            'address': forms.TextInput(attrs={'class': 'form-control'}),
+            'city': forms.TextInput(attrs={'class': 'form-control'}),
+            'province': forms.TextInput(attrs={'class': 'form-control'}),
+            'country': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
 class CreateAccountForm(forms.ModelForm):
     class Meta:
         model = Account
@@ -117,7 +128,7 @@ class CreateAccountForm(forms.ModelForm):
 class CreateEventForm(forms.ModelForm):
     class Meta:
         model = Event 
-        fields = ['name', 'description', 'duration', 'location', 'event_workers'] 
+        fields = ['name', 'description', 'duration', 'event_workers'] 
 
 class AppointmentCancelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

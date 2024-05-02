@@ -1,0 +1,84 @@
+{% extends './web_base.html' %}
+
+{% load static %}
+
+{% block extra_css %} 
+<style>
+    .profile-image-container {
+        width: 200px;  /* Define a fixed width */
+        height: 200px; /* Ensure the height matches the width to maintain aspect ratio */
+        border-radius: 50%; /* Make the container circular */
+        overflow: hidden; /* Hide anything outside the circle */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .profile-image {
+        width: auto;  /* Ensure the image covers the area without distorting aspect ratio */
+        height: 100%; /* Stretch the image to fill the container height */
+    }
+
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    
+    <div class="row"> 
+        <div class="col-md-3 p-1"> <!-- Half width on medium screens and above -->
+            <div class="bg-white shadow-lg rounded-lg p-2 text-center">
+                <div class="profile-image-container">
+                    <img src="{{ custom_user.profile_image.url|default:'/media/user_profile/placeholder.jpg' }}" alt="Profile Picture" class="profile-image">
+            
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 p-2"> <!-- Half width on medium screens and above -->
+            <div class="bg-white shadow-lg rounded-lg p-4">
+                <h2 class="text-lg font-bold text-center">{{custom_user.user.first_name | capfirst }} {{custom_user.user.last_name | capfirst }}</h2>
+            </div>
+            <div class="bg-white shadow-lg rounded-lg p-4">
+                <p class="text-zinc-700">{{ custom_user.presentation}}</p>
+            </div>
+            <div class="bg-white shadow-lg rounded-lg p-4">
+                <div class="col text-center">
+                    <img src="{% static 'img/tiktok-icon.png' %}" alt="TikTok" class="social-icon mx-2">
+                    <img src="{% static 'img/instagram-icon.png' %}" alt="Instagram" class="social-icon mx-2">
+                    <img src="{% static 'img/youtube-icon.png' %}" alt="YouTube" class="social-icon mx-2">
+                    <img src="{% static 'img/facebook-icon.png' %}" alt="Facebook" class="social-icon mx-2">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center p-2">
+        <div class="bg-white shadow-lg rounded-lg p-4">
+            <h2 class="text-lg font-bold text-center">Experience</h2>
+            <p class="text-zinc-700">{{custom_user.experience}}</p>
+        </div>
+    </div>
+
+    <div class="p-2">
+        <div class="bg-white shadow-lg rounded-lg p-4">
+            <h2 class="text-lg font-bold text-center">My Work</h2>
+            <div class="row"> <!-- Bootstrap grid for uniformity -->
+                <div class="col-6">
+                    <img src="https://placehold.co/150" alt="Work 1" class="rounded-lg w-100">
+                </div>
+                <div class="col-6">
+                    <img src="https://placehold.co/150" alt="Work 2" class="rounded-lg w-100">
+                </div>
+                <div class="col-6">
+                    <img src="https://placehold.co/150" alt="Work 3" class="rounded-lg w-100">
+                </div>
+                <div class="col-6">
+                    <img src="https://placehold.co/150" alt="Work 4" class="rounded-lg w-100">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

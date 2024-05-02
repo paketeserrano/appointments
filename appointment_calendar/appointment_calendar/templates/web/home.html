@@ -35,4 +35,133 @@
         </div>
     </section>
 
+    <section class="section-home">
+        <div class="container">
+            <div class="section-header">
+                <h2>Services</h2>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for event in events %}
+                    <div class="flex justify-center items-center h-screen">
+                        <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white dark:bg-zinc-800">                            
+                            <img src="{{ event.ui.image.url|default:'/media/events/placeholder.jpg' }}" class="w-full" style="width:100%;" />
+                            <div class="text-center" style="padding:10px">
+                                <div class="px-6 py-4">
+                                    <div class="text-xl mb-2 text-center" style="font-weight:900">{{event.name}}</div>
+                                    <div class="mb-2 text-center overflow-hidden card-text-height card-text-font">
+                                        <p class="text-zinc-700 text-base dark:text-zinc-300">
+                                            {{event.description}}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="px-6 py-4">
+                                    <a
+                                    href="{% url 'service_view' event.id%}"
+                                    class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded"
+                                    >More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="section-home">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Location</h2>
+            </div>
+            <div class="row">
+            <div class="col-12 text-center">
+                <p id="address">{{business.address.address}}, {{business.address.city}}, {{business.address.province}}, {{business.address.country}}</p>                    
+                <iframe id='storeLocationMap' src="" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>         
+            </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-home">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Personnel</h2>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for worker in business.account_workers.all %}
+                <div class="flex justify-center items-center h-screen">
+                    <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white dark:bg-zinc-800">                            
+                        <img src="{{ worker.profile_image.url|default:'/media/user_profiles/placeholder.jpg' }}" class="w-full" style="width:100%;" />
+                        <div class="text-center" style="padding:10px">
+                            <div class="px-6 py-4">
+                                <div class="text-xl mb-2 text-center" style="font-weight:900">{{ worker.user.first_name | capfirst }} {{ worker.user.last_name | capfirst }}</div>
+                                <div class="mb-2 text-center overflow-hidden card-text-height card-text-font">
+                                    <p class="text-zinc-700 text-base dark:text-zinc-300">
+                                        {{ worker.presentation }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="px-6 py-4">
+                                <a href="{% url 'web_user_profile' business_id=business.id user_id=worker.user.id %}" class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="section-home">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Work</h2>
+            </div>
+            <div class="row photo-row">
+            {% for image in business.photos.all|slice:":9" %}
+            <div class="col-md-4">
+                <img src="{{ image.image.url }}" class="photo-thumbnail">
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+      </section>
+
+    <!-- Bootstrap Modal for Image Viewing -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="imageModalLabel">Full Screen Image</h5>
+            </div>
+            <div class="modal-body text-center">
+            <img id="modal-image" src="" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+
 {% endblock content %}
+
+{% block extra_script %}
+<script>
+    $(document).ready(function() {
+        function updateMapWithAddress() {
+            console.log("Hellooooooooooooo")
+            // Get the address text from an element with ID 'address' and encode it for URL usage
+            var q = encodeURIComponent($('#address').text());
+
+            // Update the 'src' attribute of the 'map' element to include the encoded address in the Google Maps URL
+            $('#storeLocationMap').attr('src', 'https://www.google.com/maps/embed/v1/place?key=AIzaSyAroGdNi-q-hoHrCz-De5acWQhPIMMPSfI&q=' + q);
+        }
+
+        updateMapWithAddress();
+
+        $('.photo-thumbnail').click(function() {
+            var src = $(this).attr('src'); // Get the source from the clicked image
+            $('#modal-image').attr('src', src); // Set the source in the modal image
+            $('#imageModal').modal('show'); // Display the modal
+        });
+    });
+</script>
+{% endblock extra_script %}

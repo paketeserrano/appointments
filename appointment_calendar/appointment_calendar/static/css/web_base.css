@@ -14,8 +14,8 @@ body, html {
 }
 .sidebar {
     height: 100%;
-    width: 250px; /* Initial width for desktop */
-    position: fixed;
+    width: 0; /* Initial width for desktop */
+    position: absolute;
     z-index: 1;
     top: 0;
     left: 0;
@@ -39,9 +39,10 @@ body, html {
     transition: margin-left 0.5s;
     padding-top: 60px; /* Space for header bar */
     margin-left: 250px; /* Initial margin for desktop */
+    margin-left: 0;
 }
 #sidebarCollapse {
-    position: fixed;
+    position: absolute;
     top: 15px;
     left: 15px;
     z-index: 999;
@@ -54,16 +55,29 @@ body, html {
     height: 40px;
     border-radius: 5px;
     cursor: pointer;
-    display: none; /* Hidden by default */
+    display: block;
 }
-@media screen and (max-width: 767px) {
-    #sidebarCollapse {
-        display: block;
+
+@media screen and (min-width: 992px) {
+    .container-wide {
+        width: 60%; /* Occupies 60% of the screen width */
+        margin: 0 auto; /* Centers the container */
+        position: relative; /* Relative positioning for children */
     }
-    .sidebar {
-        width: 0; /* Hidden on mobile by default */
+    .header-bar {
+        position: relative;
     }
-    .main {
-        margin-left: 0; /* No margin on mobile by default */
-    }
+}
+
+.social-icon {
+    width: 30px;
+    height: 30px;
+}
+
+.card-text-height {
+    height: 100px; /* Set your desired height */
+}
+
+.card-text-font{
+    font-size: 15px;
 }

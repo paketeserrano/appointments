@@ -39,6 +39,7 @@
     <h1>Business: {{business.name}}</h1>
     <p>{{business.description}}</p>
 </div>
+
 <div class="rc-card">
     <h1>Events</h1>
     <div class="container">
@@ -278,8 +279,8 @@ $(document).ready(function() {
         var formData = new FormData();
         formData.append('description', $('#businessDescription').val());
         formData.append('is_visible', $('#is_visible').is(':checked'));
-        formData.append('business_header_image', $('#businessHeaderImage')[0].files[0]);  // Assumes there is a file selected
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');  // Ensure CSRF token is included
+        formData.append('business_header_image', $('#businessHeaderImage')[0].files[0]); 
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}'); 
 
         $.ajax({
             url: '{% url "update_business_ui" business.id %}',

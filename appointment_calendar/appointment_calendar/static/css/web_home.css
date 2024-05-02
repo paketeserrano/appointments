@@ -3,7 +3,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: rgb(0, 0, 0);
+    color: rgb(250, 250, 250);
     text-align: center;
     width: 100%;
 }
@@ -18,7 +18,27 @@
     white-space: pre-line; /* This CSS property will preserve line breaks */    
 }
 
-.who-we-are .section-header {
+.section-header {
     text-align: center; /* Centers the header text */
+    margin-bottom: 15px;    
 }
+
+.section-header h2 {
+    font-size: 45px;
+}
+
+.section-home {
+    margin-top:15px;
+    margin-bottom: 15px;
+}
+
+.photo-thumbnail {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    margin-bottom: 15px;
+  }
+  .photo-row {
+    margin-bottom: 20px;
+  }
 

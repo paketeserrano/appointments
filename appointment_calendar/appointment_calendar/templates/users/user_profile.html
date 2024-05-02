@@ -1,0 +1,103 @@
+{% extends 'base2.html' %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+{% block content %}
+    <h2>{{custom_user.user.first_name}} {{custom_user.user.last_name}}</h2>    
+
+    <div class="rc-card card">
+        <div class="container mt-5">
+            <!-- Profile Picture and Change Button -->
+            <div class="row align-items-center mb-3">
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="rounded-circle overflow-hidden" style="width: 100px; height: 100px;">
+                        <img src="{{ custom_user.profile_image.url|default:'/media/user_profile/placeholder.jpg' }}" id="profilePicture" class="img-fluid" alt="Profile Picture">
+                    </div>
+                </div>
+                <div class="col-6 col-md-8 col-lg-9">
+                    <label for="profileImageInput" class="btn btn-primary w-100">
+                        Change
+                        <input type="file" id="profileImageInput" class="d-none" accept="image/jpeg, image/png">
+                    </label>
+                </div>
+            </div>
+            <!-- Presentation Textarea -->
+            <div class="mb-3">
+                <label for="presentationTextarea" class="form-label">Presentation</label>
+                <textarea class="form-control" id="presentationTextarea" rows="3" maxlength="150">{{ custom_user.presentation }}</textarea>
+            </div>
+            <!-- Experience Textarea -->
+            <div class="mb-3">
+                <label for="experienceTextarea" class="form-label">Experience</label>
+                <textarea class="form-control" id="experienceTextarea" rows="10" maxlength="2000">{{ custom_user.experience }}</textarea>
+            </div>
+            <!-- Save and Cancel Buttons -->
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <button type="button" id="saveButton" class="btn btn-primary w-100">Save</button>
+                </div>
+                <div class="col-md-6">
+                    <button type="button" id="cancelButton" class="btn btn-secondary w-100">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block extra_script %}
+<script>
+    $(document).ready(function() {
+
+        // Show new profile picture after the user selects a new one
+        $('#profileImageInput').change(function() {
+            var input = this;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#profilePicture').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+
+        // Save button click event
+        $('#saveButton').click(function() {
+
+            var formData = new FormData();
+            formData.append('presentation', $('#presentationTextarea').val());
+            formData.append('experience', $('#experienceTextarea').val());
+
+            // Check if a new image is selected
+            var profileImageInput = document.getElementById('profileImageInput');
+            if (profileImageInput.files.length > 0) {
+                // Append the new profile image to FormData
+                formData.append('profile_image', profileImageInput.files[0]);
+            }
+
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}'); 
+
+            $.ajax({
+                url: '{% url "user_profile" user.id %}',
+                type: 'POST',
+                data: formData,
+                processData: false,  // Important: tells jQuery not to process the data
+                contentType: false,  // Important: tells jQuery not to set contentType
+                success: function(response) {
+                    console.log('Business UI details updated successfully');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error updating profile details:', error);
+                }
+            });
+        });
+
+        // Cancel button click event (optional)
+        $('#cancelButton').click(function() {
+            // Reload the page without saving
+            location.reload();
+        });
+    });
+
+</script>
+{% endblock extra_script %}

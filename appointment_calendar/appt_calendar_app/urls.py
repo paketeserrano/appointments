@@ -37,14 +37,18 @@ urlpatterns = [
     path('businesses/', views.AccountListView.as_view(show_dropdown = False), name='business-list'),
     path('businesses/dropdown', views.AccountListView.as_view(show_dropdown = True), name='business_list_dropdown'),
     path('logout/', LogoutView.as_view(next_page=settings.LOGOUT_REDIRECT_URL), name='logout'),
-    path('profile/', views.UserProfileView.as_view(), name='profile'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logged_out/', views.LoggedOutView.as_view(), name='logged_out'),
+    path('toggle-event-active/', views.toggle_event_active, name='toggle_event_active'),
+    path('user_profile/<int:user_id>/', views.UserProfileView.as_view(show_web = False), name='user_profile'),    
+    path('business/<int:business_id>/update_ui/', views.update_business_ui, name='update_business_ui'),
     path('events/<int:pk>/', views.EventDetailView.as_view(), name='event_detail'),
     path('events/', views.EventsView.as_view(), name='events_list'),
-    path('toggle-event-active/', views.toggle_event_active, name='toggle_event_active'),
+    path('events/<int:event_id>/load_more_images/', views.load_more_images, name='load_more_images'),
+    path('events/<int:event_id>/upload_photo/', views.upload_photo, name='upload_event_business_photo'),
 
-    # Web pages section
-    path('business/<int:business_id>/web/', views.ViewBusiness.as_view(show_web = True), name='web_business'),
-    path('business/<int:business_id>/update_ui/', views.update_business_ui, name='update_business_ui'),
+    # Business Web pages section
+    path("web/business/<int:business_id>/", views.ViewBusiness.as_view(show_web = True), name='web_business'),    
+    path('web/business/service/<int:event_id>/', views.ServiceView.as_view(), name='service_view'),
+    path('web/business/user/<int:business_id>/<int:user_id>/', views.UserProfileView.as_view(show_web = True), name='web_user_profile'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

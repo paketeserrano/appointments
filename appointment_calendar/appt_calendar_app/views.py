@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequest, HttpResponseNotFound
-from .forms import AppointmentForm, SignUpForm, AppointmentCancelForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
+from .forms import AppointmentForm, SignUpForm, AppointmentCancelForm, AddressForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
 from django.conf import settings
 from django.core.mail import send_mail
-from .models import Appointment, Event, Account, Invitee, CustomUser, OpenningTime, SpecialDay, WEEKDAYS, EventUI, AccountUI
+from .models import Appointment, Event, Account, Invitee, CustomUser, OpenningTime, BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core import serializers
@@ -42,7 +42,6 @@ class EventDetailView(View):
         event.name = request.POST.get('name', event.name)
         event.description = request.POST.get('description', event.description)
         event.duration = request.POST.get('duration', event.duration)
-        event.location = request.POST.get('location', event.location)
 
         workerIds = json.loads(request.POST.get('worker_ids'))        
         workers = CustomUser.objects.filter(pk__in=workerIds)
@@ -58,6 +57,7 @@ class EventDetailView(View):
 
         # Save changes
         event_ui.save()
+        event.save()
         return JsonResponse({'message': 'Event updated successfully'}, status=200)
 
     def delete(self, request, pk):
@@ -78,9 +78,6 @@ class CustomLoginView(LoginView):
     
 class LoggedOutView(TemplateView):
     template_name = 'registration/logged_out.html'
-
-class UserProfileView(TemplateView):
-    template_name = 'users/profile.html'
 
 class AccountListView(ListView):
     show_dropdown = False
@@ -736,9 +733,13 @@ def user_registration(request):
 def add_business(request):
     if request.method == 'POST':
         form = CreateAccountForm(request.POST)
-        if form.is_valid():
+        address_form = AddressForm(request.POST)
+        if form.is_valid() and address_form.is_valid():
+            # First save the address to obtain an instance
+            new_address = address_form.save()
             # Save the form to create an Account object but do not commit to the database yet
             new_account = form.save(commit=False)
+            new_account.address = new_address
             new_account.save()  # Save the new Account object to the database
             # Add the current user as an admin of the new account
             new_account.admins.add(CustomUser.objects.get(user=request.user))
@@ -747,8 +748,9 @@ def add_business(request):
             return redirect('business-list')
     else:
         form = CreateAccountForm()
+        address_form = AddressForm()
 
-    context = {'form': form}
+    context = {'form': form, 'address_form': address_form}
     return render(request, 'business/add_business.html', context)
 
     
@@ -841,3 +843,68 @@ def update_business_ui(request, business_id):
 
     # Return a response indicating success
     return JsonResponse({'message': 'Business UI updated successfully', 'is_visible': account_ui.is_visible, 'header_image_url': account_ui.header_image.url})
+
+class UserProfileView(View):
+
+    show_web = False
+    template_name = 'users/user_profile.html'
+    
+    def get(self, request, *args, **kwargs):
+        user_id = kwargs.get('user_id')
+        business_id = kwargs.get('business_id')
+        custom_user = CustomUser.objects.get(user__id=user_id) 
+        business = Account.objects.get(pk=business_id)       
+        if self.show_web:
+            self.template_name = ['web/user_profile.html']
+
+        return render(request, self.template_name, {'custom_user': custom_user,
+                                                    'business': business})
+
+    def post(self, request, *args, **kwargs):
+        user_id = kwargs.get('user_id')
+        custom_user = CustomUser.objects.get(user__id=user_id)
+        presentation = request.POST.get('presentation')
+        experience = request.POST.get('experience')
+        custom_user.presentation = presentation
+        custom_user.experience = experience
+        profile_image = request.FILES.get('profile_image')
+        if profile_image:
+            custom_user.profile_image.save(profile_image.name, profile_image)
+
+        custom_user.save()
+        return redirect('user_profile', user_id=user_id)
+
+
+class ServiceView(TemplateView):
+    template_name = 'web/service.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event_id = self.kwargs.get('event_id')
+        event = get_object_or_404(Event, pk=event_id)
+        business = get_object_or_404(Account, pk=event.account.id)
+
+        context.update({
+            'event': event,
+            'business': business,
+        })
+
+        return context
+    
+def load_more_images(request, event_id):
+    count = int(request.GET.get('count', 9))
+    images = BusinessEventImageUpload.objects.filter(event_id=event_id)[count:count+9]
+    image_data = [{'url': img.image.url} for img in images]
+    return JsonResponse({'data': image_data})
+
+def upload_photo(request, event_id):
+    if request.method == 'POST':
+        event = Event.objects.get(pk=event_id)
+        image_file = request.FILES.get('image')
+        if image_file:
+            new_image = BusinessEventImageUpload(account=event.account, event=event, image=image_file)
+            new_image.save()
+            return JsonResponse({'success': True, 'url': new_image.image.url})
+        return JsonResponse({'success': False})
+    
+    return JsonResponse({'success': False})

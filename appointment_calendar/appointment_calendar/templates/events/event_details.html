@@ -2,7 +2,15 @@
 
 {% block extra_css %}
 <style>
-
+  .photo-thumbnail {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    margin-bottom: 15px;
+  }
+  .photo-row {
+    margin-bottom: 20px;
+  }
 </style>
 {% endblock extra_css %}
 
@@ -129,6 +137,37 @@
       </div>
 </div>
 
+<div class="rc-card">
+  <div class="container mt-5">
+    <h2>Photos</h2>
+    <button id="add-photo" class="btn btn-success">Add</button>
+    <input type="file" id="photo-upload" accept=".jpg, .jpeg, .png" style="display: none;">
+    <button id="delete-photo" class="btn btn-danger">Delete</button>
+    <div class="row photo-row">
+      {% for image in event.photos.all|slice:":9" %}
+      <div class="col-md-4">
+        <img src="{{ image.image.url }}" class="photo-thumbnail">
+      </div>
+      {% endfor %}
+    </div>
+    <button class="btn btn-primary" id="load-more">Load More</button>
+  </div>
+</div>
+
+<!-- Bootstrap Modal for Image Viewing -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imageModalLabel">Full Screen Image</h5>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modal-image" src="" class="img-fluid">
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_script %}
@@ -137,6 +176,7 @@
 
 $(document).ready(function() {
 
+    var currentCount = 9;
     let originalImage = $('#imagePreview').attr('src');
     let originalVisibility = $('#is_visible').is(':checked');
 
@@ -160,6 +200,12 @@ $(document).ready(function() {
 
         // Clear the file input
         $('#eventImage').val(null); 
+    });
+
+    $('.photo-thumbnail').click(function() {
+      var src = $(this).attr('src'); // Get the source from the clicked image
+      $('#modal-image').attr('src', src); // Set the source in the modal image
+      $('#imageModal').modal('show'); // Display the modal
     });
 
     // Event handler for 'Add new' button click
@@ -249,7 +295,57 @@ $(document).ready(function() {
         e.preventDefault();
     });
 
+    $('#load-more').click(function() {
+        $.ajax({
+          url: "{% url 'load_more_images' event.id %}?count=" + currentCount,
+          type: 'GET',
+          success: function(response) {
+            if (response.data.length > 0) {
+              response.data.forEach(function(image) {
+                $('.photo-row').append(
+                  '<div class="col-md-4"><img src="' + image.url + '" class="photo-thumbnail"></div>'
+                );
+              });
+              currentCount += response.data.length;
+            } else {
+              $('#load-more').hide(); // Hide button if no more images are available
+            }
+          }
+        });
+      });
+
+      $('#add-photo').click(function() {
+        $('#photo-upload').click(); 
+      });
+
+      $('#photo-upload').change(function(event) {
+        var formData = new FormData();
+        formData.append('image', event.target.files[0]);  // Get the file from input
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        $.ajax({
+          url: "{% url 'upload_event_business_photo' event.id %}",
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(response) {
+            if (response.success) {
+              $('.photo-row').prepend('<div class="col-md-4"><img src="' + response.url + '" class="photo-thumbnail"></div>');
+              alert('Image uploaded successfully!');
+            } else {
+              alert('Upload failed. Please try again.');
+            }
+          }
+        });
+      });
+
+      $('#delete-photo').click(function() {
+        // Implement deletion logic here, possibly requiring selection of images or more complex UI interactions
+      });
+
 });
+
 
 function savePage(fieldId) {
 
