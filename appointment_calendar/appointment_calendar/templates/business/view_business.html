@@ -30,14 +30,145 @@
     .card-footer .btn, .card-footer .form-switch {
         margin-top: 10px; /* Add space between buttons when stacked */
     }
-    
+
+    .card-custom {
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        width: 300px; /* Fixed width for the progress bar card */
+    }
+
+    .progress {
+        height: 10px;
+        border-radius: 5px;
+        background-color: #f0f0f0;
+    }
+
+    .progress-bar {
+        background-color: green;
+        transition: width 0.6s ease;
+    }
+
+    /* Custom Styling for Responsive Adjustments */
+    .profile-progress {
+        display: flex;
+        flex-direction: column; /* Stack vertically by default */
+        align-items: flex-start; /* Align items at the start */
+    }
+
+    .profile-details {
+        width: 100%; /* Ensure it fills the container */
+    }
+
+    @media (min-width: 768px) {
+        .profile-progress {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        }
+
+        .profile-details {
+        margin-right: 20px; /* Space between text and progress bar */
+        }
+    }
+
+    .card-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .percentage-label {
+        font-size: 16px;
+        color: #333;
+    }
+
   </style>
 {% endblock extra_css %}
 
 {% block content %}
 <div class="rc-card">
-    <h1>Business: {{business.name}}</h1>
-    <p>{{business.description}}</p>
+    <div class="profile-progress">
+        <div class="profile-details">
+          <h1>{{ business.name | capfirst }}</h1>
+          <p>{{ business.presentation }}</p>
+        </div>
+        <div class="card card-custom" style="margin: 5px;">
+          <div class="card-body">
+            <div class="card-title">
+              <h5>Business Status</h5>
+              <span class="percentage-label">{{ businesses_configuration.percentage_completed }}%</span>
+            </div>
+            <div class="progress my-3">
+              <div class="progress-bar" role="progressbar" style="width: {{ businesses_configuration.percentage_completed }}%;" aria-valuenow="{{ businesses_configuration.percentage_completed }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#actionsModal">Actions</a>
+          </div>
+        </div>
+        <div class="card card-custom" style="margin: 5px;">
+            <div class="card-body">
+              <div class="card-title">
+                <h5>Business Website</h5>
+              </div>
+              <div class="event-link text-center">
+                <a href="{{web_url}}" class="info-link" id="businessWebsite" aria-disabled="false" target="_blank">
+                  View Business Website           
+                </a>
+                <i class="fas fa-info-circle ms-2" id="infoIcon"  data-bs-toggle="tooltip" data-bs-placement="right" title="The more info you add to your business and events, the better the website will look"></i>
+              </div>
+            </div>
+          </div>
+    </div>
+</div>
+<div class="modal fade" id="actionsModal" tabindex="-1" aria-labelledby="actionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="actionsModalLabel">Business Actions</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="d-flex align-items-center">
+                {% if businesses_configuration.has_at_least_one_event %} 
+                    <i class="fas fa-check-circle fa-sm text-success"></i>
+                    <span class="ms-2 text-muted">Create one event</span>
+                {% else %}
+                    <i class="far fa-circle fa-sm text-danger"></i>
+                    <span class="ms-2 text-muted">Create one event</span>
+                {% endif %}
+            </div>
+            <div class="d-flex align-items-center">
+                {% if businesses_configuration.has_at_least_one_business_hour %} 
+                    <i class="fas fa-check-circle fa-sm text-success"></i>
+                    <span class="ms-2 text-muted">Worked on Business Hours</span>
+                    <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
+                        data-bs-placement="right" title="Customers will only be able to book any event on this business during the business hours declared below"></i>
+                {% else %}
+                    <i class="far fa-circle fa-sm text-danger"></i>
+                    <span class="ms-2 text-muted">Worked on Business Hours</span>
+                {% endif %}
+            </div>
+            <div class="d-flex align-items-center">
+                {% if businesses_configuration.has_business_description %} 
+                    <i class="fas fa-check-circle fa-sm text-success"></i>
+                    <span class="ms-2 text-muted">Filled Business Description</span>
+                {% else %}
+                    <i class="far fa-circle fa-sm text-danger"></i>
+                    <span class="ms-2 text-muted">Filled Business Description</span>
+                {% endif %}
+            </div>
+            <div class="d-flex align-items-center">
+                {% if businesses_configuration.has_header_image %} 
+                    <i class="fas fa-check-circle fa-sm text-success"></i>
+                    <span class="ms-2 text-muted">Added a Front Image</span>
+                {% else %}
+                    <i class="far fa-circle fa-sm text-danger"></i>
+                    <span class="ms-2 text-muted">Added a Front Image</span>
+                {% endif %}
+            </div>
+        </div>
+      </div>
+    </div>
 </div>
 
 <div class="rc-card">
@@ -55,16 +186,17 @@
                     <div class="card-footer" style="border-top: 1px solid #E2E8F0; background-color: transparent;">
                         <div class="row align-items-center">
                             <div class="col-5">
-                                <a href="#" class="btn btn-outline-primary w-100">Share</a>
+                                <a href="#" class="btn btn-outline-primary w-100 shareButton"  data-share-url="{{ event.event_url }}">Share</a>
                             </div>
                             <div class="col-7">
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="toggleEvent{{ forloop.counter }}">
+                                    <input class="form-check-input event-toggle" type="checkbox" id="toggleEvent{{ forloop.counter }}"
+                                    data-event-id="{{ event.id }}" {% if event.active %}checked{% endif %}>
                                     <label class="form-check-label toggle-label" for="toggleEvent{{ forloop.counter }}" style="color: #4299E1;">
-                                        {% if not event.active %}
-                                            Turn On
-                                        {% else %}
+                                        {% if event.active %}
                                             Turn Off
+                                        {% else %}
+                                            Turn On
                                         {% endif %}
                                     </label>
                                 </div>
@@ -82,145 +214,240 @@
     </div>
 </div>
 
-    <br>
-<div class="rc-card">
-    <h2>Workers</h2>
-    <div class="container my-4">
-        <div class="table-responsive">
-            {% for worker in business.account_workers.all %}
-                <div class="table-row">
-                    <span>{{worker.user.first_name}} {{worker.user.last_name}}</span>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
-                                <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
-                            </svg>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
-                            <li><a class="dropdown-item" href="{% url 'worker_remove' business.id  worker.id %}">Remove Worker</a></li>
-                            <li><a class="dropdown-item" href="{% url 'worker_detail' business.id worker.id %}">View Worker</a></li>
-                        </ul>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Business Hours Section -->
+        <div class="col-md-6">
+            <div class="rc-card">   
+                <div class="row align-items-center"> <!-- Ensure vertical alignment in the middle -->
+                    <div class="col-auto"> <!-- Use 'col-auto' to only take necessary width -->
+                        <h2>Business Hours</h2>
+                    </div>
+                    <div class="col-auto"> <!-- Use 'col-auto' for the icon to stay close to the text -->
+                        <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
+                        data-bs-placement="right" title="Days declared here will be available in your events when customers book them"></i>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-    <br>
-<div class="rc-card">   
-    <div class="container mt-5" id="businessHours">
-        <h2>Business Hours</h2>
-        {% for hour in business_hours %}
-        <div class="table-row hour-entry" data-hour-id="{{ hour.id }}" data-url="{% url 'business_hour' hour.id %}">
-            <span class="weekday">{{ hour.get_weekday_display }}</span>
-            <span class="from-hour">{{ hour.from_hour }}</span>
-            <span class="to-hour">{{ hour.to_hour }}</span>
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-ellipsis-v"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item delete-hour" href="#">Delete</a></li>
-                    <li><a class="dropdown-item edit-hour" href="#">Edit</a></li>
-                </ul>
-            </div>
-            <div class="edit-actions d-none">
-                <button class="btn btn-success commit-hour-edit">Save</button>
-                <button class="btn btn-danger cancel-hour-edit">Cancel</button>
-            </div>
-        </div>
-        {% endfor %}
-        <button id="addHourButton" class="btn btn-primary mt-3">
-            <i class="fas fa-plus"></i> Add New
-        </button>
-        <div id="addHourForm" class="d-none mt-3">
-            <div class="table-row">
-                <select class="form-control" id="newWeekday">
-                    {% for available_day in available_days %}
-                        <option value="{{available_day.0}}">{{available_day.1}}</option>
-                    {%endfor%}
-                </select>
-                <input type="time" id="newFromHour" class="form-control">
-                <input type="time" id="newToHour" class="form-control">
-            </div>
-            <button id="commitNewHour" class="btn btn-success mt-2">Commit</button>
-            <button id="cancelNewHour" class="btn btn-danger mt-2">Cancel</button>
-        </div>
-    </div>
-</div>
-    <br>
-    <!-- Days Closed or Holidays Section -->
-<div class="rc-card">
-    <div class="container mt-5" id="specialDays">
-        <h2>Days Closed or Holidays</h2>
-        {% for day in special_days %}
-            <div class="table-row special-day-entry" data-day-id="{{ day.id }}" data-url="{% url 'special_day_update_delete' day.id %}">
-                <span class="date">{{ day.date }}</span> <!-- Added class="date" -->
-                <span class="from-hour">{{ day.from_hour }}</span> <!-- Added class="from-hour" -->
-                <span class="to-hour">{{ day.to_hour }}</span> <!-- Added class="to-hour" -->                
-                <!-- Dropdown Button -->
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v"></i>
+                <div class="container mt-5" id="businessHours">
+                    {% for hour in business_hours %}
+                    <div class="table-row hour-entry" data-hour-id="{{ hour.id }}" data-url="{% url 'business_hour_update' business.id hour.id %}">
+                        <span class="weekday">{{ hour.get_weekday_display }}</span>
+                        <span class="from-hour">{{ hour.from_hour }}</span>
+                        <span class="to-hour">{{ hour.to_hour }}</span>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item delete-hour" href="#">Delete</a></li>
+                                <li><a class="dropdown-item edit-hour" href="#">Edit</a></li>
+                            </ul>
+                        </div>
+                        <div class="edit-actions d-none">
+                            <button class="btn btn-success commit-hour-edit">Save</button>
+                            <button class="btn btn-danger cancel-hour-edit">Cancel</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <button id="addHourButton" class="btn btn-primary mt-3">
+                        <i class="fas fa-plus"></i> Add New
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
-                        <li><a class="dropdown-item delete-day" href="#">Delete</a></li>
-                        <li><a class="dropdown-item edit-day" href="#">Edit</a></li>
-                    </ul>
-                </div>
-                <!-- Edit and Delete Actions -->
-                <div class="edit-actions d-none">
-                    <button class="btn btn-success commit-edit">Save</button>
-                    <button class="btn btn-danger cancel-edit">Cancel</button>
+                    <div id="addHourForm" class="d-none mt-3">
+                        <div class="table-row">
+                            <select class="form-control" id="newWeekday">
+                                {% for available_day in available_days %}
+                                    <option value="{{available_day.0}}">{{available_day.1}}</option>
+                                {%endfor%}
+                            </select>
+                            <input type="time" id="newFromHour" class="form-control">
+                            <input type="time" id="newToHour" class="form-control">
+                        </div>
+                        <button id="commitNewHour" class="btn btn-success mt-2">Commit</button>
+                        <button id="cancelNewHour" class="btn btn-danger mt-2">Cancel</button>
+                    </div>
                 </div>
             </div>
-        {% endfor %}
-        <button id="addSpecialDayButton" class="btn btn-primary mt-3">
-            <i class="fas fa-plus"></i> Add New
-        </button>
-        <div id="addSpecialDayForm" class="d-none mt-3">
-            <div class="table-row">
-                <input type="date" id="newDate" class="form-control">
-                <input type="time" id="newDateFromHour" class="form-control">
-                <input type="time" id="newDateToHour" class="form-control">
-            </div>
-            <button id="commitNewSpecialDay" class="btn btn-success mt-2">Commit</button>
-            <button id="cancelNewSpecialDay" class="btn btn-danger mt-2">Cancel</button>
+        </div>
+        <!-- Days Closed or Holidays Section -->
+        <div class="col-md-6">
+            <div class="rc-card">
+                <div class="row align-items-center"> <!-- Ensure vertical alignment in the middle -->
+                    <div class="col-auto"> <!-- Use 'col-auto' to only take necessary width -->
+                        <h2>Days Closed or Holidays</h2>
+                    </div>
+                    <div class="col-auto"> <!-- Use 'col-auto' for the icon to stay close to the text -->
+                        <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
+                        data-bs-placement="right" title="Add special days you are closed. Maybe a bank holiday or something unexpected happened"></i>
+                    </div>
+                </div>
+                <div class="container mt-5" id="specialDays">        
+                    {% for day in special_days %}
+                        <div class="table-row special-day-entry" data-day-id="{{ day.id }}" data-url="{% url 'special_day_update_delete' business.id day.id %}">
+                            <span class="date">{{ day.date }}</span> <!-- Added class="date" -->
+                            <span class="from-hour">{{ day.from_hour }}</span> <!-- Added class="from-hour" -->
+                            <span class="to-hour">{{ day.to_hour }}</span> <!-- Added class="to-hour" -->                
+                            <!-- Dropdown Button -->
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
+                                    <li><a class="dropdown-item delete-day" href="#">Delete</a></li>
+                                    <li><a class="dropdown-item edit-day" href="#">Edit</a></li>
+                                </ul>
+                            </div>
+                            <!-- Edit and Delete Actions -->
+                            <div class="edit-actions d-none">
+                                <button class="btn btn-success commit-edit">Save</button>
+                                <button class="btn btn-danger cancel-edit">Cancel</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <button id="addSpecialDayButton" class="btn btn-primary mt-3">
+                        <i class="fas fa-plus"></i> Add New
+                    </button>
+                    <div id="addSpecialDayForm" class="d-none mt-3">
+                        <div class="table-row">
+                            <input type="date" id="newDate" class="form-control">
+                            <input type="time" id="newDateFromHour" class="form-control">
+                            <input type="time" id="newDateToHour" class="form-control">
+                        </div>
+                        <button id="commitNewSpecialDay" class="btn btn-success mt-2">Commit</button>
+                        <button id="cancelNewSpecialDay" class="btn btn-danger mt-2">Cancel</button>
+                    </div>
+                </div>
+            </div>   
         </div>
     </div>
-</div>   
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Business Hours Section -->
+        <div class="col-md-6">
+            <div class="rc-card">
+                <div class="row align-items-center"> <!-- Ensure vertical alignment in the middle -->
+                    <div class="col-auto"> <!-- Use 'col-auto' to only take necessary width -->
+                        <h2>Workers</h2>
+                    </div>
+                    <div class="col-auto"> <!-- Use 'col-auto' for the icon to stay close to the text -->
+                        <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
+                        data-bs-placement="right" title="Workers added here will be available to be assigned in your events"></i>
+                    </div>
+                </div>
 
-<div class="rc-card card">
-    <div class="container mt-5">
-        <h2 class="card-title">Business UI Settings</h2>
-        <div class="card-body">
-            <!-- Toggle Visibility -->
-            <div class="form-check form-switch mb-3">
-                <input class="form-check-input" type="checkbox" id="is_visible" {% if business_ui.is_visible %}checked{% endif %}>
-                <label class="form-check-label" for="is_visible">Is Visible</label>
-                <i class="fas fa-question-circle ms-2" onclick="showTooltip(this);" data-bs-toggle="tooltip" data-bs-placement="right" title="Toggle to make your business visible or invisible to customers."></i>                
+                <div class="container my-4">
+                    <div class="table-responsive">
+                        {% for worker in business.account_workers.all %}
+                            <div class="table-row">
+                                <span>{{worker.user.first_name}} {{worker.user.last_name}}</span>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                            <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
+                                        </svg>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
+                                        <li><a class="dropdown-item" href="{% url 'worker_remove' business.id  worker.id %}">Remove Worker</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'worker_detail' business.id worker.id %}">View Worker</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inviteWorkerModal">Add Worker</button>
+                    </div>
+                </div>
             </div>
-            <!-- Business Description -->
-            <div class="mb-3">
-                <label for="businessDescription" class="form-label">
-                    Business Description
-                    <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="Provide a detailed description of your business."></i>
-                </label>
-                <textarea class="form-control" id="businessDescription" rows="3" maxlength="500" placeholder="Enter business description here..."></textarea>
+        </div>
+        <div class="col-md-6">
+            <div class="rc-card card">
+                <div class="row align-items-center"> <!-- Title row with icon -->
+                    <div class="col-auto">
+                        <h2>Website Settings</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
+                        data-bs-placement="right" title="Manage how your website looks"></i>
+                    </div>
+                </div>
+                <div class="container mt-5">
+                    <div class="row">
+                        <!-- Left column for visibility toggle and business description -->
+                        <div class="col-md-6">
+                            <div class="card-body">
+                                <!-- Toggle Visibility -->
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="is_visible" {% if business_ui.is_visible %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_visible">Is Visible</label>
+                                    <i class="fas fa-question-circle ms-2" onclick="showTooltip(this);" data-bs-toggle="tooltip" data-bs-placement="right" title="Toggle to make your business website visible or invisible to customers."></i>
+                                </div>
+                                <!-- Business Description -->
+                                <div class="mb-3">
+                                    <label for="businessDescription" class="form-label">
+                                        Business Description
+                                        <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="Provide a detailed description of your business."></i>
+                                    </label>
+                                    <textarea class="form-control" id="businessDescription" rows="3" maxlength="500" placeholder="Enter business description here...">{{business_ui.description}}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-label">
+                                        <a href="{% url 'business_appearance' business_id=business.id %}">Website Appearance</a>
+                                        <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="Set up your website aooearance"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Right column for business header image settings -->
+                        <div class="col-md-6 d-flex flex-column align-items-center">
+                            <div class="w-100 d-flex justify-content-center align-items-center">
+                                <h4 class="mb-2">Business Header Image</h4>
+                                <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="This image will show on the front header of this business website"></i>
+                            </div>
+                            <img src="{{ business_ui.header_image.url|default:'/media/businesses/placeholder.jpg' }}" id="headerImagePreview" class="img-fluid mb-2" style="max-height: 200px;">
+                            <!-- Button to open file picker -->
+                            <button id="changeImageButton" class="btn btn-primary" style="width:50%;">Change</button>
+                            <!-- Hidden File Input -->
+                            <input type="file" id="businessHeaderImage" accept="image/png, image/jpeg" style="display:none;">
+                        </div>
+                    </div>
+                    <!-- Row for Save and Cancel Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-12 text-end">
+                            <button type="button" class="btn btn-primary" id="saveSettings">Save Changes</button>
+                            <button type="button" class="btn btn-secondary" id="cancelSettings">Cancel</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <!-- Image Preview and Upload -->
-            <div class="mb-3">
-                <label for="businessHeaderImage" class="form-label">
-                    Business Header Image
-                    <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="Upload a header image for your business."></i>
-                </label>
-                <img src="{{ business_ui.header_image.url|default:'/media/businesses/placeholder.jpg' }}" id="headerImagePreview" class="img-fluid mb-2" style="max-height: 200px;">
-                <input type="file" class="form-control" id="businessHeaderImage" accept="image/png, image/jpeg">
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="inviteWorkerModal" tabindex="-1" aria-labelledby="inviteWorkerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inviteWorkerModalLabel">Invite New Worker</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <!-- Save and Cancel Buttons -->
-            <div class="text-end">
-                <button type="button" class="btn btn-primary" id="saveSettings">Save Changes</button>
-                <button type="button" class="btn btn-secondary" id="cancelSettings">Cancel</button>
+            <div class="modal-body">
+                <form id="inviteWorkerForm">
+                    <div class="mb-3">
+                        <label for="recipientEmail" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="recipientEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="recipientName" class="form-label">Recipient Name</label>
+                        <input type="text" class="form-control" id="recipientName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="invitationNotes" class="form-label">Notes (optional)</label>
+                        <textarea class="form-control" id="invitationNotes"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Invitation</button>
+                </form>
             </div>
         </div>
     </div>
@@ -246,10 +473,45 @@
         setTimeout(function() { $(icon).tooltip('hide'); }, 2000);
     }
 
+    function updateProgressBar(percentage) {
+        $('.progress-bar').css('width', percentage + '%').attr('aria-valuenow', percentage).text(percentage + '%');
+        $('.percentage-label').text(percentage + '%');
+    }
+
+
+
 $(document).ready(function() {    
 
     let originalHeaderImage = $('#headerImagePreview').attr('src');
     let originalVisibility = $('#is_visible').is(':checked');
+
+    $('.shareButton').click(function(e) {
+        e.preventDefault(); // Prevent the default anchor behavior
+        var shareUrl = $(this).data('share-url'); // Get the URL to be copied
+
+        navigator.clipboard.writeText(shareUrl).then(function() {
+            // On successful copying to clipboard
+            console.log('Link successfully copied to clipboard');
+
+            // Show tooltip
+            $(e.target).tooltip({
+                title: "Link copied!",
+                placement: "top",
+                trigger: "manual"
+            }).tooltip('show');
+
+            // Hide tooltip after 1 second
+            setTimeout(function() {
+                $(e.target).tooltip('hide');
+            }, 1000);
+        }).catch(function(error) {
+            // On failure to copy
+            console.error('Error copying link to clipboard: ', error);
+        });
+    });
+
+    // Ensure tooltips are initialized
+    $('[data-bs-toggle="tooltip"]').tooltip();
 
     $('#businessHeaderImage').change(function(e) {
         if (e.target.files && e.target.files[0]) {
@@ -259,6 +521,11 @@ $(document).ready(function() {
             };
             reader.readAsDataURL(e.target.files[0]);
         }
+    });
+
+    $('#changeImageButton').click(function() {
+        // Trigger the file input when the 'Change' button is clicked
+        $('#businessHeaderImage').click();
     });
 
     $('#saveSettings').click(function() {
@@ -300,13 +567,28 @@ $(document).ready(function() {
         });
     }
 
-    $('.form-check-input').change(function() {
-        var label = $(this).next('label');
-        if ($(this).is(':checked')) {
-            label.text('Turn Off'); // If the checkbox is checked, set label to "Turn Off"
-        } else {
-            label.text('Turn On'); // If the checkbox is not checked, set label to "Turn On"
-        }
+    $('.event-toggle').change(function() {
+        var checked = $(this).is(':checked');
+        var eventId = $(this).data('event-id');  // Assuming you add a data-event-id attribute to your inputs
+        var label = $(this).next('.toggle-label');
+        label.text(checked ? 'Turn Off' : 'Turn On');
+
+        // Post the change to the server
+        $.ajax({
+            url: '/update-event-status/',  // URL to your Django view
+            type: 'POST',
+            data: {
+                'event_id': eventId,
+                'active': checked,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('Update successful');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating event status:', error);
+            }
+        });
     });
 
 
@@ -422,11 +704,10 @@ $(document).ready(function() {
         var newToHour = $("#newToHour").val();
 
         // Post the new hours to the server
-        $.post("{% url 'business_hour_no_param' %}", {
+        $.post("{% url 'business_hour_create' business.id %}", {
             weekday: newDate,
             from_hour: newFromHour,
             to_hour: newToHour,
-            account_id: {{business.id}},
             csrfmiddlewaretoken: '{{ csrf_token }}',
             // Add any other required data
         }, function(response) {
@@ -533,11 +814,10 @@ $(document).ready(function() {
         var newDateToHour = $("#newDateToHour").val();
 
         // Post the new hours to the server
-        $.post('{% url "special_day_create" %}', {
+        $.post('{% url "special_day_create" business.id %}', {
             date: newDate,
             from_hour: newDateFromHour,
             to_hour: newDateToHour,
-            account_id: {{business.id}},
             csrfmiddlewaretoken: '{{ csrf_token }}'
         }, function(response)  {
             if(response.success) {
@@ -688,6 +968,38 @@ $(document).ready(function() {
         // Hide the edit actions (save and cancel buttons) and show the dropdown again
         $row.find('.edit-actions').addClass('d-none');
         $row.find('.dropdown').removeClass('d-none');
+    });
+
+    $('#inviteWorkerForm').submit(function(e) {
+        e.preventDefault();  // Prevent the default form submission behavior
+
+        // Collecting the form data
+        var recipientEmail = $('#recipientEmail').val();
+        var recipientName = $('#recipientName').val();
+        var invitationNotes = $('#invitationNotes').val();
+
+        $.ajax({
+            url: '{% url "send_business_invitation" %}',
+            type: 'POST',
+            data: {
+                recipient_email: recipientEmail,
+                recipient_name: recipientName,
+                notes: invitationNotes,
+                business_id: '{{ business.id }}',
+            },
+            headers: {
+                'X-CSRFToken': '{{csrf_token}}' 
+            },
+            success: function(response) {
+                // Handle the successful response
+                alert(response['message']);
+                $('#inviteWorkerModal').modal('hide');
+            },
+            error: function() {
+                // Handle any error
+                alert('Error sending invitation');
+            }
+        });
     });
 
 });    

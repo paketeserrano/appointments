@@ -2,11 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import uuid
+
 
 # Create your models here.
 
 def custom_user_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/events/<account_id>/header_image_<filename>
     return f'user_profiles/{instance.id}/profile_{filename}'
 
 class CustomUser(models.Model):
@@ -18,6 +19,15 @@ class CustomUser(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+def user_uploads_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_profiles/<custom_user_id>/uploads/<filename>
+    return f'user_profiles/{instance.user.id}/uploads/{filename}'
+
+class UserWorkImageUpload(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete = models.CASCADE, related_name='photos')
+    upload_date = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to=user_uploads_directory_path)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -37,13 +47,29 @@ class Address(models.Model):
 class Account(models.Model):
     admins = models.ManyToManyField(CustomUser, related_name='account_admins_set')
     name = models.CharField(max_length = 120)
-    description = models.CharField(max_length = 320)
+    presentation = models.CharField(max_length = 320)
     account_workers = models.ManyToManyField(CustomUser)
     time_slot_duration = models.IntegerField(default=30) 
     address = models.OneToOneField(Address, on_delete=models.CASCADE, related_name='account', null=True)
 
     def __str__(this):
         return this.name  
+    
+class AccountInvitation(models.Model):
+    business = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='invitations')
+    accepted = models.BooleanField(default=False)
+    accepted_on = models.DateTimeField(blank=True, null=True)
+    recipient_email = models.EmailField(max_length=240)
+    recipient_name = models.CharField(max_length=100)
+    notes = models.CharField(max_length=500)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_on = models.DateTimeField()
+
+    class Meta:
+        unique_together = ('business', 'recipient_email')
+
+    def __str__(self):
+        return f"{self.business.name} - {self.recipient_email}"
     
 def account_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/events/<account_id>/header_image_<filename>
@@ -72,9 +98,7 @@ class Event(models.Model):
     description = models.CharField(max_length = 2000, default='')
     duration = models.IntegerField()
     event_workers = models.ManyToManyField(CustomUser)
-    # This field should contain the different locations options setup by the user
-    #location = models.CharField(max_length = 120)
-    account = models.ForeignKey(Account, on_delete = models.CASCADE)
+    account = models.ForeignKey(Account, on_delete = models.CASCADE, related_name = 'events')
     active = models.BooleanField(default=False)
     price = models.FloatField()
 
@@ -87,8 +111,9 @@ def event_directory_path(instance, filename):
 
 class EventUI(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='ui')
-    is_visible = models.BooleanField(default=True)
+    is_visible = models.BooleanField(default=False)
     image = models.ImageField(upload_to=event_directory_path, blank=True, null=True, default='events/placeholder.jpg')
+    description = models.CharField(max_length = 2000, default='')
 
     def __str__(self):
         return f'UI for {self.event.name} with path: {self.image}'
@@ -150,12 +175,28 @@ class SpecialDay(models.Model):
     def __str__(self):
         return str(self.date)
     
+def web_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/events/<event_id>/profile_<filename>
+    return f'events/{instance.account.id}/{filename}'
+
 class BusinessAppearance(models.Model):
     account = models.OneToOneField(Account, on_delete = models.CASCADE, related_name='appearance')
-    header_bar_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Stores the color of the header bar as a hex code.")
-    background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Stores the color of the background as a hex code.")
-    text_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Stores the color of the text as a hex code.")
-    section_header_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Stores the color of the sections header text as a hex code.")
+    header_bar_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the header bar.")
+    header_bar_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Font color for text on header bar.")
+    background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the website background.")
+    text_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the text on the website.")
+    section_header_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the sections header text.")
+    service_background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the service background card.")
+    worker_background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the worker background card.")
+    hero_image_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Colors for text on main website image")
+    main_manu_background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Background color for main menu")
+    main_menu_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Font color for main menu links")
+    main_menu_font_hover_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Font colors for main menu links hover")  
+    burger_button_background_color= models.CharField(max_length=7, default='#FFFFFF', help_text="Background color for burger main menu")  
+    buger_menu_lines_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Burger menu line colors") 
+    appointment_background_image = models.ImageField(upload_to=web_directory_path, blank=True, null=True, default='appointment/placeholder.jpg')   
+    booking_form_background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Background color for main form on the booking page") 
+
     def __str__(self):
         return f"UI Configuration for Header Color {self.header_bar_color}" 
     

@@ -1,6 +1,22 @@
 {% extends 'base2.html' %}
 
 {% block extra_css %}
+<style>
+    .photo-thumbnail {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+    .photo-row {
+      margin-bottom: 20px;
+    }
+    .photo-container {
+      border: 2px solid #ccc;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+</style>
 {% endblock extra_css %}
 {% block content %}
     <h2>{{custom_user.user.first_name}} {{custom_user.user.last_name}}</h2>    
@@ -43,12 +59,177 @@
         </div>
     </div>
 
+    <div class="container mt-5">
+        <h2>Show Your Work</h2>
+        <button id="add-photo" class="btn btn-success">Add</button>
+        <input type="file" id="photo-upload" accept=".jpg, .jpeg, .png" style="display: none;">
+        <button id="delete-photo" class="btn btn-danger" disabled>Delete Selected</button>
+        <div class="row photo-row">
+            {% for image in custom_user.photos.all|slice:":9" %}
+            <div class="col-md-4 mt-4">
+                <div class="photo-container p-2">
+                    <input type="checkbox" class="photo-select" data-image-id="{{ image.id }}">
+                    <img src="{{ image.image.url }}" class="photo-thumbnail">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="btn btn-primary" id="load-more">Load More</button>
+    </div>
+
+    <!-- Bootstrap Modal for Confirmation of photo deletion -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+            </div>
+            <div class="modal-body">
+            Delete selected?
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancel-delete" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirm-delete">Confirm</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap Modal for Image Viewing -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="imageModalLabel">Full Screen Image</h5>
+            </div>
+            <div class="modal-body text-center">
+            <img id="modal-image" src="" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+
 {% endblock content %}
 
 {% block extra_script %}
 <script>
     $(document).ready(function() {
 
+        var currentCount = 9;
+
+        {% if custom_user.photos.all.count < 10 %}
+            $('#load-more').hide();
+        {% endif %}
+
+        $('#add-photo').click(function() {
+            $('#photo-upload').click();
+        });
+
+        $('#photo-upload').change(function(event) {
+            var formData = new FormData();
+            formData.append('image', event.target.files[0]);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            $.ajax({
+                url: '{% url "upload_custom_user_photo" custom_user.id %}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        var newPhotoHtml = '<div class="col-md-4 mt-4">' +
+                                        '<div class="photo-container p-2">' +
+                                        '<input type="checkbox" class="photo-select" data-image-id="' + response.image_id + '">' +
+                                        '<img src="' + response.url + '" class="photo-thumbnail">' +
+                                        '</div></div>';
+                        $('.photo-row').prepend(newPhotoHtml);
+                    } else {
+                        alert('Upload failed. Please try again.');
+                    }
+                },
+                error: function() {
+                    alert('Server error, please try again later.');
+                }
+            });
+        });
+
+        $(document).on('click', '.photo-thumbnail', function() {
+            var src = $(this).attr('src'); // Get the source from the clicked image
+            $('#modal-image').attr('src', src); // Set the source in the modal image
+            $('#imageModal').modal('show'); // Display the modal
+        });
+        // Using event delegation for dynamically added checkboxes
+        $(document).on('change', '.photo-select', function() {
+            const selectedPhotos = $('.photo-select:checked').length;
+            $('#delete-photo').prop('disabled', selectedPhotos === 0);
+        });
+
+        $('#delete-photo').click(function() {
+            $('#confirmDeleteModal').modal('show');
+        });
+        
+        $('#cancel-delete').click(function() {
+            $('#confirmDeleteModal').modal('hide');
+        })
+        $('#confirm-delete').click(function() {
+            $('#confirmDeleteModal').modal('hide');
+            var selectedIds = $('.photo-select:checked').map(function() {
+                return $(this).data('image-id');
+            }).get();
+
+            $.ajax({
+                url: '{% url "delete_custom_user_photos" %}', 
+                type: 'POST',
+                data: {
+                    'image_ids': JSON.stringify(selectedIds),
+                    'custom_user_id': {{custom_user.id}},
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if(response.success) {
+                        $('.photo-select:checked').each(function() {
+                            $(this).closest('.col-md-4').fadeOut();
+                        });
+                        alert('Photos deleted successfully.');
+                    } else {
+                        alert('Error deleting photos.');
+                    }
+                },
+                error: function() {
+                    alert('Server error, please try again later.');
+                }
+            });
+        });
+
+        $('#load-more').click(function() {
+            $.ajax({
+                url: "{% url 'load_more_custom_user_images' custom_user.id %}?count=" + currentCount,
+                type: 'GET',
+                success: function(response) {
+                    if (response.data.length > 0) {
+                        response.data.forEach(function(image) {
+                            var photoHtml = '<div class="col-md-4 mt-4">' +
+                                            '<div class="photo-container p-2">' +
+                                            '<input type="checkbox" class="photo-select" data-image-id="' + image.id + '">' +
+                                            '<img src="' + image.url + '" class="photo-thumbnail">' +
+                                            '</div></div>';
+                            $('.photo-row').append(photoHtml);
+                        });
+
+                        currentCount += response.data.length;
+                        if (response.data.length < 9){
+                            $('#load-more').hide(); // Hide button if no more images are available
+                        }
+                    } else {
+                        $('#load-more').hide();
+                    }
+                },
+                error: function() {
+                    alert('Server error, please try again later.');
+                }
+            });
+        });
         // Show new profile picture after the user selects a new one
         $('#profileImageInput').change(function() {
             var input = this;

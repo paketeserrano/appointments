@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequest, HttpResponseNotFound
-from .forms import AppointmentForm, SignUpForm, BusinessAppearanceForm, AppointmentCancelForm, AddressForm, CreateAccountForm, CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
+from django.http import HttpResponse, JsonResponse, Http404, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
+from .forms import AppointmentForm, SignUpForm, BusinessAppearanceForm, AppointmentCancelForm, AddressForm, CreateAccountForm, \
+                                    CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
 from django.conf import settings
 from django.core.mail import send_mail
-from .models import Appointment, Event, Account, BusinessAppearance, Invitee, CustomUser, OpenningTime, BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI
+from .models import Appointment, Event, Account, AccountInvitation, BusinessAppearance, Invitee, CustomUser, OpenningTime, \
+                    BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI, UserWorkImageUpload
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core import serializers
@@ -23,17 +25,180 @@ from django.db.models import Q
 from django.views.decorators.http import require_POST
 from django.core.files.storage import FileSystemStorage
 import os
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
+from django.core.exceptions import PermissionDenied
+from functools import wraps
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.contrib.auth import get_user_model
 
-class EventDetailView(View):
+def user_owns_resource(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        # Assuming 'custom_user_id' is passed as a keyword argument to the view
+        custom_user_id = kwargs.get('custom_user_id') or request.GET.get('custom_user_id') or request.POST.get('custom_user_id')
+        if request.user.is_authenticated:
+            if str(request.user.id) == str(custom_user_id):
+                return function(request, *args, **kwargs)
+            else:
+                return JsonResponse({'error': 'Unauthorized'}, status=403)
+        else:
+            return JsonResponse({'error': 'Authentication required'}, status=401)
+
+    return wrap
+
+def user_is_event_admin(required=True):
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            # Check if user is authenticated
+            if not request.user.is_authenticated:
+                return JsonResponse({'success': False, 'message': 'Authentication required.'}, status=401)
+
+            # Extract event ID from request; adjust as necessary based on how event_id is passed
+            event_id = kwargs.get('event_id') or request.GET.get('event_id') or request.POST.get('event_id')
+            event = get_object_or_404(Event, id=event_id)
+
+            # Check if the user is an admin of the business associated with the event
+            if request.user.customuser in event.account.admins.all():
+                return view_func(request, *args, **kwargs)
+            else:
+                return JsonResponse({'success': False, 'message': 'Permission denied.'}, status=403)
+
+        return _wrapped_view
+    return decorator
+
+def business_admin_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        business_id = kwargs.get('business_id')
+        business = get_object_or_404(Account, pk=business_id)
+        
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
+        
+        # Check if the user is an admin of the business
+        if not request.user.customuser in business.admins.all():
+            raise PermissionDenied("You are not an admin of this event.")
+        
+        return view_func(request, *args, **kwargs)
+    
+    return _wrapped_view
+
+class EventAccessMixin:
+    def dispatch(self, request, *args, **kwargs):
+        event_id = kwargs.get('pk')
+        event = get_object_or_404(Event, pk=event_id)
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
+        if not request.user.customuser in event.account.admins.all():
+            raise PermissionDenied("You are not an admin of this event.")
+        return super().dispatch(request, *args, **kwargs)
+    
+class BusinessAccessMixin:
+    def dispatch(self, request, *args, **kwargs):
+        business_id = kwargs.get('business_id')
+        business = get_object_or_404(Account, pk=business_id)
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
+        if not request.user.customuser in business.admins.all():
+            raise PermissionDenied("You are not an admin of this event.")
+        return super().dispatch(request, *args, **kwargs)
+    
+# Appointments admininistration view only accessible to:
+# - Admin of the business with the event appointment
+# - Appointment event workers
+class AppointmentAccessMixin:
+    def dispatch(self, request, *args, **kwargs):
+        appointment_id = kwargs.get('appointment_id')
+        appointment = get_object_or_404(Appointment, pk=appointment_id)
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
+        if not request.user.customuser in appointment.event.account.admins.all() and request.user.customuser.id != appointment.worker.id:
+            raise PermissionDenied("You are not an admin of this appointment.")
+        return super().dispatch(request, *args, **kwargs)
+    
+class AppointmentWizardAccessMixin:
+    """
+    A mixin to control access to the BookingCreateWizardView based on user roles and their relationship to business and event entities.
+
+    This mixin ensures:
+    - For the base URL (only business_id provided), the user must be an authenticated admin of the specified business.
+    - For the URL including an event_id, the user must be an authenticated worker of the specified event which must belong to the specified business.
+    - For the URL including both event_id and worker_id, the user must be the specified worker, authenticated, and part of the event's workforce, with the event belonging to the specified business.
+
+    The mixin raises a PermissionDenied exception if any of these conditions are not met, effectively restricting access to the view based on these stringent checks.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        business_id = kwargs.get('business_id')
+        event_id = kwargs.get('event_id', None)
+        worker_id = kwargs.get('worker_id', None)
+        
+        business = get_object_or_404(Account, pk=business_id)
+        
+        # Check if the user is an admin for the first URL pattern
+        if not event_id and not worker_id:
+            if not request.user.is_authenticated or request.user.customuser not in business.admins.all():
+                raise PermissionDenied("You are not an admin of this business.")
+        
+        # Check if the user is an event worker for the second URL pattern
+        if event_id and not worker_id:
+            event = get_object_or_404(Event, pk=event_id, account=business)
+            if not request.user.is_authenticated or request.user.customuser not in event.event_workers.all():
+                raise PermissionDenied("You are not a worker for this event.")
+
+        # Check if the worker_id matches the logged-in user and belongs to the event for the third URL pattern
+        if worker_id:
+            event = get_object_or_404(Event, pk=event_id, account=business)
+            if not request.user.is_authenticated or request.user.customuser.id != worker_id or request.user.customuser not in event.event_workers.all():
+                raise PermissionDenied("Access denied for this operation.")
+        
+        return super().dispatch(request, *args, **kwargs)
+
+class AdminRequiredForBusinessMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if not self.show_web:  # When show_web is False, check for admin privileges
+            business_id = kwargs.get('business_id')
+            business = get_object_or_404(Account, pk=business_id)
+            if not request.user.is_authenticated:
+                return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
+            if not request.user.customuser in business.admins.all():
+                raise PermissionDenied("You are not an admin of this business.")
+        return super().dispatch(request, *args, **kwargs)
+    
+@user_is_event_admin()
+def update_event_status(request):
+    if request.method == 'POST':
+        event_id = request.POST.get('event_id')
+        active = request.POST.get('active') == 'true'
+        try:
+            event = Event.objects.get(id=event_id)
+            event.active = active
+            event.save()
+            return JsonResponse({'message': 'Event status updated successfully'}, status=200)
+        except Event.DoesNotExist:
+            return JsonResponse({'error': 'Event not found'}, status=404)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+# Only admins of the business that the event belongs to are allowed to access this view    
+class EventDetailView(EventAccessMixin, View):
 
     def get(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
         event_ui, created = EventUI.objects.get_or_create(event=event)
-        print(f' Event UI: {event_ui}')
+        event_configuration_status = EventConfigurationStatus(event)
+        relative_event_url = reverse('client_appointment_for_event', args=[event.account.id, event.id])
+        event_url = request.build_absolute_uri(relative_event_url)
+        relative_web_url = reverse('web_business', args=[event.account.id])
+        web_url = self.request.build_absolute_uri(relative_web_url)
         return render(request, 
                       'events/event_details.html', 
                       {'event': event,
-                       'event_ui': event_ui})
+                       'event_ui': event_ui,
+                       'event_configuration_status': event_configuration_status,
+                       'event_url': event_url,
+                       'web_url': web_url})
 
     def post(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
@@ -41,8 +206,8 @@ class EventDetailView(View):
         
         # Update event fields with data from request
         event.name = request.POST.get('name', event.name)
-        event.description = request.POST.get('description', event.description)
-        event.duration = request.POST.get('duration', event.duration)
+        event.presentation = request.POST.get('presentation', event.presentation)
+        event.duration = int(request.POST.get('duration', event.duration))
 
         workerIds = json.loads(request.POST.get('worker_ids'))        
         workers = CustomUser.objects.filter(pk__in=workerIds)
@@ -50,6 +215,7 @@ class EventDetailView(View):
 
         # Update EventUI model
         event_ui.is_visible = request.POST.get('is_visible') == 'true'
+        event_ui.description = request.POST.get('description', event_ui.description)
 
         # Handle image file upload
         if 'image' in request.FILES:
@@ -59,7 +225,10 @@ class EventDetailView(View):
         # Save changes
         event_ui.save()
         event.save()
-        return JsonResponse({'message': 'Event updated successfully'}, status=200)
+        event_configuration_status = EventConfigurationStatus(event)
+        return JsonResponse({'message': 'Event updated successfully', 
+                             'event_configuration_status': event_configuration_status.to_dict() }, 
+                             status=200)
 
     def delete(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
@@ -74,13 +243,18 @@ class CustomLoginView(LoginView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Add custom context here
+        initial_username = self.request.GET.get('un', None)
+        
+        if initial_username:
+            if 'form' in context:
+                context['form'].fields['username'].initial = initial_username
         return context
     
 class LoggedOutView(TemplateView):
     template_name = 'registration/logged_out.html'
 
-class AccountListView(ListView):
+# Return the business where the logged in user is an admin
+class AccountListView(LoginRequiredMixin, ListView):
     show_dropdown = False
     model = Account
     context_object_name = 'accounts'
@@ -103,20 +277,31 @@ class AccountListView(ListView):
             return ['business/business_list.html']
 
     def get_queryset(self):
-        # Assuming you have a method to get the custom user
         user = CustomUser.objects.get(user=self.request.user)
         return Account.objects.filter(admins=user)
-
-class SpecialDayView(View):
-    def post(self, request, *args, **kwargs):
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         
+        user_businesses = self.get_queryset()
+        businesses_configuration = []
+        for business in user_businesses:
+            business_configuration = BusinessConfigurationStatus(business)
+            businesses_configuration.append(business_configuration)
+
+        context['businesses_configuration'] = businesses_configuration
+        return context
+
+class SpecialDayView(BusinessAccessMixin, View):
+    def post(self, request, *args, **kwargs):
+
+        special_day_id = kwargs.get('id')
+        account_id = kwargs.get('business_id')
+
         date = request.POST.get('date')
         closed = request.POST.get('closed', False)
         from_hour = request.POST.get('from_hour')
         to_hour = request.POST.get('to_hour')
-        account_id = request.POST.get('account_id')
-
-        special_day_id = kwargs.get('id')
 
         if special_day_id:
             # Update existing SpecialDay
@@ -145,21 +330,14 @@ class SpecialDayView(View):
         else:
             return HttpResponseBadRequest(json.dumps({'error': 'Missing SpecialDay id'}), content_type="application/json")
 
-class BusinessHourView(View):
+class BusinessHourView(BusinessAccessMixin, View):
     def post(self, request, *args, **kwargs):
 
         hour_id = kwargs.get('id', None)
+        account_id = kwargs.get('business_id', None)
         weekday = request.POST.get('weekday')
         from_hour = request.POST.get('from_hour')
         to_hour = request.POST.get('to_hour')
-        account_id = request.POST.get('account_id')
-
-        print(f'hour_id: {hour_id}' )
-        print(f'id: {hour_id}' )
-        print(f'weekday: {weekday}' )
-        print(f'from_hour: {from_hour}' )
-        print(f'to_hour: {to_hour}' )
-        print(f'account_id: {account_id}' )
 
         if hour_id:
             # Update existing hour
@@ -181,12 +359,7 @@ class BusinessHourView(View):
         opening_time.delete()
         return JsonResponse({'success': True})
 
-class AppointmentCancelView(UpdateView):
-    model = Appointment    
-    template_name = "appointments/cancel_appointment.html"
-    form_class = AppointmentCancelForm
-
-class AppointmentView(View):
+class AppointmentView(AppointmentAccessMixin, View):
     show_cancel_button = False
     
     def get(self, request, *args, **kwargs):
@@ -207,13 +380,13 @@ class AppointmentView(View):
         else:
             response = {'status': 'failed', 'message': 'Appointment already cancelled'}
         return JsonResponse(response)
-    
-class BusinessWorkerView(View):
+
+class BusinessWorkerView(BusinessAccessMixin, View):
     show_remove_button = False
     
     def get(self, request, *args, **kwargs):
         worker_id = kwargs.get('worker_id')
-        account_id = kwargs.get('account_id')
+        account_id = kwargs.get('business_id')
         worker = get_object_or_404(CustomUser, id=worker_id)
         account = get_object_or_404(Account, id=account_id)
         if worker in account.account_workers.all():
@@ -237,8 +410,8 @@ class BusinessWorkerView(View):
 
             # NOTE: Domain to build the links to the events. Use full_event_url if domain doesn't work in production
             domain = get_current_site(self.request).domain
-            full_event_url = self.request.build_absolute_uri(domain)            
-
+            full_event_url = self.request.build_absolute_uri(domain)          
+            
             return render(request, 'worker_detail.html', {
                 'worker': worker,
                 'events': events,
@@ -253,18 +426,19 @@ class BusinessWorkerView(View):
 
     def post(self, request, *args, **kwargs):
         worker_id = self.kwargs['worker_id']
-        account_id = self.kwargs['account_id'] 
+        business_id = self.kwargs['business_id'] 
         worker = get_object_or_404(CustomUser, id=worker_id)
-        account = get_object_or_404(Account, id=account_id)
+        account = get_object_or_404(Account, id=business_id)
         if worker in account.account_workers.all():
             account.account_workers.remove(worker)
-            # TODO: Remove the worker from the events for that business
-            response = {'status': 'success', 'message': 'Worker removed successfully from your business'}
+            for event in account.events.all():
+                if worker in event.event_workers.all():
+                    event.event_workers.remove(worker)
+            response = {'status': 'success', 'message': 'Worker removed successfully from your business and any event associated with it.'}
         else:
             response = {'status': 'failed', 'message': 'Appointment already cancelled'}
 
-        return JsonResponse(response)
-    
+        return JsonResponse(response)    
 
 def addMins(tm, mins):
     fulldate = datetime(100, 1, 1, tm.hour, tm.minute, tm.second)
@@ -351,7 +525,7 @@ APPOINTMENT_STEP_FORMS = (
     ('CustomerInfo', CustomerInformationForm)
 )
 
-class BookingCreateWizardView(SessionWizardView):
+class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
     template_name = "appointments/appointment_wizard.html"
     form_list = APPOINTMENT_STEP_FORMS    
     progress_width = 25
@@ -390,7 +564,7 @@ class BookingCreateWizardView(SessionWizardView):
 
         # Make sure that business_id is always populted at this point
         business = Account.objects.get(pk=business_id)
-
+        appearance, created = BusinessAppearance.objects.get_or_create(account_id=business_id)
         appointment_description = 'Select your Appt'
         if event_id:
             event = Event.objects.get(id=event_id)
@@ -407,6 +581,7 @@ class BookingCreateWizardView(SessionWizardView):
             "worker_id" : worker_id,
             "client_appointment" : self.client_appointment,
             "base_template" : base_template,
+            "appearance" : appearance
         })
 
         return context
@@ -567,7 +742,7 @@ class BookingCreateWizardView(SessionWizardView):
                 <p>We are pleased to confirm your appointment. Here are the details:</p>
                 <div class="details-card">
                     <p class="appointment-details">Your appointment: <span class="highlight">{event.name}</span></p>
-                    <p class="appointment-details">Location: <span class="highlight">{event.account.name}</span></p>
+                    <p class="appointment-details">Location: <span class="highlight">{event.account.address.address}, {event.account.address.city}</span></p>
                     <p class="appointment-details">With: <span class="highlight">{appointment.worker.user.first_name} {appointment.worker.user.last_name}</span></p>
                     <p class="appointment-details">Date: <span class="highlight">{appointment.date.strftime('%d-%m-%Y')}</span></p>
                     <p class="appointment-details">Time: <span class="highlight">{appointment.time.strftime('%H:%M:%S')}</span></p>
@@ -642,13 +817,18 @@ def appointment(request, business_id, event_id):
         context = {'form': form}
         return render(request, 'appointment.html', context)
 '''
-class DashboardView(ListView):
+# Personal dashboard for users. It requires the user to be logged in.
+# The response is based on the logged user so they can't access any other info altering the url
+# Returns:
+# - Accounts the user is an admin
+# - Appointments the user has in the following 30 days 
+class DashboardView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
     context_object_name = 'accounts'
-    template_name = 'dashboard.html'
+    template_name = 'users/dashboard.html'
 
     def get_queryset(self):
         queryset = Account.objects.filter(admins__id= self.request.user.id)
-        print('------------------------> queryset: ' + str(queryset))
         return queryset
     
     def get_context_data(self, **kwargs):
@@ -664,6 +844,13 @@ class DashboardView(ListView):
             else:
                 grouped_appointments[appt.date] = [appt]
         context['appointments'] = grouped_appointments
+
+        businesses_user_is_working_for = Account.objects.filter(
+                                            account_workers=self.request.user.customuser
+                                        ).exclude(
+                                            admins=self.request.user.customuser
+                                        )
+        context['businesses_user_is_working_for'] = businesses_user_is_working_for
         return context
     
 class EventsView(ListView):
@@ -694,7 +881,7 @@ class EventsView(ListView):
 
         # Query to find all Accounts associated with Events where the current_user is a worker
         accounts_as_event_worker = Account.objects.filter(
-            event__event_workers=current_user
+            events__event_workers=current_user
         ).distinct()
 
         # Combine both queries to get a unique set of Accounts
@@ -715,22 +902,61 @@ class EventsView(ListView):
         return context
 
 def user_registration(request):
+    initial_data = {}
+    next_url = request.GET.get('next', '')
+
+    if 'email' in request.GET:
+        initial_data['email'] = request.GET['email']
+
     if request.method == 'POST':  
-        form = SignUpForm(request.POST)  
-        
+        form = SignUpForm(request.POST)          
         if form.is_valid():  
-            user = form.save()  
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=user.username, password=raw_password)
-            login(request, user)
-            return redirect('dashboard/')
+            user = form.save() 
+
+            # Send confirmation email
+            subject = "Welcome to ReservaClick - In 15m your online presense and booking page ready"
+
+            plain_message = f"""
+            Hello {user.first_name},
+
+            Thank you for choosing ReservaClick for your online presense and booking needs.
+
+            We are thrilled to have you here. Our team is already working to help you.
+
+            Thank you for your trust in ReservaClick.
+
+            Best Regards,
+            The ReservaClick Team
+            """
+
+            html_message = f"""
+                <p>Hello {user.first_name},</p>
+                <p>Thank you for choosing ReservaClick for your online presense and booking needs.</p>
+                <p>We are thrilled to have you here. Our team is already working to help you.</p>
+                <p>Thank you for your trust in ReservaClick. </p>
+                <br>
+                <p>Best Regards,</p>
+                <p>The ReservaClick Team</p>
+            """
+
+            send_mail(            
+                subject=subject,
+                message=plain_message,
+                from_email= f"ReservaClick <{settings.EMAIL_HOST_USER}>",
+                recipient_list=[user.email],
+                html_message=html_message
+            )      
+
+            redirect_url = reverse('user_login') if not next_url else next_url
+            return redirect(redirect_url)
     else:  
-        form = SignUpForm()
+        form = SignUpForm(initial=initial_data)
     context = {  
         'form':form  
     }  
     return render(request, 'registration/user_registration.html', context)     
 
+@login_required
 def add_business(request):
     if request.method == 'POST':
         form = CreateAccountForm(request.POST)
@@ -742,10 +968,18 @@ def add_business(request):
             new_account = form.save(commit=False)
             new_account.address = new_address
             new_account.save()  # Save the new Account object to the database
-            # Add the current user as an admin of the new account
+            # Add the current user as an admin and a worker of the new account
             new_account.admins.add(CustomUser.objects.get(user=request.user))
+            new_account.account_workers.add(request.user.customuser)
             # If there are many-to-many fields included in the form, save the form with commit=True to save those relationships
             form.save_m2m()
+
+            # Create and link an AccountUI object to the newly created account
+            account_ui = AccountUI.objects.create(
+                business=new_account,
+                is_visible=False,  # Set default visibility or modify as needed
+                description=''  # Set a default description or leave blank to update later
+            )
             return redirect('business-list')
     else:
         form = CreateAccountForm()
@@ -754,8 +988,10 @@ def add_business(request):
     context = {'form': form, 'address_form': address_form}
     return render(request, 'business/add_business.html', context)
 
-    
-class ViewBusiness(TemplateView):
+# Renders the public user business website or the business admin page
+# If the view is for the public user business there should not be any authentication required
+# If the view is for the business admin page then the user must be authenticated and must be business admin    
+class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
     show_web = False
     def get_template_names(self):
         if self.show_web:
@@ -770,7 +1006,10 @@ class ViewBusiness(TemplateView):
         business_ui, created = AccountUI.objects.get_or_create(business=business)
         business_hours = OpenningTime.objects.filter(account=business_id)
         special_days = SpecialDay.objects.filter(account=business_id)
-        events = Event.objects.filter(account_id=business_id)
+        events = Event.objects.filter(account_id=business_id, ui__is_visible = True)
+        businesses_configuration = BusinessConfigurationStatus(business)
+        relative_web_url = reverse('web_business', args=[business_id])
+        web_url = self.request.build_absolute_uri(relative_web_url)
 
         # Format business hours and special days times
         for business_hour in business_hours:
@@ -781,10 +1020,10 @@ class ViewBusiness(TemplateView):
             special_day.to_hour = special_day.to_hour.strftime('%H:%M')
             special_day.from_hour = special_day.from_hour.strftime('%H:%M')
 
-        # Update context with all the details
-        print('---------------------')
-        print('business: ' + business.appearance.header_bar_color)
-        print('---------------------')
+        for event in events:
+            relative_event_url = reverse('client_appointment_for_event', args=[event.account.id, event.id])
+            event.event_url = self.request.build_absolute_uri(relative_event_url)
+
         context.update({
             'business': business,
             'business_ui': business_ui,
@@ -793,10 +1032,13 @@ class ViewBusiness(TemplateView):
             'events': events,
             'available_days': WEEKDAYS,
             'gm_key': settings.GM_KP,
+            'businesses_configuration': businesses_configuration,
+            'web_url': web_url
         })
 
         return context
 
+@business_admin_required
 def add_business_event(request, business_id = -1):
     if request.method == 'POST':
         form = CreateEventForm(request.POST)
@@ -813,7 +1055,7 @@ def add_business_event(request, business_id = -1):
         context = {
             'form': form,
             'business_id': business_id}
-        return render(request, 'add_business_event.html', context)
+        return render(request, 'events/add_event.html', context)
     
 @require_POST
 def toggle_event_active(request):
@@ -824,6 +1066,7 @@ def toggle_event_active(request):
     return JsonResponse({'status': 'success', 'event_active': event.active})
 
 @require_POST
+@business_admin_required
 def update_business_ui(request, business_id):
     # Get the account instance
     account = get_object_or_404(Account, pk=business_id)
@@ -849,7 +1092,23 @@ def update_business_ui(request, business_id):
     # Return a response indicating success
     return JsonResponse({'message': 'Business UI updated successfully', 'is_visible': account_ui.is_visible, 'header_image_url': account_ui.header_image.url})
 
-class UserProfileView(View):
+class UserProfileMixin(AccessMixin):
+    def dispatch(self, request, *args, **kwargs):
+        user_id = kwargs.get('user_id')
+        
+        # When show_web is True, GET is open to anyone, POST is not allowed
+        if self.show_web:
+            if request.method == "POST":
+                return self.handle_no_permission()
+            return super().dispatch(request, *args, **kwargs)
+
+        # When show_web is False, both GET and POST require user to be the logged in user
+        if not request.user.is_authenticated or str(request.user.customuser.id) != str(user_id):
+            return self.handle_no_permission()
+
+        return super().dispatch(request, *args, **kwargs)
+    
+class UserProfileView(UserProfileMixin, View):
 
     show_web = False
     template_name = 'users/user_profile.html'
@@ -857,13 +1116,19 @@ class UserProfileView(View):
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         business_id = kwargs.get('business_id')
-        custom_user = CustomUser.objects.get(user__id=user_id) 
-        business = Account.objects.get(pk=business_id)       
+        custom_user = CustomUser.objects.get(user__id=user_id)     
+        context =  {'custom_user': custom_user}
+
+        if business_id:
+            business = Account.objects.get(pk=business_id)
+            for image in business.photos.all():
+                print(f'url: {image.image.url}')
+            context['business'] = business
+
         if self.show_web:
             self.template_name = ['web/user_profile.html']
 
-        return render(request, self.template_name, {'custom_user': custom_user,
-                                                    'business': business})
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
@@ -878,7 +1143,6 @@ class UserProfileView(View):
 
         custom_user.save()
         return redirect('user_profile', user_id=user_id)
-
 
 class ServiceView(TemplateView):
     template_name = 'web/service.html'
@@ -896,28 +1160,52 @@ class ServiceView(TemplateView):
 
         return context
     
+@user_is_event_admin()
 def load_more_images(request, event_id):
     count = int(request.GET.get('count', 9))
     images = BusinessEventImageUpload.objects.filter(event_id=event_id)[count:count+9]
     image_data = [{'url': img.image.url} for img in images]
     return JsonResponse({'data': image_data})
 
-def upload_photo(request, event_id):
+@user_owns_resource
+def load_more_custom_user_images(request, custom_user_id):
+    count = int(request.GET.get('count', 9))
+    images = UserWorkImageUpload.objects.filter(user=custom_user_id)[count:count+9]
+    image_data = [{'url': img.image.url} for img in images]
+    return JsonResponse({'data': image_data})
+
+@user_is_event_admin()
+def upload_event_photo(request, event_id):
     if request.method == 'POST':
         event = Event.objects.get(pk=event_id)
         image_file = request.FILES.get('image')
         if image_file:
             new_image = BusinessEventImageUpload(account=event.account, event=event, image=image_file)
             new_image.save()
-            return JsonResponse({'success': True, 'url': new_image.image.url})
+            return JsonResponse({'success': True, 'url': new_image.image.url, 'image_id': new_image.id})
+        return JsonResponse({'success': False})
+    
+    return JsonResponse({'success': False})
+
+@user_owns_resource
+def upload_custom_user_photo(request, custom_user_id):
+    if request.method == 'POST':
+        custom_user = CustomUser.objects.get(pk=custom_user_id)
+        image_file = request.FILES.get('image')
+        if image_file:
+            new_image = UserWorkImageUpload(user=custom_user, image=image_file)
+            new_image.save()
+            return JsonResponse({'success': True, 'url': new_image.image.url, 'image_id': new_image.id})
         return JsonResponse({'success': False})
     
     return JsonResponse({'success': False})
 
 @require_POST
-def delete_photos(request):
+@user_is_event_admin()
+def delete_event_photos(request):
     try:
         # Load image IDs from POST request; assuming JSON body
+        event_id = request.POST.get('event_id')
         image_ids = request.POST.get('image_ids')
         if image_ids:
             image_ids = json.loads(image_ids)
@@ -937,21 +1225,191 @@ def delete_photos(request):
         return JsonResponse({'success': True, 'message': 'Images deleted successfully.'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': 'Failed to delete images.', 'error': str(e)})
+
+@require_POST
+@user_owns_resource
+def delete_custom_user_photos(request):
+    try:
+        image_ids = request.POST.get('image_ids')
+        if image_ids:
+            image_ids = json.loads(image_ids)
+
+        # Query for the images
+        images = UserWorkImageUpload.objects.filter(id__in=image_ids)
+
+        # Delete the files associated with the images
+        for image in images:
+            file_path = os.path.join(settings.MEDIA_ROOT, image.image.name)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        # Delete the image records
+        images.delete()
+
+        return JsonResponse({'success': True, 'message': 'Images deleted successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': 'Failed to delete images.', 'error': str(e)})
     
-class BusinessAppearanceView(View):
+class BusinessAppearanceView(BusinessAccessMixin, View):
     template_name = 'business/business_appearance.html'
 
     def get(self, request, *args, **kwargs):
-        account_id = kwargs.get('account_id')
+        account_id = kwargs.get('business_id')
         appearance, created = BusinessAppearance.objects.get_or_create(account_id=account_id)
         form = BusinessAppearanceForm(instance=appearance)
         return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):
-        account_id = kwargs.get('account_id')
+        account_id = kwargs.get('business_id')
         appearance, created = BusinessAppearance.objects.get_or_create(account_id=account_id)
-        form = BusinessAppearanceForm(request.POST, instance=appearance)
+        form = BusinessAppearanceForm(request.POST, request.FILES, instance=appearance)
         if form.is_valid():
             form.save()
-            return redirect('business_appearance', account_id = account_id)
+            return redirect('business_appearance', business_id = account_id)
         return render(request, self.template_name, {'form': form})
+    
+class BusinessConfigurationStatus:
+    def __init__(self,business):
+        print(f'--------> business: {business.name}')
+        self.business = business
+        self.has_at_least_one_event = business.events.count() > 0
+        self.has_at_least_one_business_hour = business.opening_hours.count() > 0
+        self.has_at_least_sevent_business_hours = business.opening_hours.count() > 7
+        self.has_business_description = business.ui.description.strip() != ''
+        self.has_header_image = business.ui.header_image and business.ui.header_image.name != 'businesses/placeholder.jpg'
+        self.percentage_completed = self.has_at_least_one_event * 20 + self.has_at_least_one_business_hour  * 20 + \
+                                    self.has_at_least_sevent_business_hours * 20 + self.has_business_description * 20 + \
+                                    self.has_header_image * 20
+
+    def get(self):
+        return {
+            'has_events': self.has_at_least_one_event,
+            'has_business_hours': self.has_at_least_one_business_hour,
+            'has_all_business_hours': self.has_at_least_sevent_business_hours,
+            'has_business_description': self.has_business_description,
+            'has_header_image': self.has_header_image,
+            'percentage_completed': self.percentage_completed
+        }
+    
+class EventConfigurationStatus:
+    def __init__(self,event):
+        self.event = event
+        self.has_presentation = event.presentation.strip() != ''
+        self.has_description = event.ui.description.strip() != ''
+        self.has_duration = event.duration > 0
+        self.has_workers = event.event_workers.count() > 0
+        self.has_price = event.price >= 0
+        self.has_front_image = event.ui.image and event.ui.image != 'events/placeholder.jpg'
+        self.percentage_completed = self.has_duration * 20 + self.has_workers * 20 + self.has_presentation * 15 + \
+                                    self.has_description * 15 + self.has_price * 15 + self.has_front_image * 15
+
+    def to_dict(self):
+        return {
+            'has_presentation': self.has_presentation,
+            'has_description': self.has_description,
+            'has_duration': self.has_duration,
+            'has_workers': self.has_workers,
+            'has_price': self.has_price,
+            'has_front_image': self.has_front_image,
+            'percentage_completed': self.percentage_completed
+        }
+
+@require_POST
+def send_business_invitation(request):
+    recipient_email = request.POST.get('recipient_email')
+    recipient_name = request.POST.get('recipient_name')
+    notes = request.POST.get('notes')
+    business_id = request.POST.get('business_id')
+    business = Account.objects.get(id=business_id)
+
+    invitation, created = AccountInvitation.objects.get_or_create(
+        business=business,
+        recipient_email=recipient_email,
+        defaults={'recipient_name': recipient_name, 'notes': notes}
+    )
+
+    message = ''
+    send_email = False
+    if not created and not invitation.accepted:
+        # Logic to resend the email if invitation not accepted
+        message = 'Invitation resent.'
+        send_email = True
+    elif not created and invitation.accepted:
+        message = 'User already accepted your invitation. Please, contact support if the user is not listed under your business'
+    elif created:
+        message = 'Invitation sent'
+        send_email = True
+
+    if send_email:
+        # Prepare the token link
+        confirmation_url = request.build_absolute_uri(
+            reverse('confirm_business_invitation', args=[invitation.token])
+        )
+
+        subject = f"Invitation to join {business.name}"
+
+        plain_message = f"""
+        Hello {recipient_name},
+
+        You have been invited to join {business.name} on OurApp.
+
+        Please follow this link to accept the invitation: {confirmation_url}
+        """
+
+        html_message = f"""
+            <p>Hello {recipient_name},</p>
+            <p>You have been invited to join {business.name} on OurApp.</p>
+            <p>Please <a href="{confirmation_url}">click here</a> to accept the invitation.</p>
+        """
+
+        send_mail(            
+            subject=subject,
+            message=plain_message,
+            from_email= f"{business.name} via ReservaClick <{settings.EMAIL_HOST_USER}>",
+            recipient_list=[recipient_email],
+            html_message=html_message
+        )        
+
+    return JsonResponse({'message': message}, status=200)
+
+def confirm_invitation(request, token):
+    try:
+        invitation = AccountInvitation.objects.get(token=token, accepted=False)
+        if request.user.is_authenticated:
+            if request.user.email == invitation.recipient_email:     
+                custom_user = request.user.customuser  
+                print('custom_user:' + custom_user.user.last_name)
+
+                # Assign user to business
+                business = invitation.business
+                business.account_workers.add(custom_user) 
+
+                # Set the invitation as accepted
+                invitation.accepted = True
+                invitation.accepted_on = timezone.now()
+                invitation.save()
+
+                # Redirect to a confirmation page or dashboard
+                return redirect('dashboard')
+            else:
+                # If the logged-in user does not match the invitation email, log them out and ask to login with the correct account.
+                try:
+                    User = get_user_model()
+                    user = User.objects.get(email=invitation.recipient_email)
+                    return redirect(f'{reverse("logout")}?next={reverse("user_login")}&un={user.username}')
+                except User.DoesNotExist:
+                    # The client is logged in as a certain user but the invitation is for a different email so it will have to register
+                    registration_url = f'{reverse("user_registration")}?email={invitation.recipient_email}&next={reverse("confirm_business_invitation", args=[token])}'
+                    return redirect(registration_url)
+        else:
+            # Attempt to find the user by email to determine redirection
+            try:
+                User = get_user_model()
+                user = User.objects.get(email=invitation.recipient_email)
+                return redirect(f'{reverse("user_login")}?next={reverse("confirm_business_invitation", args=[token])}&un={user.username}')
+            except User.DoesNotExist:
+                # No user exists, redirect to registration
+                registration_url = f'{reverse("user_registration")}?email={invitation.recipient_email}&next={reverse("confirm_business_invitation", args=[token])}'
+                return redirect(registration_url)
+    except AccountInvitation.DoesNotExist:
+        return render(request, 'generic_error.html', {'message': 'Invalid or expired invitation.'})

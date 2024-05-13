@@ -118,17 +118,17 @@ class AddressForm(forms.ModelForm):
 class CreateAccountForm(forms.ModelForm):
     class Meta:
         model = Account
-        fields = ['name', 'description', 'account_workers']
+        fields = ['name', 'presentation']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'presentation': forms.Textarea(attrs={'class': 'form-control', 'rows':'3'}),
             'account_workers': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
 
 class CreateEventForm(forms.ModelForm):
     class Meta:
         model = Event 
-        fields = ['name', 'description', 'duration', 'event_workers'] 
+        fields = ['name', 'description', 'price','duration', 'event_workers'] 
 
 class AppointmentCancelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -151,16 +151,32 @@ class AppointmentCancelForm(forms.ModelForm):
 class BusinessAppearanceForm(forms.ModelForm):
     class Meta:
         model = BusinessAppearance
-        fields = ('header_bar_color', 'background_color', 'text_color', 'section_header_font_color') 
+        fields = ('header_bar_color', 'background_color', 'text_color', 'section_header_font_color', \
+                  'service_background_color', 'worker_background_color', 'hero_image_font_color','header_bar_font_color', \
+                  'main_manu_background_color', 'main_menu_font_color', 'main_menu_font_hover_color',\
+                  'burger_button_background_color', 'buger_menu_lines_color', 'appointment_background_image', 'booking_form_background_color') 
         widgets = {
             'header_bar_color': forms.TextInput(attrs={'type': 'color'}),
             'background_color': forms.TextInput(attrs={'type': 'color'}),
             'text_color': forms.TextInput(attrs={'type': 'color'}),
             'section_header_font_color': forms.TextInput(attrs={'type': 'color'}),
+            'service_background_color': forms.TextInput(attrs={'type': 'color'}),
+            'worker_background_color': forms.TextInput(attrs={'type': 'color'}),
+            'hero_image_font_color': forms.TextInput(attrs={'type': 'color'}),
+            'header_bar_font_color': forms.TextInput(attrs={'type': 'color'}),
+            'main_manu_background_color': forms.TextInput(attrs={'type': 'color'}),
+            'main_menu_font_color': forms.TextInput(attrs={'type': 'color'}),
+            'main_menu_font_hover_color': forms.TextInput(attrs={'type': 'color'}),
+            'burger_button_background_color': forms.TextInput(attrs={'type': 'color'}),
+            'buger_menu_lines_color': forms.TextInput(attrs={'type': 'color'}),
+            'booking_form_background_color': forms.TextInput(attrs={'type': 'color'}),
         }
 
-    def clean_header_bar_color(self):
-        color = self.cleaned_data.get('header_bar_color')
-        if not color.startswith('#') or len(color) != 7:
-            raise forms.ValidationError("Please enter a valid hex color code.")
-        return color
+    def clean(self):
+        cleaned_data = super().clean()
+        # Validation for each field to ensure it starts with '#' and is 7 characters long
+        for field in self.fields:
+            if field != 'appointment_background_image':
+                if field in cleaned_data and not (cleaned_data[field].startswith('#') and len(cleaned_data[field]) == 7):
+                    raise forms.ValidationError(f"{field.replace('_', ' ').capitalize()} must be a valid hex code.")
+        return cleaned_data

@@ -1,9 +1,164 @@
 {% extends "base2.html" %}
+{% load widget_tweaks %}
+
+{% block extra_css %}
+<style>
+  .form-container {
+    background: #f7f7f7;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .color-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  .section-title {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  button.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-  </form>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-10 form-container">
+      <form method="post" class="form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2 class="text-center mb-4">Customize Appearance</h2>
+        
+        <!-- Header Bar Section -->
+        <div class="section-title">Header Bar</div>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="{{ form.header_bar_color.id_for_label }}" class="form-label">{{ form.header_bar_color.label }}</label>
+            {{ form.header_bar_color|add_class:'form-control color-input' }}
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="{{ form.header_bar_font_color.id_for_label }}" class="form-label">{{ form.header_bar_font_color.label }}</label>
+            {{ form.header_bar_font_color|add_class:'form-control color-input' }}
+          </div>
+        </div>
+
+        <!-- General Section -->
+        <div class="section-title">General</div>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label for="{{ form.background_color.id_for_label }}" class="form-label">{{ form.background_color.label }}</label>
+            {{ form.background_color|add_class:'form-control color-input' }}
+          </div>
+          <div class="col-md-6 form-group">
+            <label for="{{ form.text_color.id_for_label }}" class="form-label">{{ form.text_color.label }}</label>
+            {{ form.text_color|add_class:'form-control color-input' }}
+          </div>
+        </div>
+
+        <!-- Sections Section -->
+        <div class="section-title">Sections</div>
+        <div class="row">
+          <div class="col-md-3 form-group">
+            <label for="{{ form.section_header_font_color.id_for_label }}" class="form-label">{{ form.section_header_font_color.label }}</label>
+            {{ form.section_header_font_color|add_class:'form-control color-input' }}
+          </div>
+          <div class="col-md-3 form-group">
+            <label for="{{ form.service_background_color.id_for_label }}" class="form-label">{{ form.service_background_color.label }}</label>
+            {{ form.service_background_color|add_class:'form-control color-input' }}
+          </div>
+          <div class="col-md-3 form-group">
+            <label for="{{ form.worker_background_color.id_for_label }}" class="form-label">{{ form.worker_background_color.label }}</label>
+            {{ form.worker_background_color|add_class:'form-control color-input' }}
+          </div>
+          <div class="col-md-3 form-group">
+            <label for="{{ form.hero_image_font_color.id_for_label }}" class="form-label">{{ form.hero_image_font_color.label }}</label>
+            {{ form.hero_image_font_color|add_class:'form-control color-input' }}
+          </div>
+        </div>
+
+        <!-- Main Menu Section -->
+        <div class="section-title">Main Menu</div>
+        <div class="row">
+          <div class="col-md-3 form-group">
+            <label for="{{ form.main_manu_background_color.id_for_label }}" class="form-label">{{ form.main_manu_background_color.label }}</label>
+            {{ form.main_manu_background_color|add_class:'form-control color-input' }}
+          </div>
+          <div class="col-md-3 form-group">
+            <label for="{{ form.main_menu_font_color.id_for_label }}" class="form-label">{{ form.main_menu_font_color.label }}</label>
+            {{ form.main_menu_font_color|add_class:'form-control color_input' }}
+          </div>
+          <div class="col-md-3 form-group">
+            <label for="{{ form.main_menu_font_hover_color.id_for_label }}" class="form-label">{{ form.main_menu_font_hover_color.label }}</label>
+            {{ form.main_menu_font_hover_color|add_class:'form-control color_input' }}
+          </div>
+          <div class="col-md-3 form-group">
+            <label for="{{ form.burger_button_background_color.id_for_label }}" class="form-label">{{ form.burger_button_background_color.label }}</label>
+            {{ form.burger_button_background_color|add_class:'form-control color_input' }}
+          </div>
+          <div class="col-md-3 form-group">
+            <label for="{{ form.buger_menu_lines_color.id_for_label }}" the "form-label">{{ form.buger_menu_lines_color.label }}</label>
+            {{ form.buger_menu_lines_color|add_class:'form-control color_input' }}
+          </div>
+        </div>
+        <div class="section-title">Booking Page</div>
+          <div class="row">
+            <div class="col-md-6 text-center">
+              <div class="w-100 d-flex justify-content-center align-items-center">
+                <h4 class="mb-2">Appointment Background Image</h4>
+                <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="This image will show on the Booking Page background"></i>
+              </div>
+              <div class="image-container mb-3">
+                <img src="{{ form.instance.appointment_background_image.url|default:'/media/appointment/placeholder.jpg' }}" id="appointmentBackgroundPreview" class="img-fluid mb-2">
+                <input type="file" name="appointment_background_image" class="form-control" id="appointmentBackgroundImage" accept="image/png, image/jpeg" style="display: none;">
+                <button type="button" id="changeAppointmentBackgroundImageButton" class="btn btn-primary mt-2" onclick="document.getElementById('appointmentBackgroundImage').click();">Change</button>
+              </div>
+            </div>
+            <div class="col-md-3 form-group">
+              <label for="{{ form.booking_form_background_color.id_for_label }}" the "form-label">{{ form.booking_form_background_color.label }}</label>
+              {{ form.booking_form_background_color|add_class:'form-control color_input' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
+
+{% block extra_script %}
+<script>
+$(document).ready(function() {
+  $('#appointmentBackgroundImage').change(function(e) {
+        if (e.target.files && e.target.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                $('#appointmentBackgroundPreview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+  });
+});
+
+</script>
+
+{% endblock extra_script%}

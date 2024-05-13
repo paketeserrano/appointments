@@ -20,12 +20,13 @@
 
     <div class="hero-image">
         <div class="hero-text">
-            <h1>{{business.name}}</h1>
-            <p>{{business.description}}</p>
+            <h1 class="hero-image-font-color">{{business.name}}</h1>
+            <p class="hero-image-font-color">{{business.presentation}}</p>
         </div>
     </div>
 
     <!-- "Who We Are" Section -->
+{% if business_ui.description %}
     <section class="who-we-are">
         <div class="container">
             <div class="section-header section-header-font-color ">
@@ -34,7 +35,9 @@
             <p>{{ business_ui.description|linebreaksbr|safe }}</p>
         </div>
     </section>
+{% endif %}
 
+{% if events %}
     <section class="section-home">
         <div class="container">
             <div class="section-header section-header-font-color ">
@@ -42,31 +45,34 @@
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 {% for event in events %}
+                    {% if event.ui.is_visible %}
                     <div class="flex justify-center items-center h-screen">
-                        <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white dark:bg-zinc-800">                            
+                        <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-service-background">                            
                             <img src="{{ event.ui.image.url|default:'/media/events/placeholder.jpg' }}" class="w-full" style="width:100%;" />
                             <div class="text-center" style="padding:10px">
                                 <div class="px-6 py-4">
                                     <div class="text-xl mb-2 text-center" style="font-weight:900">{{event.name}}</div>
                                     <div class="mb-2 text-center overflow-hidden card-text-height card-text-font">
                                         <p class="text-zinc-700 text-base dark:text-zinc-300">
-                                            {{event.description}}
+                                            {{event.presentation}}
                                         </p>
                                     </div>
                                 </div>
                                 <div class="px-6 py-4">
                                     <a
-                                    href="{% url 'service_view' event.id%}"
+                                    href="{% url 'service_view' business.id event.id%}"
                                     class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded"
                                     >More</a>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>
     </section>
+{% endif %}
 
     <section class="section-home">
         <div class="container">
@@ -90,7 +96,7 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 {% for worker in business.account_workers.all %}
                 <div class="flex justify-center items-center h-screen">
-                    <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white dark:bg-zinc-800">                            
+                    <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-worker-background">                            
                         <img src="{{ worker.profile_image.url|default:'/media/user_profiles/placeholder.jpg' }}" class="w-full" style="width:100%;" />
                         <div class="text-center" style="padding:10px">
                             <div class="px-6 py-4">
@@ -102,7 +108,7 @@
                                 </div>
                             </div>
                             <div class="px-6 py-4">
-                                <a href="{% url 'web_user_profile' business_id=business.id user_id=worker.user.id %}" class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">More</a>
+                                <a href="{% url 'web_user_profile' business.id worker.user.id %}" class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">More</a>
                             </div>
                         </div>
                     </div>
@@ -111,7 +117,7 @@
             </div>
         </div>
     </section>
-
+{% if business.photos.count %}
     <section class="section-home">
         <div class="container">
             <div class="section-header section-header-font-color ">
@@ -126,7 +132,7 @@
             </div>
         </div>
       </section>
-
+{% endif %}
     <!-- Bootstrap Modal for Image Viewing -->
     <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">

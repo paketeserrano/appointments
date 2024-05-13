@@ -11,20 +11,68 @@
 
     <!-- Styles coming from the user configuration saved on BusinessAppearance model-->
     <style>
+        /* Background color for header bar and also footer */
         .appearance-header-bar {
             background-color: {{ business.appearance.header_bar_color|default:"#ffffff" }};
         }
 
+        /* Background color for the page */
         .appearance-background {
             background-color: {{ business.appearance.background_color|default:"#defdef" }};
         }
 
+        /* General color for the font on the website */
         div, p, .appearance-font-color {
             color: {{ business.appearance.text_color|default:"#defdef" }};
         }
 
+        /* Color for the section title */
         .section-header-font-color {
             color: {{ business.appearance.section_header_font_color|default:"#defdef" }};
+        }
+
+        /* Background color for service cards */
+        .appearance-service-background {
+            background-color: {{ business.appearance.service_background_color|default:"#defdef" }};
+        }
+
+        /* Background color for worker cards */
+        .appearance-worker-background {
+            background-color: {{ business.appearance.worker_background_color|default:"#defdef" }};
+        }
+
+        /* Font color for hero image text */
+        .hero-image-font-color {
+            color: {{ business.appearance.hero_image_font_color|default:"#defdef" }};
+        }
+
+        /* Font color for header bar text */
+        .header-bar-font-color {
+            color: {{ business.appearance.header_bar_font_color|default:"#defdef" }};
+        }
+
+        /* Background color for main bar */
+        .main-manu-background-color {
+            background-color: {{ business.appearance.main_manu_background_color|default:"#defdef" }};
+        }
+
+        /* Font color for links on main bar */
+        .appearance-main-menu-font-color {
+            color: {{ business.appearance.main_menu_font_color|default:"#defdef" }};
+        }
+
+        .sidebar a:hover {
+            color: {{ business.appearance.main_menu_font_hover_color|default:"#defdef" }};
+        }
+
+        /* Background color for burger main menu */
+        .burger-button-background-color {
+            background-color: {{ business.appearance.burger_button_background_color|default:"#defdef" }};
+        }
+
+        /* Burger main menu lines color */
+        .buger-menu-lines-color {
+            color: {{ business.appearance.buger_menu_lines_color|default:"#defdef" }};
         }
 
     </style>  
@@ -33,15 +81,16 @@
 </head>
 <body class="appearance-background">
     <div class="container-wide appearance-background ">
-        <div class="header-bar appearance-header-bar">{{business.name}}
-            <button id="sidebarCollapse">
-                <i class="fas fa-bars"></i> <!-- Default icon -->
+        <div class="header-bar appearance-header-bar header-bar-font-color ">
+            {{business.name}}
+            <button id="sidebarCollapse" class="burger-button-background-color buger-menu-lines-color">
+                <i class="fas fa-bars"></i> 
             </button>
         </div>
 
-        <div class="sidebar" id="mySidebar">
-            <a href="{% url 'web_business' business_id=business.id %}">Home</a>
-            <a href="#">Blog</a>
+        <div class="sidebar main-manu-background-color" id="mySidebar">
+            <a class="appearance-main-menu-font-color" href="{% url 'web_business' business_id=business.id %}">Home</a>
+            <a class="appearance-main-menu-font-color" href="#">Blog</a>
         </div>
 
         <div class="main">
@@ -50,8 +99,8 @@
             {% endblock content %}
         </div>
 
-        <footer class="container-fluid bg-dark text-white py-3">
-            <div class="container">
+        <footer class="container-fluid py-3 appearance-header-bar">
+            <div class="container ">
                 <div class="row">
                     <!-- Left Section for Opening Hours -->
                     <div class="col-md-6" style="text-align: center;">

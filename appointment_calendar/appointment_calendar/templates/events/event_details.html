@@ -17,135 +17,275 @@
     border-radius: 15px;     /* Adjust this value to increase or decrease the rounding */
     overflow: hidden;        /* Ensures the contents also conform to the rounded corners */
   }
+
+  .card-custom {
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        width: 300px; /* Fixed width for the progress bar card */
+    }
+
+    .progress {
+        height: 10px;
+        border-radius: 5px;
+        background-color: #f0f0f0;
+    }
+
+    .progress-bar {
+        background-color: green;
+        transition: width 0.6s ease;
+    }
+
+    /* Custom Styling for Responsive Adjustments */
+    .profile-progress {
+        display: flex;
+        flex-direction: column; /* Stack vertically by default */
+        align-items: flex-start; /* Align items at the start */
+    }
+
+    .profile-details {
+        width: 100%; /* Ensure it fills the container */
+    }
+
+    @media (min-width: 768px) {
+        .profile-progress {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        }
+
+        .profile-details {
+        margin-right: 20px; /* Space between text and progress bar */
+        }
+    }
+
+    .card-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .percentage-label {
+        font-size: 16px;
+        color: #333;
+    }
+
+    .event-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Center items horizontally */
+    }
+
+    .event-link {
+        margin-top: 10px; /* Space between the event name and the link */
+    }
+
+    .info-link {
+        display: flex;
+        align-items: center; /* Center the icon and text vertically */
+        color: #007bff; /* Bootstrap primary blue for link color, adjust as needed */
+        text-decoration: none; /* Optional: removes underline from links */
+    }
+
+    .info-link i {
+        margin-right: 5px; /* Space between the icon and text */
+    }
+
+    .info-link[aria-disabled="true"] {
+      color: grey;
+      cursor: not-allowed;
+    }
+
+    .info-link[aria-disabled="true"] i {
+      color: grey;
+    }
+
+    .image-container img {
+      max-height: 200px;
+      border-radius: 15px;
+      border: 2px solid #ccc;
+    }
+
+    .image-container {
+      position: relative;
+      display: inline-block; /* Center image container */
+    }
+
+    #changeImageButton {
+      width: 100%; /* Button width matches image width */
+    }
+
+    .form-check {
+      display: flex;
+    }
 </style>
 {% endblock extra_css %}
 
 {% block content %}
+
 <div class="rc-card">
-  <div class="container mt-5">
-      <div class="event-details">
-        <h2>Event Details</h2>
-        
-        <!-- Name Field -->
-        <div class="form-group">
-          <div class="row">
-            <label for="name" class="col-12 col-md-3 col-form-label">Name:</label>
-            <div class="col-12 col-md-7">
-              <input type="text" readonly class="form-control-plaintext" id="name" value="{{ event.name }}">
-            </div>
-            <div class="col-12 col-md-2 text-right">
-              <button id="edit-name" class="btn btn-primary btn-sm">Edit</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Description Field -->
-        <div class="form-group">
-          <div class="row">
-            <label for="description" class="col-12 col-md-3 col-form-label">Description:</label>
-            <div class="col-12 col-md-7">
-              <input type="text" readonly class="form-control-plaintext" id="description" value="{{ event.description }}">
-            </div>
-            <div class="col-12 col-md-2 text-right">
-              <button id="edit-description" class="btn btn-primary btn-sm">Edit</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Duration Field -->
-        <div class="form-group">
-          <div class="row">
-            <label for="duration" class="col-12 col-md-3 col-form-label">Duration (mins):</label>
-            <div class="col-12 col-md-7">
-              <input type="text" readonly class="form-control-plaintext" id="duration" value="{{ event.duration }}">
-            </div>
-            <div class="col-12 col-md-2 text-right">
-              <button id="edit-duration" class="btn btn-primary btn-sm">Edit</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Location Field -->
-        <div class="form-group">
-          <div class="row">
-            <label for="location" class="col-12 col-md-3 col-form-label">Location:</label>
-            <div class="col-12 col-md-7">
-              <input type="text" readonly class="form-control-plaintext" id="location" value="{{ event.location }}">
-            </div>
-            <div class="col-12 col-md-2 text-right">
-              <button id="edit-location" class="btn btn-primary btn-sm">Edit</button>
-            </div>
-          </div>
+  <div class="profile-progress">
+    <div class="profile-details">
+      <div class="event-info">
+        <h1 id="eventName">{{ event.name }}</h1>
+        <div class="event-link text-center">
+          <a href="#" class="info-link" id="shareLink" data-share-url="{{ event_url }}" aria-disabled="false">
+            Share Event Link
+            <i class="fas fa-copy ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="Copy link to clipboard."></i>            
+          </a>
+          <i class="fas fa-info-circle ms-2" id="infoIcon" style="display: none;" data-bs-toggle="tooltip" data-bs-placement="right" title="Enable this link by adding at least 1 workers and setting duration above 0 minutes."></i>
         </div>
       </div>
-  </div>
-</div>
-
-<div class="rc-card">
-  <div class="container mt-5">
-    <h2>Event Workers</h2>
-    <ul class="list-group" id="workers-list">
-      {% for worker in event.event_workers.all %}
-        <li class="list-group-item d-flex justify-content-between align-items-center" id="{{worker.id}}">
-            {{ worker.user.first_name }} {{ worker.user.last_name }}
-
-            <div class="dropdown">
-                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-ellipsis-v"></i>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
-                    <li><a class="dropdown-item" href="{% url 'worker_detail' event.account.id worker.id %}">View User</a></li>
-                    <li><a class="dropdown-item remove-worker" href="#" data-worker-id="{{ worker.id }}">Remove worker</a></li>                  
-                </ul>
-            </div>
-        </li>
-      {% endfor %}
-    </ul>
-    <button id="add-new-worker" class="btn btn-primary mt-3">+ Add New</button>
-  
-    <div id="new-worker-template" class="d-none">
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <select class="form-select">
-          <option value="">Select Worker</option>
-          {% for worker in event.account.account_workers.all %}
-            <option value="{{worker.id}}">{{worker.user.first_name }} {{worker.user.last_name }}</option>
-          {% endfor%}
-          <!-- Add more workers as needed -->
-        </select>
-        <div>
-          <button class="btn btn-success btn-sm mr-1 btn-save-new-worker">Save</button>
-          <button class="btn btn-secondary btn-sm">Cancel</button>
+    </div>
+    <div class="card card-custom">
+      <div class="card-body">
+        <div class="card-title">
+          <h5>Event Status</h5>
+          <span id='eventConfigurationStatusPercentage' class="percentage-label">{{ event_configuration_status.percentage_completed }}%</span>
         </div>
-      </li>
+        <div class="progress my-3">
+          <div class="progress-bar" role="progressbar" style="width: {{ event_configuration_status.percentage_completed }}%;" aria-valuenow="{{ event_configuration_status.percentage_completed }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#actionsModal">Actions</a>
+      </div>
     </div>
   </div>
 </div>
-
-<div class="rc-card">
+<div class="container-fluid">
+<div class="row">
+  <div class="col-md-6">
+    <div class="rc-card">
+      <h2>Booking Page Details</h2>
       <div class="container mt-5">
-          <h2>Event UI Settings</h2>
-          <!-- Toggle Visibility -->
-          <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="is_visible" {% if event_ui.is_visible %}checked{% endif %}>
-              <label class="form-check-label" for="is_visible">Is Visible</label>
+          <div class="event-details"> 
+            <!-- Name Field -->
+            <div class="form-group">
+              <div class="row">
+                <label for="name" class="col-12 col-md-3 col-form-label">Name:</label>
+                <div class="col-12 col-md-7">
+                  <input type="text" readonly class="form-control-plaintext" id="name" value="{{ event.name }}">
+                </div>
+                <div class="col-12 col-md-2 text-right">
+                  <button id="edit-name" class="btn btn-primary btn-sm">Edit</button>
+                </div>
+              </div>
+            </div>
+            <!-- Presentation Field -->
+            <div class="form-group">
+              <div class="row">
+                <label for="presentation" class="col-12 col-md-3 col-form-label">Presentation:</label>
+                <div class="col-12 col-md-7">
+                  <input type="text" readonly class="form-control-plaintext" id="presentation" value="{{ event.presentation }}">
+                </div>
+                <div class="col-12 col-md-2 text-right">
+                  <button id="edit-presentation" class="btn btn-primary btn-sm">Edit</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Duration Field -->
+            <div class="form-group">
+              <div class="row">
+                <label for="duration" class="col-12 col-md-3 col-form-label">Duration (mins):</label>
+                <div class="col-12 col-md-7">
+                  <input type="text" readonly class="form-control-plaintext" id="duration" value="{{ event.duration }}">
+                </div>
+                <div class="col-12 col-md-2 text-right">
+                  <button id="edit-duration" class="btn btn-primary btn-sm">Edit</button>
+                </div>
+              </div>
+            </div>
           </div>
-          <!-- Image Preview and Upload -->
-          <div class="mb-3">
-              <label for="eventImage" class="form-label">Event Image</label>
-              <img src="{{ event_ui.image.url|default:'/media/events/placeholder.jpg' }}" id="imagePreview" class="img-fluid mb-2" style="max-height: 200px;">
-              <input type="file" class="form-control" id="eventImage" accept="image/png, image/jpeg">
-          </div>
-          <!-- Save and Cancel Buttons -->
-          <div class="text-end">
-              <button type="button" class="btn btn-primary" id="saveSettings">Save</button>
-              <button type="button" class="btn btn-secondary" id="cancelSettings">Cancel</button>
+          <h3>Event Workers</h3>
+          <ul class="list-group" id="workers-list">
+            {% for worker in event.event_workers.all %}
+              <li class="list-group-item d-flex justify-content-between align-items-center" id="{{worker.id}}">
+                  {{ worker.user.first_name }} {{ worker.user.last_name }}
+      
+                  <div class="dropdown">
+                      <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
+                          <li><a class="dropdown-item" href="{% url 'worker_detail' event.account.id worker.id %}">View User</a></li>
+                          <li><a class="dropdown-item remove-worker" href="{% url 'worker_remove' event.account.id worker.id %}" data-worker-id="{{ worker.id }}">Remove worker</a></li>                  
+                      </ul>
+                  </div>
+              </li>
+            {% endfor %}
+          </ul>
+          <button id="add-new-worker" class="btn btn-primary mt-3">+ Add New</button>
+        
+          <div id="new-worker-template" class="d-none">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <select class="form-select">
+                <option value="">Select Worker</option>
+                {% for worker in event.account.account_workers.all %}
+                  <option value="{{worker.id}}">{{worker.user.first_name }} {{worker.user.last_name }}</option>
+                {% endfor%}
+                <!-- Add more workers as needed -->
+              </select>
+              <div>
+                <button class="btn btn-success btn-sm mr-1 btn-save-new-worker">Save</button>
+                <button class="btn btn-secondary btn-sm btn-cancel-new-worker">Cancel</button>
+              </div>
+            </li>
           </div>
       </div>
+    </div>
+</div>
+
+<div class="col-md-6">
+  <div class="rc-card">
+    <h2>Website Settings</h2>
+    <div class="container mt-5">
+      <div class="row">
+        <!-- Toggle Visibility on the left -->
+        <div class="col-md-6 d-flex flex-column">
+          <!-- Toggle Visibility -->
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="is_visible" {% if event_ui.is_visible %}checked{% endif %}>
+            <label class="form-check-label" for="is_visible">Is Visible</label>
+          </div>
+          <div class="mb-3 mt-3">
+            <label for="eventDescription" class="form-label">
+                Event Description
+                <i class="fas fa-info-circle" data-bs-toggle="tooltip" title="Provide a detailed description of your event. This will show on your event page on the website"></i>
+            </label>
+            <textarea class="form-control" id="eventDescription" rows="3" maxlength="500" placeholder="Enter event description here...">{{event_ui.description}}</textarea>
+          </div>
+          <div class="mt-3 d-flex align-items-center">
+            <a href="{{ web_url }}" class="info-link" id="businessWebsite" aria-disabled="false" target="_blank">
+              View Business Website
+            </a>
+            <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" data-bs-placement="right" title="The more info you add to your business and events, the better the website will look"></i>
+          </div>
+        </div>
+        
+        <!-- Image Preview and Upload on the right -->
+        <div class="col-md-6 text-center">
+          <div class="w-100 d-flex justify-content-center align-items-center">
+            <h4 class="mb-2">Event Header Image</h4>
+            <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="This image will show on the Event Page of this business website"></i>
+          </div>
+          <div class="image-container mb-3">
+            <img src="{{ event_ui.image.url|default:'/media/events/placeholder.jpg' }}" id="imagePreview" class="img-fluid mb-2">
+            <input type="file" class="form-control" id="eventImage" accept="image/png, image/jpeg" style="display: none;">
+            <button id="changeImageButton" class="btn btn-primary mt-2" onclick="document.getElementById('eventImage').click();">Change</button>
+          </div>
+          <div>
+            <button type="button" class="btn btn-primary" id="saveSettings">Save</button>
+            <button type="button" class="btn btn-secondary" id="cancelSettings">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
 </div>
 
 <div class="rc-card">
   <div class="container mt-5">
-    <h2>Photos</h2>
+    <h2>Show Your Work</h2>
     <button id="add-photo" class="btn btn-success">Add</button>
     <input type="file" id="photo-upload" accept=".jpg, .jpeg, .png" style="display: none;">
     <button id="delete-photo" class="btn btn-danger" disabled>Delete Selected</button>
@@ -162,16 +302,79 @@
     <button class="btn btn-primary" id="load-more">Load More</button>
   </div>
 </div>
-
+</div>
+<div class="modal fade" id="actionsModal" tabindex="-1" aria-labelledby="actionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="actionsModalLabel">Event Actions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <div class="d-flex align-items-center">
+              {% if event_configuration_status.has_presentation %} 
+                  <i class="fas fa-check-circle fa-sm text-success"></i>
+                  <span class="ms-2 text-muted">Add presentation info</span>
+              {% else %}
+                  <i class="far fa-circle fa-sm text-danger"></i>
+                  <span class="ms-2 text-muted">Add presentation info</span>
+              {% endif %}
+          </div>
+          <div class="d-flex align-items-center">
+              {% if event_configuration_status.has_description %} 
+                  <i class="fas fa-check-circle fa-sm text-success"></i>
+                  <span class="ms-2 text-muted">Add description info</span>
+              {% else %}
+                  <i class="far fa-circle fa-sm text-danger"></i>
+                  <span class="ms-2 text-muted">Add description info</span>
+              {% endif %}
+          </div>
+          <div class="d-flex align-items-center">
+              {% if event_configuration_status.has_duration %} 
+                  <i class="fas fa-check-circle fa-sm text-success"></i>
+                  <span class="ms-2 text-muted">Duration must be greater than 0</span>
+              {% else %}
+                  <i class="far fa-circle fa-sm text-danger"></i>
+                  <span class="ms-2 text-muted">Duration must be greater than 0</span>
+              {% endif %}
+          </div>
+          <div class="d-flex align-items-center">
+              {% if event_configuration_status.has_workers %} 
+                  <i class="fas fa-check-circle fa-sm text-success"></i>
+                  <span class="ms-2 text-muted">Has workers assigned</span>
+              {% else %}
+                  <i class="far fa-circle fa-sm text-danger"></i>
+                  <span class="ms-2 text-muted">Has workers assigned</span>
+              {% endif %}
+          </div>
+          <div class="d-flex align-items-center">
+            {% if event_configuration_status.has_price %} 
+                <i class="fas fa-check-circle fa-sm text-success"></i>
+                <span class="ms-2 text-muted">Price must be greater than 0</span>
+            {% else %}
+                <i class="far fa-circle fa-sm text-danger"></i>
+                <span class="ms-2 text-muted">Price must be greater than 0</span>
+            {% endif %}
+        </div>
+        <div class="d-flex align-items-center">
+          {% if event_configuration_status.has_front_image %} 
+              <i class="fas fa-check-circle fa-sm text-success"></i>
+              <span class="ms-2 text-muted">Front image added</span>
+          {% else %}
+              <i class="far fa-circle fa-sm text-danger"></i>
+              <span class="ms-2 text-muted">Front image added</span>
+          {% endif %}
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Bootstrap Modal for Confirmation of photo deletion -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
       </div>
       <div class="modal-body">
         Delete selected?
@@ -204,11 +407,72 @@
 
 <script>
 
+function updateProgressBar(percentage) {
+        $('.progress-bar').css('width', percentage + '%').attr('aria-valuenow', percentage).text(percentage + '%');
+        $('.percentage-label').text(percentage + '%');
+}
+
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+
 $(document).ready(function() {
 
     var currentCount = 9;
     let originalImage = $('#imagePreview').attr('src');
     let originalVisibility = $('#is_visible').is(':checked');
+    let originalEventDescription = $('#eventDescription').text()
+
+    {% if event.photos.all.count < 10 %}
+        $('#load-more').hide();
+    {% endif %}
+
+    // Enable/Disable the 'Share Event' link
+    function enableDisableShareEventLink() {
+        var workersCount = $('#workers-list li').length;
+        var durationValue = parseInt($('#duration').val(), 10);
+        console.log('workersCount: ' + workersCount)
+        console.log('durationValue: ' + durationValue)
+
+        // Enable the link if there is at least one worker or duration is greater than 0
+        if (workersCount > 0 && durationValue > 0) {
+            $('#shareLink').removeClass('disabled').attr('aria-disabled', 'false').css('pointer-events', 'auto');
+            $('#infoIcon').hide();
+        } else {
+            $('#shareLink').addClass('disabled').attr('aria-disabled', 'true').css('pointer-events', 'none');
+            $('#infoIcon').show();
+        }
+    }
+
+    // Optional: If there's any interaction that may change the number of workers or duration, bind this function to that event too
+    $('#duration').change(enableDisableShareEventLink);
+    $('#workers-list').on('change', 'li', enableDisableShareEventLink); 
+
+    // Set the initial state of the share link
+    enableDisableShareEventLink();
+
+    // Click event for copying to clipboard
+    $('#shareLink').click(function(e) {
+      e.preventDefault(); // Prevent default anchor click behavior
+      var text = $(this).data('share-url');
+      navigator.clipboard.writeText(text).then(function() {
+        console.log('Text successfully copied to clipboard');
+      }).catch(function(err) {
+        console.error('Failed to copy text: ', err);
+      });
+    });
+
+    // Click event for icon within the link to copy to clipboard
+    $('#shareLink i').click(function(e) {
+      e.preventDefault(); // Stop icon click from triggering link click
+      var text = $shareLink.data('share-url');
+      navigator.clipboard.writeText(text).then(function() {
+        console.log('Text successfully copied to clipboard');
+      }).catch(function(err) {
+        console.error('Failed to copy text: ', err);
+      });
+    });
 
     $('#eventImage').change(function(e) {
         if (e.target.files && e.target.files[0]) {
@@ -221,28 +485,30 @@ $(document).ready(function() {
     });
 
     $('#saveSettings').click(function() {
-      savePage(1)
+      savePage()
     })
 
     $('#cancelSettings').click(function() {
         $('#imagePreview').attr('src', originalImage);
         $('#is_visible').prop('checked', originalVisibility);
+        $('#eventDescription').text(originalEventDescription)
 
         // Clear the file input
         $('#eventImage').val(null); 
     });
 
-    $('.photo-thumbnail').click(function() {
-      var src = $(this).attr('src'); // Get the source from the clicked image
-      $('#modal-image').attr('src', src); // Set the source in the modal image
-      $('#imageModal').modal('show'); // Display the modal
+    $(document).on('click', '.photo-thumbnail', function() {
+        var src = $(this).attr('src'); // Get the source from the clicked image
+        $('#modal-image').attr('src', src); // Set the source in the modal image
+        $('#imageModal').modal('show'); // Display the modal
     });
 
-    // Handle checkbox changes
-    $('.photo-select').change(function() {
-      const selectedPhotos = $('.photo-select:checked').length;
-      $('#delete-photo').prop('disabled', selectedPhotos === 0);
+    // Using event delegation for dynamically added checkboxes
+    $(document).on('change', '.photo-select', function() {
+        const selectedPhotos = $('.photo-select:checked').length;
+        $('#delete-photo').prop('disabled', selectedPhotos === 0);
     });
+
 
     // Handle delete button click
     $('#delete-photo').click(function() {
@@ -261,6 +527,7 @@ $(document).ready(function() {
         url: '{% url "delete_event_business_photos" %}', 
         type: 'POST',
         data: {
+          'event_id': {{event.id}},
           'image_ids': JSON.stringify(selectedIds),
           'csrfmiddlewaretoken': '{{ csrf_token }}'
         },
@@ -295,19 +562,18 @@ $(document).ready(function() {
         $(this).hide();
     });
 
-    // Event handler for 'Save' button click
+    // Event handler for 'Save' button click on new worker
     $(document).on('click', '.btn-save-new-worker', function() {
         // Get the selected worker name and value
         var workerSelect = $(this).closest('.list-group-item').find('select');
         var selectedValue = workerSelect.val();
+        console.log('selectedValue: ' + selectedValue)
         var selectedText = workerSelect.find("option:selected").text();
 
         if (selectedValue) {
             // Create a new list item with the worker name
-            var newListHtml = '<li class="list-group-item d-flex justify-content-between align-items-center">' +
-                              selectedText + ' ' +
-                              '<!-- additional content for each worker here -->' +
-                              '</li>';
+            var newListHtml = '<li class="list-group-item d-flex justify-content-between align-items-center" id="' + selectedValue + '">' +
+                              selectedText + ' ' + '</li>';
 
             // Append the new list item
             $('#workers-list').append(newListHtml);
@@ -317,13 +583,15 @@ $(document).ready(function() {
             
             // Show the 'Add New' button again
             $('#add-new-worker').show();
+
+            savePage()
         } else {
             alert('Please select a worker.');
         }
     });
 
     // Event handler for 'Cancel' button click
-    $(document).on('click', '.btn-save-new-worker', function() {
+    $(document).on('click', '.btn-cancel-new-worker', function() {
         // Remove the form row
         $(this).closest('.list-group-item').remove();
         
@@ -379,9 +647,15 @@ $(document).ready(function() {
                 );
               });
               currentCount += response.data.length;
+              if (response.data.length < 9){
+                $('#load-more').hide(); // Hide button if no more images are available
+              }
             } else {
               $('#load-more').hide(); // Hide button if no more images are available
             }
+          },
+          error: function() {
+            alert('Server error, please try again later.');
           }
         });
       });
@@ -403,11 +677,20 @@ $(document).ready(function() {
           contentType: false,
           success: function(response) {
             if (response.success) {
-              $('.photo-row').prepend('<div class="col-md-4"><img src="' + response.url + '" class="photo-thumbnail"></div>');
-              alert('Image uploaded successfully!');
+                // Updated to match existing HTML structure
+                var newPhotoHtml = '<div class="col-md-4 mt-4">' +
+                                  '<div class="photo-container p-2">' +
+                                  '<input type="checkbox" class="photo-select" data-image-id="' + response.image_id + '">' +
+                                  '<img src="' + response.url + '" class="photo-thumbnail">' +
+                                  '</div></div>';
+                $('.photo-row').prepend(newPhotoHtml);
+                alert('Image uploaded successfully!');
             } else {
-              alert('Upload failed. Please try again.');
+                alert('Upload failed. Please try again.');
             }
+          },
+          error: function() {
+            alert('Server error, please try again later.');
           }
         });
       });
@@ -418,6 +701,29 @@ $(document).ready(function() {
 
 });
 
+function updateModal(eventConfigurationStatus) {
+    var modalBody = $('.modal-body');
+    modalBody.empty();  // Clear the existing content
+
+    var items = [
+        { key: 'has_presentation', label: 'Add presentation info' },
+        { key: 'has_description', label: 'Add description info' },
+        { key: 'has_duration', label: 'Duration must be greater than 0' },
+        { key: 'has_workers', label: 'Has workers assigned' },
+        { key: 'has_price', label: 'Price must be greater than or equal to 0' },
+        { key: 'has_front_image', label: 'Front image added' }
+    ];
+
+    items.forEach(function(item) {
+        var iconClass = eventConfigurationStatus[item.key] ? 'fas fa-check-circle fa-sm text-success' : 'far fa-circle fa-sm text-danger';
+        var html = '<div class="d-flex align-items-center">' +
+            '<i class="' + iconClass + '"></i>' +
+            '<span class="ms-2 text-muted">' + item.label + '</span>' +
+            '</div>';
+
+        modalBody.append(html);  // Append the new status
+    });
+}
 
 function savePage(fieldId) {
 
@@ -425,18 +731,17 @@ function savePage(fieldId) {
         return this.id; // 'this' refers to the current li element in the loop
     }).get(); // .get() converts the jQuery object into a regular array
 
-    console.log(workerIds); // This will log the array of top-level worker IDs to the console
-
-
+    console.log('workerIds: ' + workerIds)
+    
     // Collect data from all editable fields
     var formData = new FormData();
     formData.append('name', $('#name').val());
-    formData.append('description', $('#description').val());
+    formData.append('presentation', $('#presentation').val());
     formData.append('duration', $('#duration').val());
-    formData.append('location', $('#location').val());
     formData.append('worker_ids', JSON.stringify(workerIds));
     formData.append('is_visible', $('#is_visible').is(':checked'));
     formData.append('image', $('#eventImage')[0].files[0]);  // Assumes there is a file selected
+    formData.append('description', $('#eventDescription').val());
     formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');  // Ensure CSRF token is included
 
     $.ajax({
@@ -450,7 +755,11 @@ function savePage(fieldId) {
             // Keep the last saved values
             originalImage = $('#imagePreview').attr('src');
             originalVisibility = $('#is_visible').is(':checked');
+            originalEventDescription = $('#eventDescription').val()
+            $('#eventName').text( $('#name').val() )
+            $('#eventConfigurationStatusPercentage').text(response['event_configuration_status']['percentage_completed'])
             revertUIForAll();
+            updateModal(response['event_configuration_status'])
         },
         error: function(xhr, status, error) {
             console.error('Error updating event details:', error);

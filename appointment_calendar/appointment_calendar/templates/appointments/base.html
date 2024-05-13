@@ -4,10 +4,17 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" type="text/css"  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <style>
+        /* Background color for appointment main form */
+        .main-frame-bg-color {
+            background-color: {{ appearance.booking_form_background_color|default:"#ffffff" }};
+        }
+    </style>
 {% endblock extra_css %}
 
 {% block content %}
-	<div id="booking" class="section">
+	<div id="booking" class="section" {% if appearance.appointment_background_image %}style="background-image: url('{{ appearance.appointment_background_image.url }}');"{% endif %} >
 		<div class="section-center">
 			<div class="container">
 				<div class="row">
@@ -16,7 +23,7 @@
                         {% endblock side_text %}
 					</div>
 					<div class="col-md-7 col-md-offset-1">
-						<div class="booking-form">
+						<div class="booking-form main-frame-bg-color">
                             <!-- progress START -->
                             <div class="progress mb-4">
                                 <div class="progress-bar" role="progressbar" style="width:{{progress_width}}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{progress_width}}%</div>
