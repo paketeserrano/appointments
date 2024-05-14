@@ -30,18 +30,21 @@
         {% endfor %}
 
         {% if wizard.steps.current == "DateTime" %}
-        <!-- Time List START -->
-        <div id="time-list" class="container row g-2">
-            {% for item in get_available_time %}
-                <p class="border mx-1 col-2 py-3 text-center bg-{% if item.is_taken %}secondary {% elif item.time == field.value %}primary text-white {% else%}light {% endif %}">{{item.time}}</p>
-            {% endfor %}
-        </div>
-        <!-- Time List End -->
-    {% endif %}
+            <div id="time-list" class="container row g-2">
+            {% if not get_available_time %}
+                <div class="alert alert-warning" role="alert">
+                    No available time slots for the selected date. Please choose another date.
+                </div>
+            {% else %}
+                <!-- Time List START -->                
+                    {% for item in get_available_time %}
+                        <p class="border mx-1 col-2 py-3 text-center bg-{% if item.is_taken %}secondary {% elif item.time == field.value %}primary text-white {% else%}light {% endif %}">{{item.time}}</p>
+                    {% endfor %}                
+                <!-- Time List End -->
+            {% endif %}
+            </div>
+        {% endif %}
     </div>
-</div>
-<!-- steps END -->
-
 </div>
 
 
@@ -66,6 +69,7 @@
         item.classList.remove("bg-light")
         item.classList.add("bg-primary", "text-white")
         document.querySelector("#id_DateTime-time").value = item.innerHTML
+        $('#next-step').prop('disabled', false)
     }
     // time functions END
 
@@ -97,20 +101,29 @@
                 console.log('------------------')
                 console.log(data)
                 console.log('------------------')
+                console.log('------------------data.length: ' + data.length)
                 time_slots_html = ''
-                data.forEach((item) => {                    
-                    time_slots_html += '<p class="border mx-1 col-2 py-3 text-center bg-'
-                    if (item.is_taken){
-                        time_slots_html += 'secondary '
-                    }
-                    else if (item.time == $('#id_booking_create_wizard_view-current_step').value){
-                        time_slots_html += 'primary text-white '
-                    }
-                    else{
-                        time_slots_html += 'light '
-                    }
-                    time_slots_html += '">' + item.time + '</p>'                    
-                });
+                if (data.length > 0){
+                    data.forEach((item) => {                    
+                        time_slots_html += '<p class="border mx-1 col-2 py-3 text-center bg-'
+                        if (item.is_taken){
+                            time_slots_html += 'secondary '
+                        }
+                        else if (item.time == $('#id_booking_create_wizard_view-current_step').value){
+                            time_slots_html += 'primary text-white '
+                        }
+                        else{
+                            time_slots_html += 'light '
+                        }
+                        time_slots_html += '">' + item.time + '</p>'                    
+                    });
+                }
+                else {
+                    time_slots_html = '<div class="alert alert-warning" role="alert">' + 
+                                      'No available time slots for the selected date. Please choose another date.' +
+                                      '</div>'
+                }
+
                 document.querySelector("#time-list").innerHTML = time_slots_html;   
                 document.querySelectorAll("#time-list .bg-light, #time-list .bg-primary").forEach(timeBtn => {
                     timeBtn.addEventListener("click", timeBtnClicked.bind(this, timeBtn))
@@ -118,6 +131,26 @@
                 console.log(time_slots_html)            
             });
         });
+
+    $(document).ready(function() {
+        {% if wizard.steps.current == "DateTime" and not get_available_time%}
+            $('#next-step').prop('disabled', true)
+        {% endif %}
+
+        {% if wizard.steps.current == "Worker"%}
+            if ($('#id_Worker-workers option').length === 0) {
+                $('#next-step').prop('disabled', true)
+            }
+        {% endif %}
+
+        {% if wizard.steps.current == "Event"%}
+            if ($('#id_Event-events option').length === 0) {
+                $('#next-step').prop('disabled', true)
+            }
+        {% endif %}
+
+
+    });
 
 </script>
 {% endblock extra_script %}

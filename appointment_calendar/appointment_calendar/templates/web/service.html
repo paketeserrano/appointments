@@ -60,7 +60,11 @@
     <div id="product-info" class="section-header section-header-font-color text-center">
         <h2 class="text-2xl font-bold mb-2">{{event.name}}</h2>
         <p class="text-lg font-semibold mb-2">{{event.price}}</p>
-        <button class="btn btn-primary w-50" onclick="window.open('{% url 'client_appointment_for_event' event.account.id event.id%}', '_blank')">Book me</button>
+        <button class="btn btn-primary w-50" 
+                onclick="window.open('{% url 'client_appointment_for_event' event.account.id event.id %}', '_blank')"
+                {% if not event.active %}disabled{% endif %}>
+            Book me
+        </button>
         <p class="text-muted">
             {{event.ui.description}}
         </p>

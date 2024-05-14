@@ -35,7 +35,7 @@ class SelectEventForm(ChangeInputsStyle):
         self.fields['events'] = forms.ChoiceField(choices=self.create_choices(self.initial['Event']['business_id']), required=True, widget=forms.Select(attrs={'class': 'form-select form-select-lg'}))   
 
     def create_choices(self, business_id):
-        events = Event.objects.filter(account=business_id).all()
+        events = Event.objects.filter(account=business_id, active=True).all()
         event_choices = []
         for event in events:
             event_choices.append((str(event.id), event.name))
@@ -59,6 +59,11 @@ class SelectWorkerForm(ChangeInputsStyle):
             
         return worker_choices
         
+class InactiveEventForm(ChangeInputsStyle):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['info'] = forms.CharField(widget=forms.HiddenInput(), required=False, initial="This event is currently not available.")
+
 class SelectDateTimeForm(ChangeInputsStyle):
     date = forms.DateField(required=True)
     time = forms.TimeField(widget=forms.HiddenInput())

@@ -46,8 +46,11 @@
                 <div class="card h-100 mx-auto" style="border-radius: .75rem; box-shadow: 0 4px 8px rgba(0, 0, 0, .1);">
                     <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, #C6F6D5);">
                         <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{ event.name }}</h5>
+                        <p class="card-text mb-2" style="color: #718096;">{{ event.account.name }}</p>
                         <p class="card-text mb-2" style="color: #718096;">{{ event.duration }} mins</p>
-                        <a href="{% url 'event_detail' event.id %}" class="mb-4 text-primary" style="color: #3182CE;">View event page</a>
+                        {% if user.customuser in event.account.admins.all %}
+                            <a href="{% url 'event_detail' event.id %}" class="mb-4 text-primary" style="color: #3182CE;">View event page</a>
+                        {% endif %}
                     </div>
                     <div class="card-footer" style="border-top: 1px solid #E2E8F0; background-color: transparent;">
                         <div class="row align-items-center">
@@ -59,6 +62,7 @@
                                 </a>
                             </div>
                             <div class="col-7">
+                                {% if user.customuser in event.account.admins.all %}
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="toggleEvent{{ forloop.counter }}" {% if event.active %}checked{% endif %}>
                                     <label class="form-check-label toggle-label" for="toggleEvent{{ forloop.counter }}" style="color: #4299E1;">
@@ -69,6 +73,7 @@
                                         {% endif %}
                                     </label>
                                 </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

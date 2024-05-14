@@ -163,7 +163,7 @@ class OpenningTime(models.Model):
     to_hour = models.TimeField()
 
     def __str__(self):
-        return self.get_weekday_display()
+        return f'{self.get_weekday_display()} - {self.from_hour} to {self.to_hour}'
 
 class SpecialDay(models.Model):
     account = models.ForeignKey(Account, on_delete = models.CASCADE)
