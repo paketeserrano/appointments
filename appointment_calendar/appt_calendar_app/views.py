@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
 from .forms import AppointmentForm, SignUpForm, BusinessAppearanceForm, AppointmentCancelForm, AddressForm, CreateAccountForm, \
-                                    CreateEventForm, SelectWorkerForm, SelectEventForm, SelectDateTimeForm, CustomerInformationForm
+                                    CreateEventForm, SelectWorkerForm, SelectEventForm, InactiveEventForm, SelectDateTimeForm, \
+                                    CustomerInformationForm
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import Appointment, Event, Account, AccountInvitation, BusinessAppearance, Invitee, CustomUser, OpenningTime, \
@@ -11,8 +12,7 @@ from django.contrib.auth import login, authenticate
 from django.core import serializers
 import json
 from formtools.wizard.views import SessionWizardView
-from datetime import datetime, timedelta
-import time
+from datetime import datetime, timedelta, time
 from .libs.send_emails import gmail_send, gmail_compose, gmail_credentials
 from django.urls import reverse_lazy, reverse
 from django.contrib.sites.shortcuts import get_current_site
@@ -123,7 +123,7 @@ class AppointmentWizardAccessMixin:
     """
     A mixin to control access to the BookingCreateWizardView based on user roles and their relationship to business and event entities.
 
-    This mixin ensures:
+    client_appointment urls are open for clients. This mixin ensures for appointment_wizard url:
     - For the base URL (only business_id provided), the user must be an authenticated admin of the specified business.
     - For the URL including an event_id, the user must be an authenticated worker of the specified event which must belong to the specified business.
     - For the URL including both event_id and worker_id, the user must be the specified worker, authenticated, and part of the event's workforce, with the event belonging to the specified business.
@@ -131,6 +131,10 @@ class AppointmentWizardAccessMixin:
     The mixin raises a PermissionDenied exception if any of these conditions are not met, effectively restricting access to the view based on these stringent checks.
     """
     def dispatch(self, request, *args, **kwargs):
+        # Client appointments urls are open
+        if self.client_appointment:
+            return super().dispatch(request, *args, **kwargs)
+        
         business_id = kwargs.get('business_id')
         event_id = kwargs.get('event_id', None)
         worker_id = kwargs.get('worker_id', None)
@@ -372,14 +376,67 @@ class AppointmentView(AppointmentAccessMixin, View):
 
     def post(self, request, *args, **kwargs):
         appointment_id = request.POST.get('appointment_id')
+        reason = request.POST.get('reason')
         appointment = get_object_or_404(Appointment, id=appointment_id)
         if appointment.status != 'CANCELLED':
+            # Send cancellation emails to all invitees to this event.
+            self.send_cancellation_email(appointment, reason)
+
             appointment.status = 'CANCELLED'
             appointment.save()
             response = {'status': 'success', 'message': 'Appointment cancelled successfully'}
         else:
             response = {'status': 'failed', 'message': 'Appointment already cancelled'}
         return JsonResponse(response)
+    
+    def send_cancellation_email(self, appointment, reason):
+        for invitee in appointment.invitees.all():
+            subject = f"Your reservation with {appointment.event.account.name} has been cancelled"
+
+            plain_message = f"""
+            Hello {invitee.name},
+
+            We inform you that your appointment at {appointment.event.account.name} has been cancelled. 
+
+            These are the details of the appointment that has been cancelled:
+
+            - Event: {appointment.event.name}
+            - Date: {appointment.date}
+            - Time: {appointment.time}
+            - Reason: {reason}
+
+            If you think this might be an error, please contact the business or book online again with them.
+
+            Best Regards,
+            The ReservaClick Team
+            """
+
+            html_message = f"""
+                <p>Hello <strong>{ invitee.name }</strong>,</p>
+
+                <p>We inform you that your appointment at <strong>{ appointment.event.account.name }</strong> has been cancelled.</p>
+
+                <p>These are the details of the appointment that has been cancelled:</p>
+                <ul>
+                    <li>Event: <strong>{ appointment.event.name }</strong></li>
+                    <li>Date: <strong>{ appointment.date }</strong></li>
+                    <li>Time: <strong>{ appointment.time }</strong></li>
+                    <li>Reason: <strong>{ reason }</strong></li>
+                </ul> 
+
+                <p>If you think this might be an error, please contact the business or book online again with them.</p>
+
+                <p>Best Regards,<br>
+                The ReservaClick Team</p>
+            """
+
+            send_mail(            
+                subject=subject,
+                message=plain_message,
+                from_email= f"ReservaClick <{settings.EMAIL_HOST_USER}>",
+                recipient_list=[invitee.email],
+                html_message=html_message
+            )   
 
 class BusinessWorkerView(BusinessAccessMixin, View):
     show_remove_button = False
@@ -458,7 +515,7 @@ def generate_time_slots(start_time, end_time, duration):
     return slots
 
 def build_available_time_slots(business_id, event_id, worker_id, date_str):
-
+    print(f'-------------> In build_available_time_slots. business_id: {business_id}, event_id:{event_id}, worker_id:{worker_id}, date_str:{date_str}')
     # Get the business info
     account = Account.objects.get(id=business_id)
     time_slot_duration = account.time_slot_duration
@@ -468,8 +525,17 @@ def build_available_time_slots(business_id, event_id, worker_id, date_str):
     event = Event.objects.get(id=event_id)
     event_duration = event.duration
 
-    # Get the account opening hours        
-    opening_hours = OpenningTime.objects.get(account = business_id, weekday = str(date.weekday()))
+    # Get the account opening hours   
+    opening_hours = None
+    try:     
+        opening_hours = OpenningTime.objects.get(account = business_id, weekday = str(date.weekday()))
+    except OpenningTime.DoesNotExist:
+        opening_hours = OpenningTime(
+            account = account, 
+            weekday = str(date.weekday()), 
+            from_hour = time(1, 0), 
+            to_hour = time(0, 0) )
+        
     slots = generate_time_slots(opening_hours.from_hour, opening_hours.to_hour, time_slot_duration)
 
     # Get the appointments the worker has for the date
@@ -480,16 +546,11 @@ def build_available_time_slots(business_id, event_id, worker_id, date_str):
     for appointment in appointments:
         appt_start = appointment.time
         appt_end = addMins(appt_start, appointment.event.duration)
-        print(':::::::::::::: appt start: ' + str(appt_start))
-        print(':::::::::::::: appt end: ' + str(appt_end))
 
         for slot in slots:
             potential_appt_start = slot
             potential_appt_end = addMins(potential_appt_start, event_duration)
             if slot not in busy_time_slots and potential_appt_end > appt_start and potential_appt_start < appt_end:
-                print(':::::::::::::: potential_appt_start: ' + str(potential_appt_start))
-                print(':::::::::::::: potential_appt_end: ' + str(potential_appt_end))
-                print('---------------> BUSY')
                 busy_time_slots.append(slot)
 
     # Build the available time slots based on what is busy
@@ -516,6 +577,9 @@ def get_available_time(request):
         available_time_slots = build_available_time_slots(business_id, event_id, worker_id, date_str)
 
         return JsonResponse(available_time_slots, safe=False)
+
+def event_inactive_view(request):
+    return render(request, 'event_inactive.html')
 
 # Create your views here.
 APPOINTMENT_STEP_FORMS = (
@@ -562,6 +626,7 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             today = datetime.today().strftime('%Y-%m-%d')
             time_list = build_available_time_slots(business_id, event_id, worker_id, today)
 
+        print(f'business_id:{business_id}')
         # Make sure that business_id is always populted at this point
         business = Account.objects.get(pk=business_id)
         appearance, created = BusinessAppearance.objects.get_or_create(account_id=business_id)
@@ -586,6 +651,19 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
 
         return context
     
+    def get_form(self, step=None, data=None, files=None):
+        form = super().get_form(step, data, files)
+        step = step or self.steps.current
+        print('-----------> In get_form')
+        if 'event_id' in self.kwargs:
+            event_id = self.kwargs['event_id']
+            event = Event.objects.get(id=event_id)
+            if not event.active:
+                print('------------------> Returning inactive form')
+                return InactiveEventForm()
+            
+        return form
+                    
     def get_form_initial(self, step):
         # Determine the type of Wizard.
         # Only business_id info -> Complete wizard: Select Event, Worker, Time and User Info
@@ -596,7 +674,7 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         event_id = None
         if 'event_id' in self.kwargs:
             event_id = self.kwargs['event_id']
-
+            
         worker_id = None
         if 'worker_id' in self.kwargs:
             worker_id = self.kwargs['worker_id']
@@ -643,6 +721,12 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         print('==========================')
         print(context)
         print('==========================')
+
+        if isinstance(form, InactiveEventForm):
+            # Adjust template or context if showing the inactive event form
+            print('Returning event inactive form')
+            self.template_name = "appointments/event_inactive.html"
+
         return self.render_to_response(context)
     
     def done(self, form_list, **kwargs):
@@ -1006,7 +1090,10 @@ class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
         business_ui, created = AccountUI.objects.get_or_create(business=business)
         business_hours = OpenningTime.objects.filter(account=business_id)
         special_days = SpecialDay.objects.filter(account=business_id)
-        events = Event.objects.filter(account_id=business_id, ui__is_visible = True)
+        events = Event.objects.filter(account_id=business_id)
+        if self.show_web:
+            events = Event.objects.filter(account_id=business_id, ui__is_visible = True)
+
         businesses_configuration = BusinessConfigurationStatus(business)
         relative_web_url = reverse('web_business', args=[business_id])
         web_url = self.request.build_absolute_uri(relative_web_url)

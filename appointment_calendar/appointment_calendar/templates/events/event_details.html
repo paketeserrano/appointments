@@ -118,6 +118,11 @@
     .form-check {
       display: flex;
     }
+
+    .toggle-label {
+        white-space: nowrap; /* Ensures the label does not wrap */
+        font-size: 0.9rem; /* Optionally reduce font size if space is still tight */
+    }
 </style>
 {% endblock extra_css %}
 
@@ -128,12 +133,28 @@
     <div class="profile-details">
       <div class="event-info">
         <h1 id="eventName">{{ event.name }}</h1>
-        <div class="event-link text-center">
-          <a href="#" class="info-link" id="shareLink" data-share-url="{{ event_url }}" aria-disabled="false">
-            Share Event Link
-            <i class="fas fa-copy ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="Copy link to clipboard."></i>            
-          </a>
-          <i class="fas fa-info-circle ms-2" id="infoIcon" style="display: none;" data-bs-toggle="tooltip" data-bs-placement="right" title="Enable this link by adding at least 1 workers and setting duration above 0 minutes."></i>
+        <!-- Responsive row with center alignment on mobile -->
+        <div class="row align-items-center justify-content-center">
+          <div class="col-12 col-md-8 text-center">
+            <a href="#" class="info-link" id="shareLink" data-share-url="{{ event_url }}" aria-disabled="false">
+              Share Event Link
+              <i class="fas fa-copy ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="Copy link to clipboard."></i>
+            </a>
+            <i class="fas fa-info-circle ms-2" id="infoIcon" style="display: none;" data-bs-toggle="tooltip" data-bs-placement="right" title="Enable this link by adding at least 1 worker and setting duration above 0 minutes."></i>
+          </div>
+          <div class="col-12 col-md-4 text-center"> <!-- Smaller column for the toggle, also centered -->
+            <div class="form-check form-switch">
+              <input class="form-check-input event-toggle" type="checkbox" id="event-active-toggle"
+              data-event-id="{{ event.id }}" {% if event.active %}checked{% endif %}>
+              <label class="form-check-label toggle-label" for="event-active-toggle" style="color: #4299E1;">
+                {% if event.active %}
+                  Turn Off
+                {% else %}
+                  Turn On
+                {% endif %}
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -151,6 +172,7 @@
     </div>
   </div>
 </div>
+
 <div class="container-fluid">
 <div class="row">
   <div class="col-md-6">
@@ -454,7 +476,7 @@ $(document).ready(function() {
 
     // Click event for copying to clipboard
     $('#shareLink').click(function(e) {
-      e.preventDefault(); // Prevent default anchor click behavior
+      e.preventDefault(); 
       var text = $(this).data('share-url');
       navigator.clipboard.writeText(text).then(function() {
         console.log('Text successfully copied to clipboard');
@@ -465,7 +487,7 @@ $(document).ready(function() {
 
     // Click event for icon within the link to copy to clipboard
     $('#shareLink i').click(function(e) {
-      e.preventDefault(); // Stop icon click from triggering link click
+      e.preventDefault(); 
       var text = $shareLink.data('share-url');
       navigator.clipboard.writeText(text).then(function() {
         console.log('Text successfully copied to clipboard');
@@ -482,6 +504,30 @@ $(document).ready(function() {
             };
             reader.readAsDataURL(e.target.files[0]);
         }
+    });
+
+    $('.event-toggle').change(function() {
+        var checked = $(this).is(':checked');
+        var eventId = $(this).data('event-id');  
+        var label = $(this).next('.toggle-label');
+        label.text(checked ? 'Turn Off' : 'Turn On');
+
+        // Post the change to the server
+        $.ajax({
+            url: '/update-event-status/',  // URL to your Django view
+            type: 'POST',
+            data: {
+                'event_id': eventId,
+                'active': checked,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('Update successful');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating event status:', error);
+            }
+        });
     });
 
     $('#saveSettings').click(function() {

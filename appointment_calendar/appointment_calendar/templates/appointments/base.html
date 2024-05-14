@@ -42,7 +42,7 @@
                                         {% if wizard.steps.prev %}
                                             <button class="btn btn-outline-secondary" name="wizard_goto_step" formnovalidate="formnovalidate" type="submit" value="{{ wizard.steps.prev }}">previous step</button>
                                         {% endif %}
-                                        <input type="submit" class="btn btn-primary border-0 text-uppercase ml-auto" value="Next step"/>
+                                        <input type="submit" id='next-step' class="btn btn-primary border-0 text-uppercase ml-auto" value="Next step"/>
 
                                     </div>
                                 {% endblock buttons %}

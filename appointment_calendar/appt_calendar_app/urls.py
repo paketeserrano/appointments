@@ -13,6 +13,7 @@ urlpatterns = [
     path('appointment_wizard/<int:business_id>', views.BookingCreateWizardView.as_view(client_appointment=False), name='appointment_wizard'),
     path('appointment_wizard/<int:business_id>/<int:event_id>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event), name='appointment_for_event'),
     path('appointment_wizard/<int:business_id>/<int:event_id>/<int:worker_id>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event_worker), name='appointment_for_event_worker'),
+    path('event_inactive/', views.event_inactive_view, name='inactive_event_page'),
     
     # Paths to set up an appointment for clients
     path('client_appointment/<int:business_id>', views.BookingCreateWizardView.as_view(client_appointment=True), name='client_appointment'),
