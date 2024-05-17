@@ -133,7 +133,16 @@ class CreateAccountForm(forms.ModelForm):
 class CreateEventForm(forms.ModelForm):
     class Meta:
         model = Event 
-        fields = ['name', 'description', 'price','duration', 'event_workers'] 
+        fields = ['name', 'presentation', 'price','duration', 'event_workers'] 
+
+    presentation = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'maxlength': 200}))
+
+    def __init__(self, *args, **kwargs):
+        account_id = kwargs.pop('account_id', None)
+        super(CreateEventForm, self).__init__(*args, **kwargs)
+        if account_id:
+            business = Account.objects.get(pk=account_id)
+            self.fields['event_workers'].queryset = business.account_workers.all()
 
 class AppointmentCancelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

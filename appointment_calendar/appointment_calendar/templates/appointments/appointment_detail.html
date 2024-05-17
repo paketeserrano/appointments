@@ -12,6 +12,13 @@
         .table td, .table th {
             word-wrap: break-word; /* Ensure content fits within the cell */
         }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent backdrop */
+        }
+        #spinnerModal .modal-content {
+            width: 100  vw; /* Cover the viewport width */
+            height: 100vh; /* Cover the viewport height */
+        }
     </style>
 {% endblock extra_css %}
 
@@ -83,7 +90,18 @@
                     </div>
                 </div>
             </div>
-        
+            <div class="modal" id="spinnerModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered justify-content-center" style="min-height:100vh;">
+                    <div class="modal-content" style="background-color: transparent; border: none; box-shadow: none;">
+                        <div class="modal-body d-flex align-items-center justify-content-center">
+                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                  
         {% endif %}
     </div>
 </div>
@@ -93,6 +111,18 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 <script>
+    function showSpinner() {
+        $('#spinnerModal').modal({
+            backdrop: 'static', // Disable clicking on the backdrop to close
+            keyboard: false // Disable using the keyboard to close
+        }).modal('show'); 
+    }
+
+    // Hide the spinner modal
+    function hideSpinner() {
+        $('#spinnerModal').modal('hide');
+    }
+
     $(document).ready(function() {
 
         $('#close-button').click(function() {
@@ -115,16 +145,23 @@
                 return;
             }
 
+            showSpinner();
+
             // Post cancellation with reason
             $.post('{% url "appointment_cancel" appointment.id %}', {
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 appointment_id: '{{ appointment.id }}',
                 reason: cancelReason  // Pass the cancellation reason to the server
-            }, function(response) {
-                $('#cancelModal').modal('hide');  
+            }).done(function(response) {
+                $('#cancelModal').modal('hide');
                 alert(response.message);
                 $('#cancelButton').prop('disabled', true);
                 $('#appointmentStatus').text('CANCELLED');
+            }).fail(function(xhr) {
+                alert('Error: ' + xhr.responseText);
+            }).always(function() {
+                // Hide the spinner once the request is complete
+                hideSpinner()
             });
         });
     });

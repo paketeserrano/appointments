@@ -1,8 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
+from django.core.validators import MinValueValidator
 from django.dispatch import receiver
+from django.utils import timezone
 import uuid
+import os
 
 
 # Create your models here.
@@ -63,7 +66,7 @@ class AccountInvitation(models.Model):
     recipient_name = models.CharField(max_length=100)
     notes = models.CharField(max_length=500)
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    created_on = models.DateTimeField()
+    created_on = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ('business', 'recipient_email')
@@ -83,7 +86,7 @@ class AccountUI(models.Model):
 
     def __str__(self):
         return f'UI for {self.business.name} with path: {self.header_image}'
-
+    
 class Invitee(models.Model):
     email = models.EmailField(max_length = 240)
     name = models.CharField(max_length = 120)
@@ -94,16 +97,17 @@ class Invitee(models.Model):
 
 class Event(models.Model):
     name = models.CharField(max_length = 120)
-    presentation = models.CharField(max_length = 150, default='')
+    presentation = models.CharField(max_length = 200, default='')
     description = models.CharField(max_length = 2000, default='')
-    duration = models.IntegerField()
+    duration = models.IntegerField(validators=[MinValueValidator(1)])
     event_workers = models.ManyToManyField(CustomUser)
     account = models.ForeignKey(Account, on_delete = models.CASCADE, related_name = 'events')
     active = models.BooleanField(default=False)
-    price = models.FloatField()
+    price = models.FloatField(validators=[MinValueValidator(0.01)])
 
     def __str__(this):
         return this.name 
+    
     
 def event_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/events/<event_id>/profile_<filename>
@@ -117,6 +121,13 @@ class EventUI(models.Model):
 
     def __str__(self):
         return f'UI for {self.event.name} with path: {self.image}'
+    
+@receiver(post_delete, sender=EventUI)
+def delete_event_ui_image(sender, instance, **kwargs):
+    """Deletes image files on `EventUI` object deletion."""
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
 
 def event_uploads_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/events/<event_id>/uploads/<filename>
@@ -127,6 +138,13 @@ class BusinessEventImageUpload(models.Model):
     event = models.ForeignKey(Event, on_delete = models.CASCADE, related_name='photos')
     upload_date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to=event_uploads_directory_path, blank=True, null=True, default='events/placeholder.jpg')
+
+@receiver(post_delete, sender=BusinessEventImageUpload)
+def delete_business_event_image_upload(sender, instance, **kwargs):
+    """Deletes image files on `BusinessEventImageUpload` object deletion."""
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
     
 APPOINTMENT_STATUS = [
     ("ACTIVE", "ACTIVE"),
@@ -139,11 +157,21 @@ class Appointment(models.Model):
     time = models.TimeField()
     event = models.ForeignKey(Event, on_delete = models.CASCADE)
     location = models.CharField(max_length = 120)
-    worker = models.ForeignKey(CustomUser, on_delete = models.CASCADE)
+    worker = models.ForeignKey(CustomUser, on_delete = models.CASCADE) # NOTE: on_delete should change to something else because if we delete a worker, the appointment should be kept
     status = models.CharField(max_length = 40, choices = APPOINTMENT_STATUS, default='ACTIVE')    
 
     def __str__(this):
         return f"Appt scheduled"
+
+class AppointmentCancellation(models.Model):
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, related_name='cancellation')
+    cancelled_by = models.CharField(max_length = 120)
+    cancellation_time = models.DateTimeField(blank=True, null=True)
+    cancel_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    reason = models.CharField(max_length = 250, default='')
+
+    def __str__(self):
+        return f"Cancellation for {self.appointment}"
     
 WEEKDAYS = [
     ("0", "Monday"),

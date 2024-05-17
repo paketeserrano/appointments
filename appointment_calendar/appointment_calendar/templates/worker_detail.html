@@ -36,10 +36,29 @@
   </style>
 {% endblock extra_css %}
 {% block content %}
-    <h1>{{worker.user.first_name}} {{worker.user.last_name}}</h1>
-
+<div class="rc-card">
+    <div class="row justify-content-center text-center">
+        <div class="col-12">
+            <h1>{{worker.user.first_name | capfirst}} {{worker.user.last_name | capfirst}}</h1>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <span class="badge bg-secondary">{{account.name}}</span>
+        </div>
+    </div>
+</div>
     <div class="rc-card">
-        <h2>Events</h2>
+        <div class="row">
+            <div class="col-auto">
+                <h2>Events</h2>
+            </div>
+            <div class="col-2">
+                <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" 
+                        title="Events {{worker.user.first_name | capfirst}} {{worker.user.last_name | capfirst}} is assigned to work at {{account.name}}">
+                </i>
+            </div>
+        </div>
         <div class="container">
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="events-container">
                 {% for event in events %}
@@ -47,6 +66,7 @@
                     <div class="card h-100 mx-auto" style="border-radius: .75rem; box-shadow: 0 4px 8px rgba(0, 0, 0, .1);">
                         <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, #C6F6D5);">
                             <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{ event.name }}</h5>
+                            <p class="card-text mb-2" style="color: #718096;">{{ event.account.name }}</p>
                             <p class="card-text mb-2" style="color: #718096;">{{ event.duration }} mins</p>
                             <a href="{% url 'event_detail' event.id %}" class="mb-4 text-primary" style="color: #3182CE;">View event page</a>
                         </div>
@@ -81,7 +101,16 @@
     </div>
     <br>
     <div class="rc-card">
-        <h1>Worker Appointments</h1>
+        <div class="row">
+            <div class="col-auto">
+                <h2>Appointments</h2>
+            </div>
+            <div class="col-2">
+                <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" 
+                        title="Appointments {{worker.user.first_name | capfirst}} {{worker.user.last_name | capfirst}} has in the next 30 days at {{account.name}}">
+                </i>
+            </div>
+        </div>        
         <div class="accordion" id="userAppointments">
             {% for date, appt_list in appointments.items %}
             <div class="accordion-item">
@@ -94,7 +123,8 @@
                     <div class="accordion-body">
                         {% for appt in appt_list %}
                             <div class="d-flex justify-content-between align-items-center border-bottom pb-2 pt-2">
-                                <span>{{ appt.time }} - {{ appt.event.name }}</span>
+                                <span class="badge bg-secondary">{{ appt.time }}</span><span>{{ appt.event.name }}</span>
+                                <span class="badge bg-secondary">{{appt.event.account.name}}</span>
                                 <div class="dropdown">
                                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
@@ -153,7 +183,7 @@
 <script>
     $(document).ready(function() {
         $('#removeButton').click(function() {
-            $.post('{% url "worker_remove" account_id worker.id %}', {
+            $.post('{% url "worker_remove" account.id worker.id %}', {
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 test: 'This is a test'
             }, function(response) {
