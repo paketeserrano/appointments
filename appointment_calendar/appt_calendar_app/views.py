@@ -6,7 +6,7 @@ from .forms import AppointmentForm, SignUpForm, BusinessAppearanceForm, Appointm
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import Appointment, Event, Account, AccountInvitation, BusinessAppearance, Invitee, CustomUser, OpenningTime, \
-                    BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI, UserWorkImageUpload
+                    BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI, UserWorkImageUpload, AppointmentCancellation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core import serializers
@@ -47,26 +47,28 @@ def user_owns_resource(function):
 
     return wrap
 
-def user_is_event_admin(required=True):
-    def decorator(view_func):
-        @wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
-            # Check if user is authenticated
-            if not request.user.is_authenticated:
-                return JsonResponse({'success': False, 'message': 'Authentication required.'}, status=401)
+def user_is_event_admin(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        print("Decorator called with kwargs:", kwargs)
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            return JsonResponse({'success': False, 'message': 'Authentication required.'}, status=401)
 
-            # Extract event ID from request; adjust as necessary based on how event_id is passed
-            event_id = kwargs.get('event_id') or request.GET.get('event_id') or request.POST.get('event_id')
-            event = get_object_or_404(Event, id=event_id)
+        # Extract event ID from request; adjust as necessary based on how event_id is passed
+        event_id = kwargs.get('event_id') or request.GET.get('event_id') or request.POST.get('event_id')
+        if not event_id:
+            return JsonResponse({'success': False, 'message': 'Event ID missing.'}, status=400)
 
-            # Check if the user is an admin of the business associated with the event
-            if request.user.customuser in event.account.admins.all():
-                return view_func(request, *args, **kwargs)
-            else:
-                return JsonResponse({'success': False, 'message': 'Permission denied.'}, status=403)
+        event = get_object_or_404(Event, id=event_id)
+        
+        # Check if the user is an admin of the business associated with the event
+        if request.user.customuser in event.account.admins.all():
+            return view_func(request, *args, **kwargs)
+        else:
+            return JsonResponse({'success': False, 'message': 'Permission denied.'}, status=403)
 
-        return _wrapped_view
-    return decorator
+    return _wrapped_view
 
 def business_admin_required(view_func):
     @wraps(view_func)
@@ -170,8 +172,17 @@ class AdminRequiredForBusinessMixin:
             if not request.user.customuser in business.admins.all():
                 raise PermissionDenied("You are not an admin of this business.")
         return super().dispatch(request, *args, **kwargs)
-    
-@user_is_event_admin()
+
+@business_admin_required 
+def delete_business(request, business_id):
+    business = get_object_or_404(Account, pk=business_id)
+    try:
+        business.delete()
+        return JsonResponse({'message': 'Business deleted successfully'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@user_is_event_admin
 def update_event_status(request):
     if request.method == 'POST':
         event_id = request.POST.get('event_id')
@@ -184,6 +195,28 @@ def update_event_status(request):
         except Event.DoesNotExist:
             return JsonResponse({'error': 'Event not found'}, status=404)
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+# Removes a worker from an event
+@require_POST
+@user_is_event_admin
+def event_remove_worker(request, event_id, user_id):
+    try:
+        event = get_object_or_404(Event, id=event_id)
+        user = get_object_or_404(CustomUser, id=user_id)
+        
+        # Remove the worker from the event if they are part of it
+        if user in event.event_workers.all():
+            event.event_workers.remove(user)
+            message = "Worker removed successfully"
+            status = 200
+        else:
+            message = "Worker not associated with this event"
+            status = 400
+    except Exception as e:
+        message = str(e)
+        status = 500
+
+    return JsonResponse({'message': message}, status=status)
 
 # Only admins of the business that the event belongs to are allowed to access this view    
 class EventDetailView(EventAccessMixin, View):
@@ -235,9 +268,12 @@ class EventDetailView(EventAccessMixin, View):
                              status=200)
 
     def delete(self, request, pk):
-        event = get_object_or_404(Event, pk=pk)
-        event.delete()
-        return JsonResponse({'message': 'Event deleted successfully'}, status=204)
+        try:
+            event = get_object_or_404(Event, pk=pk)
+            event.delete()
+            return JsonResponse({'message': 'Event deleted successfully'}, status=204)  # No Content
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
 
 
 class CustomLoginView(LoginView):
@@ -362,6 +398,55 @@ class BusinessHourView(BusinessAccessMixin, View):
         opening_time = get_object_or_404(OpenningTime, pk=id)
         opening_time.delete()
         return JsonResponse({'success': True})
+    
+def send_cancellation_email(appointment, reason):
+    for invitee in appointment.invitees.all():
+        subject = f"Your reservation with {appointment.event.account.name} has been cancelled"
+
+        plain_message = f"""
+        Hello {invitee.name},
+
+        We inform you that your appointment at {appointment.event.account.name} has been cancelled. 
+
+        These are the details of the appointment that has been cancelled:
+
+        - Event: {appointment.event.name}
+        - Date: {appointment.date}
+        - Time: {appointment.time}
+        - Reason: {reason}
+
+        If you think this might be an error, please contact the business or book online again with them.
+
+        Best Regards,
+        The ReservaClick Team
+        """
+
+        html_message = f"""
+            <p>Hello <strong>{ invitee.name }</strong>,</p>
+
+            <p>We inform you that your appointment at <strong>{ appointment.event.account.name }</strong> has been cancelled.</p>
+
+            <p>These are the details of the appointment that has been cancelled:</p>
+            <ul>
+                <li>Event: <strong>{ appointment.event.name }</strong></li>
+                <li>Date: <strong>{ appointment.date }</strong></li>
+                <li>Time: <strong>{ appointment.time }</strong></li>
+                <li>Reason: <strong>{ reason }</strong></li>
+            </ul> 
+
+            <p>If you think this might be an error, please contact the business or book online again with them.</p>
+
+            <p>Best Regards,<br>
+            The ReservaClick Team</p>
+        """
+
+        send_mail(            
+            subject=subject,
+            message=plain_message,
+            from_email= f"ReservaClick <{settings.EMAIL_HOST_USER}>",
+            recipient_list=[invitee.email],
+            html_message=html_message
+        )   
 
 class AppointmentView(AppointmentAccessMixin, View):
     show_cancel_button = False
@@ -379,64 +464,20 @@ class AppointmentView(AppointmentAccessMixin, View):
         reason = request.POST.get('reason')
         appointment = get_object_or_404(Appointment, id=appointment_id)
         if appointment.status != 'CANCELLED':
-            # Send cancellation emails to all invitees to this event.
-            self.send_cancellation_email(appointment, reason)
-
             appointment.status = 'CANCELLED'
             appointment.save()
+            cancellation, created = AppointmentCancellation.objects.get_or_create(appointment_id=appointment_id)
+            cancellation.cancellation_time = timezone.now()
+            cancellation.cancelled_by = 'CLIENT'
+            cancellation.reason = request.POST.get('reason') or ''
+            cancellation.save()
+            # Send cancellation emails to all invitees to this event.
+            send_cancellation_email(appointment, reason)
             response = {'status': 'success', 'message': 'Appointment cancelled successfully'}
         else:
             response = {'status': 'failed', 'message': 'Appointment already cancelled'}
         return JsonResponse(response)
     
-    def send_cancellation_email(self, appointment, reason):
-        for invitee in appointment.invitees.all():
-            subject = f"Your reservation with {appointment.event.account.name} has been cancelled"
-
-            plain_message = f"""
-            Hello {invitee.name},
-
-            We inform you that your appointment at {appointment.event.account.name} has been cancelled. 
-
-            These are the details of the appointment that has been cancelled:
-
-            - Event: {appointment.event.name}
-            - Date: {appointment.date}
-            - Time: {appointment.time}
-            - Reason: {reason}
-
-            If you think this might be an error, please contact the business or book online again with them.
-
-            Best Regards,
-            The ReservaClick Team
-            """
-
-            html_message = f"""
-                <p>Hello <strong>{ invitee.name }</strong>,</p>
-
-                <p>We inform you that your appointment at <strong>{ appointment.event.account.name }</strong> has been cancelled.</p>
-
-                <p>These are the details of the appointment that has been cancelled:</p>
-                <ul>
-                    <li>Event: <strong>{ appointment.event.name }</strong></li>
-                    <li>Date: <strong>{ appointment.date }</strong></li>
-                    <li>Time: <strong>{ appointment.time }</strong></li>
-                    <li>Reason: <strong>{ reason }</strong></li>
-                </ul> 
-
-                <p>If you think this might be an error, please contact the business or book online again with them.</p>
-
-                <p>Best Regards,<br>
-                The ReservaClick Team</p>
-            """
-
-            send_mail(            
-                subject=subject,
-                message=plain_message,
-                from_email= f"ReservaClick <{settings.EMAIL_HOST_USER}>",
-                recipient_list=[invitee.email],
-                html_message=html_message
-            )   
 
 class BusinessWorkerView(BusinessAccessMixin, View):
     show_remove_button = False
@@ -452,7 +493,11 @@ class BusinessWorkerView(BusinessAccessMixin, View):
             # Appointments for that user for this business in the next 30 days
             today = datetime.today()
             end_date = today + timedelta(days=30)
-            appointments = Appointment.objects.filter(worker_id = worker_id, event__account = account, date__gte = today, date__lte = end_date)
+            appointments = Appointment.objects.filter(status = 'ACTIVE',
+                                                      worker_id = worker_id, 
+                                                      event__account = account, 
+                                                      date__gte = today, 
+                                                      date__lte = end_date)
             
             # group appointments by date
             grouped_appointments = {}
@@ -473,7 +518,7 @@ class BusinessWorkerView(BusinessAccessMixin, View):
                 'worker': worker,
                 'events': events,
                 'appointments': grouped_appointments,
-                'account_id': account_id,
+                'account': account,
                 'show_remove_button': self.show_remove_button,
                 'current_user' : current_user,
                 'domain' : domain
@@ -577,9 +622,178 @@ def get_available_time(request):
         available_time_slots = build_available_time_slots(business_id, event_id, worker_id, date_str)
 
         return JsonResponse(available_time_slots, safe=False)
+    
+class CancelAppointmentEmail(View):
+    template_name = 'appointments/appointment_cancel.html'
+    confirmation_template_name = 'appointments/appointment_cancel_confirmation.html'
+
+    def get(self, request, appointment_id, cancel_uuid):
+        cancellation = get_object_or_404(AppointmentCancellation, appointment_id=appointment_id, cancel_uuid=cancel_uuid)
+        appearance, created = BusinessAppearance.objects.get_or_create(account_id=cancellation.appointment.event.account.id)
+        return render(request, self.template_name, {'appointment': cancellation.appointment,
+                                                    'event': cancellation.appointment.event,
+                                                    'appearance': appearance})
+
+    def post(self, request, appointment_id, cancel_uuid):
+        # Verify the UUID and get the appointment
+        cancellation = get_object_or_404(AppointmentCancellation, appointment_id=appointment_id, cancel_uuid=cancel_uuid)
+        appearance, created = BusinessAppearance.objects.get_or_create(account_id=cancellation.appointment.event.account.id)
+        appointment = cancellation.appointment
+        if appointment.status != 'CANCELLED':
+            appointment.status = 'CANCELLED'
+            appointment.save()
+            cancellation.cancellation_time = timezone.now()
+            cancellation.cancelled_by = 'CLIENT'
+            cancellation.save()
+            # NOTE: Reason field is not implemented in the UI so I am assigning an empty field for now
+            send_cancellation_email(appointment, '')
+            return render(request, self.confirmation_template_name, {'header': 'Appointment Cancelled',
+                                                                    'message': 'Your appointment has been successfully cancelled.',
+                                                                    'event': cancellation.appointment.event,
+                                                                    'appearance': appearance})
+        else:
+            return render(request, self.confirmation_template_name, {'header': 'This appointment was already cancelled',
+                                                                    'message': 'Feel free to book again if you need so',
+                                                                    'appearance': appearance})
+
 
 def event_inactive_view(request):
     return render(request, 'event_inactive.html')
+
+def send_appointment_confirmation_email(to_client, event, appointment, request):
+    cancel_appt_url = reverse('appointment_email_cancel', args=[appointment.id, appointment.cancellation.cancel_uuid])
+    cancel_appt_url = request.build_absolute_uri(cancel_appt_url)
+
+    subject = 'Your appointment with ' + event.account.name + ' | ' + event.name
+    message = 'Your appointment ' + event.name + ' at ' + event.account.name + ' with ' + appointment.worker.user.first_name + ' ' + \
+                appointment.worker.user.last_name + ' is on ' + appointment.date.strftime('%d-%m-%Y') +' at ' + appointment.time.strftime('%H:%M:%S')  + ' .'
+    
+    if not to_client:
+        subject = 'Congrats, you have a new appointment at ' + event.account.name + ' | ' + event.name
+        message = 'Your appointment ' + event.name + ' at ' + event.account.name + ' with ' 
+        for invitee in appointment.invitees.all():
+            message += invitee.name + ' '        
+        message +=' is on ' + appointment.date.strftime('%d-%m-%Y') +' at ' + appointment.time.strftime('%H:%M:%S')  + ' .'
+
+    html_message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: 'Arial', sans-serif;
+                background-color: #f4f4f4;
+                color: #333;
+                line-height: 1.6;
+                padding: 20px;
+            }}
+            .content {{
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                margin: auto;
+                width: 100%;
+                max-width: 600px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                text-align: center; /* Centers the text for the whole content div */
+            }}
+            .details-card {{
+                background-color: white;
+                padding: 20px;
+                margin-bottom: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                border: 2px solid #ccc; /* Adds a light grey border */
+            }}
+            .appointment-details {{
+                font-size: 16px;
+                margin-bottom: 10px;
+                text-align: left; /* Aligns text to the left within the card */
+            }}
+            .highlight {{
+                color: #007bff;
+                font-weight: bold;
+                font-size: 18px;
+            }}
+            .button {{
+                display: block; /* Makes the button a block element to fill the width of its container */
+                width: 50%;
+                min-width: 180px; /* Ensures the button is not too narrow on smaller screens */
+                height: 35px;
+                background-color: #ccc;
+                color: #333;
+                border-radius: 5px;
+                text-decoration: none;
+                line-height: 35px;
+                font-size: 14px;
+                margin: 10px auto 20px; /* Centers the button horizontally */
+            }}
+            .cancel-text {{
+                font-size: 12px;
+                text-align: center;
+                margin-top: 20px;
+                margin-bottom: 5px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="content">
+        """
+    if to_client:
+        html_message += f"""
+            <h2>Thank You and Congratulations!</h2>
+            <p>We are pleased to confirm your appointment. Here are the details:</p>
+            """
+    else:
+        html_message += f"""
+            <h2>Congratulations on your new appointment!</h2>
+            <p>Here are the details:</p>
+            """
+    html_message += f"""               
+            <div class="details-card">
+                <div style="text-align:center">
+                    <h1>{event.account.name}</h1>
+                </div>
+                <p class="appointment-details">Your appointment: <span class="highlight">{event.name}</span></p>
+                <p class="appointment-details">Location: <span class="highlight">{event.account.address.address}, {event.account.address.city}</span></p>
+                """
+    if to_client:
+        html_message += f"""
+            <p class="appointment-details">With: <span class="highlight">{appointment.worker.user.first_name} {appointment.worker.user.last_name}</span></p>
+            """
+    else:
+        html_message += '<p class="appointment-details">Customer: <span class="highlight">'
+        for invitee in appointment.invitees.all():
+            html_message += invitee.name + ' '
+            
+        message += '</span></p>'
+    
+    html_message += f"""
+                <p class="appointment-details">Date: <span class="highlight">{appointment.date.strftime('%d-%m-%Y')}</span></p>
+                <p class="appointment-details">Time: <span class="highlight">{appointment.time.strftime('%H:%M:%S')}</span></p>
+            </div>
+            """
+    if to_client:
+        html_message += f"""
+            <p class="cancel-text">Do you need to cancel this appointment?</p>
+            <a href="{cancel_appt_url}" class="button">Cancel Appointment</a>
+            """
+    html_message += f"""
+            </div>
+    </body>
+    </html>
+    """
+
+    print(f'****************************The link is: {cancel_appt_url}')
+
+    # Send email to clients to confirm the reservation
+    for invitee in appointment.invitees.all():
+        send_mail(            
+            subject=subject,
+            message=message,
+            from_email= f"{event.account.name} via ReservaClick <{settings.EMAIL_HOST_USER}>",
+            recipient_list=[invitee.email],
+            html_message=html_message
+        )
 
 # Create your views here.
 APPOINTMENT_STEP_FORMS = (
@@ -595,14 +809,18 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
     progress_width = 25
     initial_dict = { }
     client_appointment = False
+    base_template = 'appointments/base.html'
 
     def get_context_data(self, form, **kwargs):    
         print('-------------------- get_context_data')    
         context = super().get_context_data(form=form, **kwargs)
-        # This is the base template of the appointment_wizard. If it is the client making the appointment we will change this base
-        base_template = 'appointments/base.html'
+        # This is the base template of the appointment_wizard. If it is the client making the appointment we will change this base        
         if self.client_appointment:
-            base_template = 'appointments/base_client_appointment.html'
+            self.base_template = 'appointments/base_client_appointment.html'
+
+        print(f'client_appointment: {self.client_appointment}')
+        print(f'base_template: {self.base_template}')
+
         time_list = []
         if self.steps.current == 'DateTime':
             time_list= []
@@ -626,7 +844,6 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             today = datetime.today().strftime('%Y-%m-%d')
             time_list = build_available_time_slots(business_id, event_id, worker_id, today)
 
-        print(f'business_id:{business_id}')
         # Make sure that business_id is always populted at this point
         business = Account.objects.get(pk=business_id)
         appearance, created = BusinessAppearance.objects.get_or_create(account_id=business_id)
@@ -645,7 +862,7 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             "event_id" : event_id,
             "worker_id" : worker_id,
             "client_appointment" : self.client_appointment,
-            "base_template" : base_template,
+            "base_template" : self.base_template,
             "appearance" : appearance
         })
 
@@ -718,9 +935,6 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             self.progress_width = 75   
         
         context = self.get_context_data(form=form, **kwargs)    
-        print('==========================')
-        print(context)
-        print('==========================')
 
         if isinstance(form, InactiveEventForm):
             # Adjust template or context if showing the inactive event form
@@ -754,97 +968,19 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         appointment = Appointment(event = event, date = data['date'], time = data['time'], worker = custom_user, location='Default' )
         appointment.save()
         appointment.invitees.add(invitee)
+        appointmentCancellation = AppointmentCancellation(appointment=appointment)
+        appointmentCancellation.save()
 
-        # Send confirmation email
-        subject = 'Your appointment with ' + event.account.name + ' | ' + event.name
-        message = 'Your appointment ' + event.name + ' at ' + event.account.name + ' with ' + appointment.worker.user.first_name + ' ' + \
-                   appointment.worker.user.last_name + ' is on ' + appointment.date.strftime('%d-%m-%Y') +' at ' + appointment.time.strftime('%H:%M:%S')  + ' .'
-        
-        html_message = f"""
-        <html>
-        <head>
-            <style>
-                body {{
-                    font-family: 'Arial', sans-serif;
-                    background-color: #f4f4f4;
-                    color: #333;
-                    line-height: 1.6;
-                    padding: 20px;
-                }}
-                .content {{
-                    background-color: white;
-                    padding: 20px;
-                    border-radius: 10px;
-                    margin: auto;
-                    width: 100%;
-                    max-width: 600px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    text-align: center; /* Centers the text for the whole content div */
-                }}
-                .details-card {{
-                    background-color: white;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                    border: 2px solid #ccc; /* Adds a light grey border */
-                }}
-                .appointment-details {{
-                    font-size: 16px;
-                    margin-bottom: 10px;
-                    text-align: left; /* Aligns text to the left within the card */
-                }}
-                .highlight {{
-                    color: #007bff;
-                    font-weight: bold;
-                    font-size: 18px;
-                }}
-                .button {{
-                    display: block; /* Makes the button a block element to fill the width of its container */
-                    width: 50%;
-                    min-width: 180px; /* Ensures the button is not too narrow on smaller screens */
-                    height: 35px;
-                    background-color: #ccc;
-                    color: #333;
-                    border-radius: 5px;
-                    text-decoration: none;
-                    line-height: 35px;
-                    font-size: 14px;
-                    margin: 10px auto 20px; /* Centers the button horizontally */
-                }}
-                .cancel-text {{
-                    font-size: 12px;
-                    text-align: center;
-                    margin-top: 20px;
-                    margin-bottom: 5px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="content">
-                <h2>Thank You and Congratulations!</h2>
-                <p>We are pleased to confirm your appointment. Here are the details:</p>
-                <div class="details-card">
-                    <p class="appointment-details">Your appointment: <span class="highlight">{event.name}</span></p>
-                    <p class="appointment-details">Location: <span class="highlight">{event.account.address.address}, {event.account.address.city}</span></p>
-                    <p class="appointment-details">With: <span class="highlight">{appointment.worker.user.first_name} {appointment.worker.user.last_name}</span></p>
-                    <p class="appointment-details">Date: <span class="highlight">{appointment.date.strftime('%d-%m-%Y')}</span></p>
-                    <p class="appointment-details">Time: <span class="highlight">{appointment.time.strftime('%H:%M:%S')}</span></p>
-                </div>
-                <p class="cancel-text">Do you need to cancel this appointment?</p>
-                <a href="http://example.com/cancel_appointment/{appointment.id}" class="button">Cancel Appointment</a>
-            </div>
-        </body>
-        </html>
-        """
+        # Send confirmation email to worker and clients
+        send_appointment_confirmation_email(False,event, appointment, self.request)
+        send_appointment_confirmation_email(True, event, appointment, self.request)
 
-        send_mail(            
-            subject=subject,
-            message=message,
-            from_email= f"{event.account.name} via ReservaClick <{settings.EMAIL_HOST_USER}>",
-            recipient_list=['farrones@yahoo.com'],
-            html_message=html_message
-        )
+        if self.client_appointment:
+            self.base_template = 'appointments/base_client_appointment.html'
+            
+        business_id = self.kwargs['business_id']
+        business = Account.objects.get(pk=business_id)
+        appearance, created = BusinessAppearance.objects.get_or_create(account_id=business_id)
 
         return render(self.request, 'appointments/appointment_done.html', {
             "progress_width": "100",
@@ -852,7 +988,9 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             "appointment" : appointment,
             "invitee" : invitee,
             "description": event.name,
-            "title": event.account.name
+            "title": event.account.name,
+            "base_template": self.base_template,
+            'appearance': appearance
         })        
 '''
 def appointment(request, business_id, event_id):
@@ -919,7 +1057,10 @@ class DashboardView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         today = datetime.today()
         end_date = today + timedelta(days=30)
-        appointments = Appointment.objects.filter(worker__id = self.request.user.id, date__gte = today, date__lte = end_date).order_by('date')
+        appointments = Appointment.objects.filter(status = 'ACTIVE',
+                                                  worker__id = self.request.user.id, 
+                                                  date__gte = today, 
+                                                  date__lte = end_date).order_by('date')
         # group appointments by date
         grouped_appointments = {}
         for appt in appointments:
@@ -1127,24 +1268,33 @@ class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
 
 @business_admin_required
 def add_business_event(request, business_id = -1):
+    business = get_object_or_404(Account, pk=business_id)
     if request.method == 'POST':
-        form = CreateEventForm(request.POST)
+        form = CreateEventForm(request.POST, account_id=business_id)
         if form.is_valid():
-            new_event = form.save(commit=False)
-            business = Account.objects.get(pk=business_id)
-            new_event.account = business
-            new_event.save()
-            form.save_m2m()
-            return redirect('view_business', business_id = business_id)
+            try:
+                new_event = form.save(commit=False)
+                new_event.account = business
+                new_event.save()
+                form.save_m2m()
+                return redirect('view_business', business_id = business_id)
+            except ValueError as e:  
+                print('-----------------------------> ' + str(e))
+                form.add_error(None, str(e))      
+        else:
+            print('----------------------> HERE')  
         
     elif request.method == 'GET':
-        form = CreateEventForm()
-        context = {
-            'form': form,
-            'business_id': business_id}
-        return render(request, 'events/add_event.html', context)
+        form = CreateEventForm(account_id=business_id) 
+
+    context = {
+        'form': form,
+        'business': business
+        }
+    return render(request, 'events/add_event.html', context)
     
 @require_POST
+@user_is_event_admin
 def toggle_event_active(request):
     event_id = request.POST.get('event_id')
     event = get_object_or_404(Event, id=event_id)
@@ -1247,7 +1397,7 @@ class ServiceView(TemplateView):
 
         return context
     
-@user_is_event_admin()
+@user_is_event_admin
 def load_more_images(request, event_id):
     count = int(request.GET.get('count', 9))
     images = BusinessEventImageUpload.objects.filter(event_id=event_id)[count:count+9]
@@ -1261,7 +1411,7 @@ def load_more_custom_user_images(request, custom_user_id):
     image_data = [{'url': img.image.url} for img in images]
     return JsonResponse({'data': image_data})
 
-@user_is_event_admin()
+@user_is_event_admin
 def upload_event_photo(request, event_id):
     if request.method == 'POST':
         event = Event.objects.get(pk=event_id)
@@ -1288,7 +1438,7 @@ def upload_custom_user_photo(request, custom_user_id):
     return JsonResponse({'success': False})
 
 @require_POST
-@user_is_event_admin()
+@user_is_event_admin
 def delete_event_photos(request):
     try:
         # Load image IDs from POST request; assuming JSON body

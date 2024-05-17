@@ -20,6 +20,7 @@ urlpatterns = [
     path('client_appointment/<int:business_id>/<int:event_id>', views.BookingCreateWizardView.as_view(client_appointment=True, condition_dict = conditions_skip_event), name='client_appointment_for_event'),
     path('client_appointment/<int:business_id>/<int:event_id>/<int:worker_id>', views.BookingCreateWizardView.as_view(client_appointment=True, condition_dict = conditions_skip_event_worker), name='client_appointment_for_event_worker'),
 
+    path('appointment/<int:appointment_id>/email_cancel/<uuid:cancel_uuid>', views.CancelAppointmentEmail.as_view(), name='appointment_email_cancel'),
     path('appointment/<int:appointment_id>/cancel', views.AppointmentView.as_view(show_cancel_button=True), name='appointment_cancel'),
     path('appointment/<int:appointment_id>/', views.AppointmentView.as_view(show_cancel_button=False), name='appointment_detail'),
     path('worker/<int:business_id>/<int:worker_id>/remove', views.BusinessWorkerView.as_view(show_remove_button=True), name='worker_remove'),
@@ -32,6 +33,7 @@ urlpatterns = [
 
     # Business admin urls
     path("business/<int:business_id>/", views.ViewBusiness.as_view(show_web=False), name="view_business"),
+    path("business/<int:business_id>/delete", views.delete_business, name="delete_business"),
     path('business/<int:business_id>/update_ui/', views.update_business_ui, name='update_business_ui'),
     path('business/appearance/<int:business_id>/', views.BusinessAppearanceView.as_view(), name='business_appearance'),
     path('businesses/', views.AccountListView.as_view(show_dropdown = False), name='business-list'),
@@ -65,6 +67,7 @@ urlpatterns = [
     path('events/delete_photos/', views.delete_event_photos, name='delete_event_business_photos'),
     path('update-event-status/', views.update_event_status, name='update-event-status'),
     path('toggle-event-active/', views.toggle_event_active, name='toggle_event_active'),
+    path('events/<int:event_id>/remove_worker/<int:user_id>', views.event_remove_worker, name='event_remove_worker'),
 
     # Business Web pages section urls
     path("web/business/<int:business_id>/", views.ViewBusiness.as_view(show_web = True), name='web_business'),    

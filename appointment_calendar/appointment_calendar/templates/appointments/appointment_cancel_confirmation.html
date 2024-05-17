@@ -1,0 +1,13 @@
+{% extends 'appointments/base_cancel_appointment.html' %}
+{% block side_text %}
+    <div class="booking-cta">
+        <h1>{{event.name}}</h1>
+        <p>{{event.presentation}}</p>
+    </div>
+{% endblock side_text %}
+{% block steps %}
+<div class="container">
+    <h1>{{header}}</h1>
+    <p>{{message}}</p>
+</div>
+{% endblock %}

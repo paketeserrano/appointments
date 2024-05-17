@@ -121,7 +121,25 @@
 
     .toggle-label {
         white-space: nowrap; /* Ensures the label does not wrap */
-        font-size: 0.9rem; /* Optionally reduce font size if space is still tight */
+        font-size: 1rem; /* Optionally reduce font size if space is still tight */
+    }
+
+    /* Increase the size of the toggle switch */
+    .form-check-input.event-toggle {
+        cursor: pointer;
+        transform: scale(1.5); /* Adjust scale as needed */
+        margin-right: 10px; /* Ensure space between toggle and label */
+    }
+
+    /* Change gear button color to match the theme */
+    #settingsDropdown.btn-secondary {
+        background-color: #007bff; /* Standard Bootstrap primary blue */
+        border-color: #007bff; /* Match border color if needed */
+    }
+
+    /* Optional: Change dropdown item text color for visibility */
+    .dropdown-menu .dropdown-item {
+        color: black; /* Adjust based on your design needs */
     }
 </style>
 {% endblock extra_css %}
@@ -133,26 +151,32 @@
     <div class="profile-details">
       <div class="event-info">
         <h1 id="eventName">{{ event.name }}</h1>
-        <!-- Responsive row with center alignment on mobile -->
         <div class="row align-items-center justify-content-center">
-          <div class="col-12 col-md-8 text-center">
+          <span class="badge bg-secondary">{{event.account.name}}</span>
+        </div>
+        <div class="row align-items-center justify-content-center">
+          <div class="col-12 col-md-8 d-flex justify-content-center align-items-center">
             <a href="#" class="info-link" id="shareLink" data-share-url="{{ event_url }}" aria-disabled="false">
               Share Event Link
               <i class="fas fa-copy ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="Copy link to clipboard."></i>
             </a>
             <i class="fas fa-info-circle ms-2" id="infoIcon" style="display: none;" data-bs-toggle="tooltip" data-bs-placement="right" title="Enable this link by adding at least 1 worker and setting duration above 0 minutes."></i>
           </div>
-          <div class="col-12 col-md-4 text-center"> <!-- Smaller column for the toggle, also centered -->
-            <div class="form-check form-switch">
-              <input class="form-check-input event-toggle" type="checkbox" id="event-active-toggle"
-              data-event-id="{{ event.id }}" {% if event.active %}checked{% endif %}>
+          <div class="col-12 col-md-4 d-flex justify-content-center align-items-center">
+            <div class="form-check form-switch me-2">
+              <input class="form-check-input event-toggle" type="checkbox" id="event-active-toggle" data-event-id="{{ event.id }}" {% if event.active %}checked{% endif %}>
               <label class="form-check-label toggle-label" for="event-active-toggle" style="color: #4299E1;">
-                {% if event.active %}
-                  Turn Off
-                {% else %}
-                  Turn On
-                {% endif %}
+                {% if event.active %} Turn Off {% else %} Turn On {% endif %}
               </label>
+            </div>
+            <!-- Dropdown for Gear Icon -->
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-cog"></i>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteEventModal">Delete Event</a></li>
+              </ul>
             </div>
           </div>
         </div>
@@ -221,7 +245,7 @@
           <h3>Event Workers</h3>
           <ul class="list-group" id="workers-list">
             {% for worker in event.event_workers.all %}
-              <li class="list-group-item d-flex justify-content-between align-items-center" id="{{worker.id}}">
+              <li class="list-group-item d-flex justify-content-between align-items-center" id="{{worker.id}}" data-worker-id="{{worker.id}}">
                   {{ worker.user.first_name }} {{ worker.user.last_name }}
       
                   <div class="dropdown">
@@ -230,7 +254,7 @@
                       </button>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
                           <li><a class="dropdown-item" href="{% url 'worker_detail' event.account.id worker.id %}">View User</a></li>
-                          <li><a class="dropdown-item remove-worker" href="{% url 'worker_remove' event.account.id worker.id %}" data-worker-id="{{ worker.id }}">Remove worker</a></li>                  
+                          <li><a class="dropdown-item remove-worker-from-event" data-worker-id="{{worker.id}}" data-remove-url="{% url 'event_remove_worker' event.id worker.id %}">Remove worker</a></li>                  
                       </ul>
                   </div>
               </li>
@@ -243,9 +267,8 @@
               <select class="form-select">
                 <option value="">Select Worker</option>
                 {% for worker in event.account.account_workers.all %}
-                  <option value="{{worker.id}}">{{worker.user.first_name }} {{worker.user.last_name }}</option>
-                {% endfor%}
-                <!-- Add more workers as needed -->
+                  <option value="{{ worker.id }}">{{ worker.user.first_name }} {{ worker.user.last_name }}</option>
+                {% endfor %}
               </select>
               <div>
                 <button class="btn btn-success btn-sm mr-1 btn-save-new-worker">Save</button>
@@ -266,7 +289,7 @@
         <div class="col-md-6 d-flex flex-column">
           <!-- Toggle Visibility -->
           <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="is_visible" {% if event_ui.is_visible %}checked{% endif %}>
+            <input class="form-check-input event-toggle" type="checkbox" id="is_visible" {% if event_ui.is_visible %}checked{% endif %}>
             <label class="form-check-label" for="is_visible">Is Visible</label>
           </div>
           <div class="mb-3 mt-3">
@@ -423,11 +446,39 @@
   </div>
 </div>
 
+<div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteEventModalLabel">Confirm Event Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this event?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteEvent">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 {% endblock %}
 
 {% block extra_script %}
 
 <script>
+
+var allWorkers = [
+    {% for worker in event.account.account_workers.all %}
+    {
+        id: "{{ worker.id }}",
+        name: "{{ worker.user.first_name }} {{ worker.user.last_name }}"
+    },
+    {% endfor %}
+];
 
 function updateProgressBar(percentage) {
         $('.progress-bar').css('width', percentage + '%').attr('aria-valuenow', percentage).text(percentage + '%');
@@ -454,8 +505,6 @@ $(document).ready(function() {
     function enableDisableShareEventLink() {
         var workersCount = $('#workers-list li').length;
         var durationValue = parseInt($('#duration').val(), 10);
-        console.log('workersCount: ' + workersCount)
-        console.log('durationValue: ' + durationValue)
 
         // Enable the link if there is at least one worker or duration is greater than 0
         if (workersCount > 0 && durationValue > 0) {
@@ -506,7 +555,34 @@ $(document).ready(function() {
         }
     });
 
-    $('.event-toggle').change(function() {
+    $(document).on('click', '.remove-worker-from-event', function(event) {
+        event.preventDefault(); 
+
+        var removeWorkerUrl = $(this).data('remove-url'); 
+        var userId = $(this).data('worker-id'); 
+
+        // Post the change to the server
+        $.ajax({
+            url: removeWorkerUrl, 
+            type: 'POST',
+            data: {
+                'event_id': {{event.id}},
+                'user_id': userId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+              $('li[data-worker-id="' + userId + '"]').remove();
+              enableDisableShareEventLink();
+              alert(response['message']);
+            },
+            error: function(xhr, status, error) {
+              alert(response['message']);
+              console.error('Error updating event status:', error);
+            }
+          });
+    });
+
+    $('#event-active-toggle').change(function() {
         var checked = $(this).is(':checked');
         var eventId = $(this).data('event-id');  
         var label = $(this).next('.toggle-label');
@@ -514,7 +590,7 @@ $(document).ready(function() {
 
         // Post the change to the server
         $.ajax({
-            url: '/update-event-status/',  // URL to your Django view
+            url: '/update-event-status/',  
             type: 'POST',
             data: {
                 'event_id': eventId,
@@ -533,6 +609,7 @@ $(document).ready(function() {
     $('#saveSettings').click(function() {
       savePage()
     })
+
 
     $('#cancelSettings').click(function() {
         $('#imagePreview').attr('src', originalImage);
@@ -554,7 +631,6 @@ $(document).ready(function() {
         const selectedPhotos = $('.photo-select:checked').length;
         $('#delete-photo').prop('disabled', selectedPhotos === 0);
     });
-
 
     // Handle delete button click
     $('#delete-photo').click(function() {
@@ -593,18 +669,47 @@ $(document).ready(function() {
       
     });
 
+    $('#confirmDeleteEvent').click(function() {
+      $.ajax({
+        url: '{% url "event_detail" event.id %}',
+        type: 'DELETE',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function() {
+          alert('Event deleted successfully!');
+          window.location.href = '{% url "view_business" event.account.id %}'; 
+        },
+        error: function(xhr) {
+          var errorMessage = 'Failed to delete the event. Contact system admins or try again later';
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+                errorMessage = xhr.responseJSON.error;
+            }
+            alert(errorMessage); 
+        }
+      });
+    });
+
+    function getExistingWorkersIds(){
+        return existingWorkerIds = $('#workers-list li').map(function() {
+          return String($(this).data('worker-id'));
+        }).get();
+    }
+  
     // Event handler for 'Add new' button click
     $('#add-new-worker').click(function() {
-        // Clone the template, remove the id attribute and the 'd-none' class
-        var newWorkerRow = $('#new-worker-template')
-                                .clone()
-                                .removeAttr('id')
-                                .removeClass('d-none');
-        
-        // Append it above the 'Add New' button
+        var workerSelect = $('#new-worker-template select');
+        workerSelect.empty(); 
+        existingWorkerIds = getExistingWorkersIds();
+        allWorkers.forEach(function(worker) {
+            if (!existingWorkerIds.includes(String(worker.id))) {
+                workerSelect.append($('<option></option>').attr('value', worker.id).text(worker.name));
+            }
+        });
+
+        // Show the template
+        var newWorkerRow = $('#new-worker-template').clone().removeAttr('id').removeClass('d-none');
         $(this).before(newWorkerRow);
-        
-        // Hide the 'Add New' button
         $(this).hide();
     });
 
@@ -613,13 +718,23 @@ $(document).ready(function() {
         // Get the selected worker name and value
         var workerSelect = $(this).closest('.list-group-item').find('select');
         var selectedValue = workerSelect.val();
-        console.log('selectedValue: ' + selectedValue)
         var selectedText = workerSelect.find("option:selected").text();
 
         if (selectedValue) {
             // Create a new list item with the worker name
-            var newListHtml = '<li class="list-group-item d-flex justify-content-between align-items-center" id="' + selectedValue + '">' +
-                              selectedText + ' ' + '</li>';
+            var newListHtml = `
+                <li class="list-group-item d-flex justify-content-between align-items-center" id="${selectedValue}" data-worker-id="${selectedValue}">
+                    ${selectedText}
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${selectedValue}" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${selectedValue}">
+                            <li><a class="dropdown-item" href="/worker/{{event.account.id}}/${selectedValue}">View User</a></li>
+                            <li><a class="dropdown-item remove-worker-from-event" data-worker-id="${selectedValue}" data-remove-url="/events/{{event.id}}/remove_worker/${selectedValue}">Remove worker</a></li>
+                        </ul>
+                    </div>
+                </li>`;
 
             // Append the new list item
             $('#workers-list').append(newListHtml);
