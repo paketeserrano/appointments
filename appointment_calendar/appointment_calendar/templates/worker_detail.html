@@ -36,6 +36,13 @@
   </style>
 {% endblock extra_css %}
 {% block content %}
+<nav aria-label="breadcrumb" class="mobile-margin-top">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">Businesses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'view_business' account.id %}">{{account.name}}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{worker.user.first_name | capfirst}} {{worker.user.last_name | capfirst}}</li>
+    </ol>
+</nav>
 <div class="rc-card">
     <div class="row justify-content-center text-center">
         <div class="col-12">

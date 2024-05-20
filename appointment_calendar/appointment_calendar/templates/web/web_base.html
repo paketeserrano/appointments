@@ -74,6 +74,24 @@
         .buger-menu-lines-color {
             color: {{ business.appearance.buger_menu_lines_color|default:"#defdef" }};
         }
+        .business-hours{
+            border-collapse: collapse;
+        }
+
+    .business-hours th, .table td {
+        border: none;
+        vertical-align: middle;
+        text-align: left;
+        padding: 8px;
+    }
+
+    .business-hours tbody tr td {
+        border-bottom: 1px solid #ccc;  /* Add bottom border to each cell */
+    }
+
+    .business-hours thead th {
+        border-bottom: 2px solid #000;  /* Add bottom border to header cells if needed */
+    }
 
     </style>  
     {% block extra_css %}  
@@ -105,12 +123,17 @@
                     <!-- Left Section for Opening Hours -->
                     <div class="col-md-6" style="text-align: center;">
                         <h5>Opening Hours</h5>
-                        <ul class="list-unstyled">
-                            {% for hours in business.opening_hours.all %}
-                                <li>{{ hours.get_weekday_display }}: {{ hours.from_hour|date:"H:i" }} - {{ hours.to_hour|date:"H:i" }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                        <table id="opening-hours-table" class="table table-bordered business-hours">
+                            <tbody>
+                                {% for hours in business.opening_hours.all %}
+                                    <tr data-day="{{ hours.get_weekday_display }}">
+                                        <td>{{ hours.get_weekday_display }}</td>
+                                        <td>{{ hours.from_hour|date:"H:i" }} - {{ hours.to_hour|date:"H:i" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>             
         
                     <!-- Right Section for Company Info -->
                     <div class="col-md-6" style="text-align: center;">
@@ -162,7 +185,36 @@
             $('#mySidebar').removeClass('active').css('width', '0');
             $('.main').css('margin-left', '0');
             $('#sidebarCollapse i').addClass('fa-bars');
-});
+
+            var groupedHours = {};
+
+            $('#opening-hours-table tbody tr').each(function() {
+                var day = $(this).data('day');
+                var hours = $(this).find('td:eq(1)').html();
+
+                if (groupedHours[day]) {
+                    groupedHours[day].push(hours);
+                } else {
+                    groupedHours[day] = [hours];
+                }
+
+                $(this).remove();
+            });
+
+            var $tableBody = $('#opening-hours-table tbody');
+            $.each(groupedHours, function(day, hoursList) {
+                var hoursHtml = hoursList.map(function(hours) {
+                    return '<li>' + hours + '</li>';
+                }).join('');
+
+                var rowHtml = '<tr>' +
+                            '<td>' + day + '</td>' +
+                            '<td><ul class="list-unstyled mb-0">' + hoursHtml + '</ul></td>' +
+                            '</tr>';
+
+                $tableBody.append(rowHtml);
+            });
+        });
 </script>
 
 {% block extra_script %}

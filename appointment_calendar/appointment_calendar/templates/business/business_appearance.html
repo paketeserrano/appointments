@@ -38,6 +38,13 @@
 {% endblock %}
 
 {% block content %}
+<nav aria-label="breadcrumb" class="mobile-margin-top">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'business-list' %}">Businesses</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'view_business' business.id %}">{{business.name}}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Website Appearance</li>
+  </ol>
+</nav>
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-10 form-container">

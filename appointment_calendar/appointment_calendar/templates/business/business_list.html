@@ -68,9 +68,13 @@
 {% endblock extra_css%}
 
 {% block content %}
+<nav aria-label="breadcrumb" class="mobile-margin-top">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item active" aria-current="page">Businesses</li>
+    </ol>
+</nav>
 <div class="rc-card">
     <h1>Businesses</h1>
-
     <div class="cards-container">
         {% if accounts %}
             {% for account in accounts %}

@@ -145,7 +145,13 @@
 {% endblock extra_css %}
 
 {% block content %}
-
+<nav aria-label="breadcrumb" class="mobile-margin-top">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'business-list' %}">Businesses</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'view_business' event.account.id %}">{{event.account.name}}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{event.name}}</li>
+  </ol>
+</nav>
 <div class="rc-card">
   <div class="profile-progress">
     <div class="profile-details">

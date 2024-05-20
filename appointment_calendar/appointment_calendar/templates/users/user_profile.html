@@ -19,8 +19,14 @@
 </style>
 {% endblock extra_css %}
 {% block content %}
-    <h2>{{custom_user.user.first_name}} {{custom_user.user.last_name}}</h2>    
-
+    <nav aria-label="breadcrumb" class="mobile-margin-top">
+        <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Profile</li>
+        </ol>
+    </nav>
+    <div class="rc-card">
+        <h2>{{custom_user.user.first_name | capfirst}} {{custom_user.user.last_name | capfirst}}</h2>    
+    </div>
     <div class="rc-card card">
         <div class="container mt-5">
             <!-- Profile Picture and Change Button -->

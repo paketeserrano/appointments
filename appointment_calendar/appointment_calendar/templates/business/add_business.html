@@ -1,6 +1,12 @@
 {% extends 'base2.html' %}
 
 {% block content %}
+<nav aria-label="breadcrumb" class="mobile-margin-top">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">Businesses</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Add Business</li>
+    </ol>
+</nav>
 <div class="rc-card">
     <div class="container mt-4">
         <h1>Add Your Business</h1>
