@@ -550,13 +550,12 @@ def addMins(tm, mins):
 def generate_time_slots(start_time, end_time, duration):    
     slots = []
     current_time = start_time
-    while current_time <= end_time:
+    while current_time < end_time:
         # Add the current time to the list of slots
         slots.append(current_time)
         # Increment the current time by the duration
         current_time = addMins(current_time, duration)
-
-    print(f'-------------------_> slots: {slots}')
+    
     return slots
 
 def build_available_time_slots(business_id, event_id, worker_id, date_str):
@@ -571,18 +570,39 @@ def build_available_time_slots(business_id, event_id, worker_id, date_str):
     event_duration = event.duration
 
     # Get the account opening hours   
-    opening_hours = None
-    try:     
-        opening_hours = OpenningTime.objects.get(account = business_id, weekday = str(date.weekday()))
-    except OpenningTime.DoesNotExist:
-        opening_hours = OpenningTime(
-            account = account, 
-            weekday = str(date.weekday()), 
-            from_hour = time(1, 0), 
-            to_hour = time(0, 0) )
-        
-    slots = generate_time_slots(opening_hours.from_hour, opening_hours.to_hour, time_slot_duration)
+    opening_hours_list = OpenningTime.objects.filter(account=business_id, weekday=str(date.weekday()))
 
+    if not opening_hours_list.exists():
+        opening_hours_list = [
+            OpenningTime(
+                account=account,
+                weekday=str(date.weekday()),
+                from_hour=time(1, 0),
+                to_hour=time(0, 0)
+            )
+        ]
+
+    all_slots = set() 
+
+    for opening_hours in opening_hours_list:
+        slots = generate_time_slots(opening_hours.from_hour, opening_hours.to_hour, time_slot_duration)
+        all_slots.update(slots)
+
+    slots = sorted(all_slots)
+
+        # Handle special days
+    special_days = SpecialDay.objects.filter(account=business_id, date=date)
+
+    for special_day in special_days:
+        if special_day.closed:
+            # If the whole day is closed, clear all slots
+            slots = []
+            break
+        else:
+            # Remove slots that fall within the special day's closed hours
+            slots = [slot for slot in slots if not (special_day.from_hour <= slot < special_day.to_hour)]
+
+    print(f'-------------------_> slots: {slots}')
     # Get the appointments the worker has for the date
     appointments = Appointment.objects.filter(worker = worker_id, date=date).all().order_by('time')
 
@@ -1492,9 +1512,11 @@ class BusinessAppearanceView(BusinessAccessMixin, View):
 
     def get(self, request, *args, **kwargs):
         account_id = kwargs.get('business_id')
+        business = get_object_or_404(Account, pk=account_id)
         appearance, created = BusinessAppearance.objects.get_or_create(account_id=account_id)
         form = BusinessAppearanceForm(instance=appearance)
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form,
+                                                    'business': business})
 
     def post(self, request, *args, **kwargs):
         account_id = kwargs.get('business_id')

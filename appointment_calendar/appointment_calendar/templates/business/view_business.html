@@ -87,6 +87,12 @@
 {% endblock extra_css %}
 
 {% block content %}
+<nav aria-label="breadcrumb" class="mobile-margin-top">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">Businesses</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ business.name | capfirst }}</li>
+    </ol>
+</nav>
 <div class="rc-card">
     <div class="profile-progress">
         <div class="profile-details">
@@ -331,7 +337,6 @@
 </div>
 <div class="container-fluid">
     <div class="row">
-        <!-- Business Hours Section -->
         <div class="col-md-6">
             <div class="rc-card">
                 <div class="row align-items-center"> <!-- Ensure vertical alignment in the middle -->
@@ -520,6 +525,10 @@
 
 $(document).ready(function() {    
 
+    // Delete hour endpoint base url. We need this when we remove an hour that was just added
+    // NOTE: This url is hardcoded and if it changes in the server we have to change it here
+    var deleteHourBaseUrl = 'business_hour/';
+
     let originalHeaderImage = $('#headerImagePreview').attr('src');
     let originalVisibility = $('#is_visible').is(':checked');
 
@@ -590,7 +599,6 @@ $(document).ready(function() {
     });
 
     function saveBusinessUI() {
-
         // Collect data from all editable fields
         var formData = new FormData();
         formData.append('description', $('#businessDescription').val());
@@ -783,7 +791,7 @@ $(document).ready(function() {
             if(response.success) {
                 var weekdayText = $("#newWeekday option:selected").text();
                 var newHourHtml = `
-                <div class="table-row hour-entry" data-hour-id="${response.hour_id}">
+                <div class="table-row hour-entry" data-hour-id="${response.hour_id}" data-url="/${deleteHourBaseUrl}{{business.id}}/${response['hour_id']}">
                     <span class="weekday">${weekdayText}</span>
                     <span class="from-hour">${newFromHour}</span>
                     <span class="to-hour">${newToHour}</span>
@@ -818,7 +826,7 @@ $(document).ready(function() {
         });
     });
 
-    // Event handler for Delete action
+    // Event handler for Delete hour action
     $(document).on('click', '.delete-hour', function(e) {
         e.preventDefault(); // Prevent default action of the anchor tag
 

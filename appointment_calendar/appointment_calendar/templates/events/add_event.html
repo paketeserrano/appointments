@@ -1,8 +1,15 @@
 {% extends 'base2.html' %}
 {% load widget_tweaks %}
 {% block content %}
+<nav aria-label="breadcrumb" class="mobile-margin-top">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">Businesses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'view_business' business.id %}">{{business.name}}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Add Event</li>
+    </ol>
+  </nav>
 <div class="container mt-5">
-    <h1 class="mb-4">Add Event to {{business.name}}</h1>
+    <h1 class="mb-4">Add Event</h1>
     <form action="{% url 'add_business_event' business.id %}" method="post" class="needs-validation">
         {% csrf_token %}
         {{ form.media }}
