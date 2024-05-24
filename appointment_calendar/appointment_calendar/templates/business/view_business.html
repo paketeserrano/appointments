@@ -163,12 +163,12 @@
                 {% endif %}
             </div>
             <div class="d-flex align-items-center">
-                {% if businesses_configuration.has_business_description %} 
+                {% if businesses_configuration.has_business_presentation %} 
                     <i class="fas fa-check-circle fa-sm text-success"></i>
-                    <span class="ms-2 text-muted">Filled Business Description</span>
+                    <span class="ms-2 text-muted">Filled Business Presentation</span>
                 {% else %}
                     <i class="far fa-circle fa-sm text-danger"></i>
-                    <span class="ms-2 text-muted">Filled Business Description</span>
+                    <span class="ms-2 text-muted">Filled Business Presentation</span>
                 {% endif %}
             </div>
             <div class="d-flex align-items-center">
@@ -435,6 +435,31 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6">            
+            <div class="rc-card">
+                <h2>Address Information</h2>
+                <div class="container form-container" id="addressForm">   
+                    <div class="form-group mb-3">
+                        <label for="address">Address:</label>
+                        <input type="text" class="form-control" id="address" value="{{business.address.address}}" name="address" placeholder="Enter address">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="city">City:</label>
+                        <input type="text" class="form-control" id="city" value="{{business.address.city}}" name="city" placeholder="Enter city">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="province">Province:</label>
+                        <input type="text" class="form-control" id="province" value="{{business.address.province}}" name="province" placeholder="Enter province">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="country">Country:</label>
+                        <input type="text" class="form-control" id="country" value="{{business.address.country}}" name="country" placeholder="Enter country">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="saveAddressButton">Save</button>
+                    <button type="button" class="btn btn-secondary" id="cancelAddressButton">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -532,6 +557,48 @@ $(document).ready(function() {
     let originalHeaderImage = $('#headerImagePreview').attr('src');
     let originalVisibility = $('#is_visible').is(':checked');
 
+    var originalAddressData = {
+        address: '{{business.address.address}}',
+        city: '{{business.address.city}}',
+        province: '{{business.address.province}}',
+        country: '{{business.address.country}}'
+      };
+
+    $('#cancelAddressButton').click(function() {
+        // Restore form values to the last saved state
+        $('#addressForm input').each(function() {
+          $(this).val(originalAddressData[this.name]);
+        });
+      });
+
+    $('#saveAddressButton').click(function() {
+        var formData = {
+          address: $('#address').val(),
+          city: $('#city').val(),
+          province: $('#province').val(),
+          country: $('#country').val(),
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        };
+
+        $.post("{% url 'update_business_address' business.id %}", formData, function(response) {
+          if (response.success) {
+            alert('Address information updated successfully!');
+            // Update originalData to the newly saved state
+            originalAddressData = formData;
+          } else {
+            if (response.message){
+                alert(response.message);
+            }
+            else{
+                alert('Failed to update address information.');
+            }
+            
+          }
+        }).fail(function() {
+          alert('Error occurred while updating address information.');
+        });
+      });
+
     $('.shareButton').click(function(e) {
         e.preventDefault(); // Prevent the default anchor behavior
         var shareUrl = $(this).data('share-url'); // Get the URL to be copied
@@ -561,6 +628,11 @@ $(document).ready(function() {
     $('[data-bs-toggle="tooltip"]').tooltip();
 
     $('#businessHeaderImage').change(function(e) {
+        if (e.target.files[0].size > 512000) { // 0.5Mb
+                alert('File size exceeds 0.5MB. Please upload a smaller file.');
+                return;
+        }
+
         if (e.target.files && e.target.files[0]) {
             let reader = new FileReader();
             reader.onload = function(e) {
@@ -613,13 +685,22 @@ $(document).ready(function() {
             processData: false,  // Important: tells jQuery not to process the data
             contentType: false,  // Important: tells jQuery not to set contentType
             success: function(response) {
-                console.log('Business UI details updated successfully');
-                // Keep the last saved values
-                originalImage = $('#headerImagePreview').attr('src');
-                originalVisibility = $('#is_visible').is(':checked');
+                if (response.success) {
+                    console.log('Business UI details updated successfully');
+                    // Keep the last saved values
+                    originalImage = $('#headerImagePreview').attr('src');
+                    originalVisibility = $('#is_visible').is(':checked');
+                }
+                else {
+                    if (response.message) {
+                        alert(response.message); // Display server-side error message
+                    } else {
+                        alert('Error updating business details. Please try again.');
+                    }
+                }
             },
             error: function(xhr, status, error) {
-                console.error('Error updating event details:', error);
+                console.error('Error updating business details:', error);
             }
         });
     }

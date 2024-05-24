@@ -1,0 +1,12 @@
+services:
+  web:
+    environment:
+      - DJANGO_SETTINGS_MODULE=appointment_calendar.prod
+    ports:
+      - "8000:8000"
+    restart: always
+
+  nginx:
+    ports:
+      - "80:80"
+    restart: always

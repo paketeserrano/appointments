@@ -103,7 +103,7 @@ class Event(models.Model):
     event_workers = models.ManyToManyField(CustomUser)
     account = models.ForeignKey(Account, on_delete = models.CASCADE, related_name = 'events')
     active = models.BooleanField(default=False)
-    price = models.FloatField(validators=[MinValueValidator(0.01)])
+    price = models.FloatField(validators=[MinValueValidator(-0.01)])
 
     def __str__(this):
         return this.name 
@@ -209,21 +209,21 @@ def web_directory_path(instance, filename):
 
 class BusinessAppearance(models.Model):
     account = models.OneToOneField(Account, on_delete = models.CASCADE, related_name='appearance')
-    header_bar_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the header bar.")
-    header_bar_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Font color for text on header bar.")
-    background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the website background.")
-    text_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the text on the website.")
-    section_header_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the sections header text.")
-    service_background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the service background card.")
-    worker_background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Color of the worker background card.")
-    hero_image_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Colors for text on main website image")
-    main_manu_background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Background color for main menu")
-    main_menu_font_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Font color for main menu links")
+    header_bar_color = models.CharField(max_length=7, default='#8CBDB9', help_text="Color of the header bar.")
+    header_bar_font_color = models.CharField(max_length=7, default='#000000', help_text="Font color for text on header bar.")
+    background_color = models.CharField(max_length=7, default='#E8ECEB', help_text="Color of the website background.")
+    text_color = models.CharField(max_length=7, default='#000000', help_text="Color of the text on the website.")
+    section_header_font_color = models.CharField(max_length=7, default='#000000', help_text="Color of the sections header text.")
+    service_background_color = models.CharField(max_length=7, default='#2D3E4E', help_text="Color of the service background card.")
+    worker_background_color = models.CharField(max_length=7, default='#E09E50', help_text="Color of the worker background card.")
+    hero_image_font_color = models.CharField(max_length=7, default='#000000', help_text="Colors for text on main website image")
+    main_manu_background_color = models.CharField(max_length=7, default='#8CBDB9', help_text="Background color for main menu")
+    main_menu_font_color = models.CharField(max_length=7, default='#000000', help_text="Font color for main menu links")
     main_menu_font_hover_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Font colors for main menu links hover")  
-    burger_button_background_color= models.CharField(max_length=7, default='#FFFFFF', help_text="Background color for burger main menu")  
-    buger_menu_lines_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Burger menu line colors") 
+    burger_button_background_color= models.CharField(max_length=7, default='#E09E50', help_text="Background color for burger main menu")  
+    buger_menu_lines_color = models.CharField(max_length=7, default='#E8ECEB', help_text="Burger menu line colors") 
     appointment_background_image = models.ImageField(upload_to=web_directory_path, blank=True, null=True, default='appointment/placeholder.jpg')   
-    booking_form_background_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Background color for main form on the booking page") 
+    booking_form_background_color = models.CharField(max_length=7, default='#E8ECEB', help_text="Background color for main form on the booking page") 
 
     def __str__(self):
         return f"UI Configuration for Header Color {self.header_bar_color}" 

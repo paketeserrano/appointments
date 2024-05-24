@@ -1,0 +1,40 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ["/code/entrypoint.sh"]
+    command: ./wait-for-it.sh db:3306 -- gunicorn appointment_calendar.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/code
+      - ./static:/code/static
+      - media:/code/media
+    expose:
+      - "8000"
+    env_file:
+      - appointment_calendar/.env
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - media:/code/media
+      - ./static:/code/static
+    depends_on:
+      - web
+
+  db:
+    image: mysql:8.0.37
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: 'appt_calendar'
+
+volumes:
+  mysql_data:
+  media:

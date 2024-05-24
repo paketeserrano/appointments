@@ -257,13 +257,15 @@ class EventDetailView(EventAccessMixin, View):
         # Handle image file upload
         if 'image' in request.FILES:
             image_file = request.FILES['image']
+            if image_file.size > 512000:
+                return JsonResponse({'success': False, 'message' : 'File size exceeds 0.5MB. Please upload a smaller file.'})
             event_ui.image = image_file
 
         # Save changes
         event_ui.save()
         event.save()
         event_configuration_status = EventConfigurationStatus(event)
-        return JsonResponse({'message': 'Event updated successfully', 
+        return JsonResponse({'success': True,'message': 'Event updated successfully', 
                              'event_configuration_status': event_configuration_status.to_dict() }, 
                              status=200)
 
@@ -1159,7 +1161,7 @@ def user_registration(request):
             user = form.save() 
 
             # Send confirmation email
-            subject = "Welcome to ReservaClick - In 15m your online presense and booking page ready"
+            subject = "Welcome to ReservaClick - In 15m your online presence and booking page ready"
 
             plain_message = f"""
             Hello {user.first_name},
@@ -1225,6 +1227,9 @@ def add_business(request):
                 is_visible=False,  # Set default visibility or modify as needed
                 description=''  # Set a default description or leave blank to update later
             )
+
+            # Create and link a new BusinessApearance object
+            business_appearance = BusinessAppearance.objects.create(account=new_account)
             return redirect('business-list')
     else:
         form = CreateAccountForm()
@@ -1324,30 +1329,54 @@ def toggle_event_active(request):
 
 @require_POST
 @business_admin_required
+def update_business_address(request, business_id):
+    try:
+        account = get_object_or_404(Account, pk=business_id)
+        account.address.address = request.POST.get('address')
+        account.address.city = request.POST.get('city')
+        account.address.province = request.POST.get('province')
+        account.address.country = request.POST.get('country')
+        account.address.save()      
+        return JsonResponse({'success': True, 'message': 'Business UI updated successfully'})  
+    except Http404:
+        # Return a JSON response if the object is not found
+        data = {'success': False, 'message': 'Business not found.'}
+   
+
+
+@require_POST
+@business_admin_required
 def update_business_ui(request, business_id):
-    # Get the account instance
-    account = get_object_or_404(Account, pk=business_id)
-    
-    # Get the associated UI instance or create a new one if it doesn't exist
-    account_ui, created = AccountUI.objects.get_or_create(business=account)
-    
-    # Update the UI visibility
-    account_ui.is_visible = request.POST.get('is_visible') == 'true'
+    try:
+        # Get the account instance
+        account = get_object_or_404(Account, pk=business_id)
+        
+        # Get the associated UI instance or create a new one if it doesn't exist
+        account_ui, created = AccountUI.objects.get_or_create(business=account)
+        
+        # Update the UI visibility
+        account_ui.is_visible = request.POST.get('is_visible') == 'true'
 
-    # Handle the header image upload
-    header_image = request.FILES.get('business_header_image')
-    if header_image:
-        # Save the header image using the `account_directory_path` method
-        account_ui.header_image.save(header_image.name, header_image)
+        # Handle the header image upload
+        header_image = request.FILES.get('business_header_image')
+        if header_image:
+            if header_image.size > 512000:
+                return JsonResponse({'success': False, 'message' : 'Image file size exceeds 0.5MB. Please upload a smaller file.'})     
+            
+            # Save the header image using the `account_directory_path` method
+            account_ui.header_image.save(header_image.name, header_image)
 
-    # Update general business description
-    account_ui.description = request.POST.get('description')
-    
-    # Save the UI instance
-    account_ui.save()
+        # Update general business description
+        account_ui.description = request.POST.get('description')
+        
+        # Save the UI instance
+        account_ui.save()
 
-    # Return a response indicating success
-    return JsonResponse({'message': 'Business UI updated successfully', 'is_visible': account_ui.is_visible, 'header_image_url': account_ui.header_image.url})
+        # Return a response indicating success
+        return JsonResponse({'success': True, 'message': 'Business UI updated successfully', 'is_visible': account_ui.is_visible, 'header_image_url': account_ui.header_image.url})
+    except Http404:
+        # Return a JSON response if the object is not found
+        data = {'success': False, 'message': 'Business not found.'}
 
 class UserProfileMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
@@ -1390,8 +1419,13 @@ class UserProfileView(UserProfileMixin, View):
     def post(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         custom_user = CustomUser.objects.get(user__id=user_id)
+        user = custom_user.user
         presentation = request.POST.get('presentation')
         experience = request.POST.get('experience')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        user.first_name = first_name
+        user.last_name = last_name
         custom_user.presentation = presentation
         custom_user.experience = experience
         profile_image = request.FILES.get('profile_image')
@@ -1399,6 +1433,7 @@ class UserProfileView(UserProfileMixin, View):
             custom_user.profile_image.save(profile_image.name, profile_image)
 
         custom_user.save()
+        user.save()
         return redirect('user_profile', user_id=user_id)
 
 class ServiceView(TemplateView):
@@ -1433,9 +1468,11 @@ def load_more_custom_user_images(request, custom_user_id):
 
 @user_is_event_admin
 def upload_event_photo(request, event_id):
-    if request.method == 'POST':
+    if request.method == 'POST': 
         event = Event.objects.get(pk=event_id)
         image_file = request.FILES.get('image')
+        if image_file.size > 512000:
+            return JsonResponse({'success': False, 'message' : 'File size exceeds 0.5MB. Please upload a smaller file.'})
         if image_file:
             new_image = BusinessEventImageUpload(account=event.account, event=event, image=image_file)
             new_image.save()
@@ -1449,6 +1486,8 @@ def upload_custom_user_photo(request, custom_user_id):
     if request.method == 'POST':
         custom_user = CustomUser.objects.get(pk=custom_user_id)
         image_file = request.FILES.get('image')
+        if image_file.size > 512000:
+            return JsonResponse({'success': False, 'message' : 'File size exceeds 0.5MB. Please upload a smaller file.'})
         if image_file:
             new_image = UserWorkImageUpload(user=custom_user, image=image_file)
             new_image.save()
@@ -1506,7 +1545,7 @@ def delete_custom_user_photos(request):
         return JsonResponse({'success': True, 'message': 'Images deleted successfully.'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': 'Failed to delete images.', 'error': str(e)})
-    
+
 class BusinessAppearanceView(BusinessAccessMixin, View):
     template_name = 'business/business_appearance.html'
 
@@ -1522,22 +1561,35 @@ class BusinessAppearanceView(BusinessAccessMixin, View):
         account_id = kwargs.get('business_id')
         appearance, created = BusinessAppearance.objects.get_or_create(account_id=account_id)
         form = BusinessAppearanceForm(request.POST, request.FILES, instance=appearance)
+        business = get_object_or_404(Account, pk=account_id)
+
+        remove_background_image = request.POST.get('remove_background_image') == 'true'
+
+        if 'appointment_background_image' in request.FILES:
+            image_file = request.FILES['appointment_background_image']
+            if image_file.size > 512000:  # 0.5MB in bytes
+                form.add_error('appointment_background_image', 'File size exceeds 0.5MB. Please upload a smaller file.')                
+        
         if form.is_valid():
+            if remove_background_image:
+                if appearance.appointment_background_image and appearance.appointment_background_image.url != 'appointment/placeholder.jpg':
+                    appearance.appointment_background_image.delete(save=False)
+                                    
+                appearance.appointment_background_image = 'appointment/placeholder.jpg'
             form.save()
             return redirect('business_appearance', business_id = account_id)
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'business': business})
     
 class BusinessConfigurationStatus:
     def __init__(self,business):
-        print(f'--------> business: {business.name}')
         self.business = business
         self.has_at_least_one_event = business.events.count() > 0
         self.has_at_least_one_business_hour = business.opening_hours.count() > 0
         self.has_at_least_sevent_business_hours = business.opening_hours.count() > 7
-        self.has_business_description = business.ui.description.strip() != ''
+        self.has_business_presentation = business.presentation.strip() != ''
         self.has_header_image = business.ui.header_image and business.ui.header_image.name != 'businesses/placeholder.jpg'
         self.percentage_completed = self.has_at_least_one_event * 20 + self.has_at_least_one_business_hour  * 20 + \
-                                    self.has_at_least_sevent_business_hours * 20 + self.has_business_description * 20 + \
+                                    self.has_at_least_sevent_business_hours * 20 + self.has_business_presentation * 20 + \
                                     self.has_header_image * 20
 
     def get(self):
@@ -1545,7 +1597,7 @@ class BusinessConfigurationStatus:
             'has_events': self.has_at_least_one_event,
             'has_business_hours': self.has_at_least_one_business_hour,
             'has_all_business_hours': self.has_at_least_sevent_business_hours,
-            'has_business_description': self.has_business_description,
+            'has_business_presentation': self.has_business_presentation,
             'has_header_image': self.has_header_image,
             'percentage_completed': self.percentage_completed
         }

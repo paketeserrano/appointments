@@ -13,6 +13,25 @@
             background-size: cover;
             position: relative;
         }
+        .fixed-height-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 450px;
+        }
+
+        .card-image {
+            height: 220px; /* Adjust based on design */
+            object-fit: cover;
+        }
+
+        .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
     </style>
 {% endblock extra_css %}
 
@@ -47,26 +66,24 @@
                 {% for event in events %}
                     {% if event.ui.is_visible %}
                     <div class="flex justify-center items-center h-screen">
-                        <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-service-background">                            
-                            <img src="{{ event.ui.image.url|default:'/media/events/placeholder.jpg' }}" class="w-full" style="width:100%;" />
-                            <div class="text-center" style="padding:10px">
+                        <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-service-background fixed-height-card">                            
+                            <img src="{{ event.ui.image.url|default:'/media/events/placeholder.jpg' }}" class="w-full card-image" />
+                            <div class="text-center card-body">
                                 <div class="px-6 py-4">
                                     <div class="text-xl mb-2 text-center" style="font-weight:900">{{event.name}}</div>
                                     <div class="mb-2 text-center overflow-hidden card-text-height card-text-font">
                                         <p class="text-zinc-700 text-base dark:text-zinc-300">
                                             {{event.presentation}}
                                         </p>
+                                        <a  href="{% url 'service_view' business.id event.id%}"
+                                            class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">
+                                            Learn More
+                                        </a>                                        
                                     </div>
-                                </div>
-                                <div class="px-6 py-4">
-                                    <a
-                                    href="{% url 'service_view' business.id event.id%}"
-                                    class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded"
-                                    >More</a>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>                    
                     {% endif %}
                 {% endfor %}
             </div>
@@ -96,19 +113,20 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 {% for worker in business.account_workers.all %}
                 <div class="flex justify-center items-center h-screen">
-                    <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-worker-background">                            
-                        <img src="{{ worker.profile_image.url|default:'/media/user_profiles/placeholder.jpg' }}" class="w-full" style="width:100%;" />
-                        <div class="text-center" style="padding:10px">
+                    <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-service-background fixed-height-card">                            
+                        <img src="{{ worker.profile_image.url|default:'/media/user_profiles/placeholder.jpg' }}" class="w-full card-image" />
+                        <div class="text-center card-body">
                             <div class="px-6 py-4">
                                 <div class="text-xl mb-2 text-center" style="font-weight:900">{{ worker.user.first_name | capfirst }} {{ worker.user.last_name | capfirst }}</div>
                                 <div class="mb-2 text-center overflow-hidden card-text-height card-text-font">
                                     <p class="text-zinc-700 text-base dark:text-zinc-300">
                                         {{ worker.presentation }}
                                     </p>
+                                    <a  href="{% url 'web_user_profile' business.id worker.user.id %}"
+                                        class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">
+                                        Learn More
+                                    </a>                                        
                                 </div>
-                            </div>
-                            <div class="px-6 py-4">
-                                <a href="{% url 'web_user_profile' business.id worker.user.id %}" class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">More</a>
                             </div>
                         </div>
                     </div>

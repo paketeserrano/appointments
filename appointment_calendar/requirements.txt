@@ -1,3 +1,5 @@
+wheel
+gunicorn
 asgiref==3.7.2
 cachetools==5.3.2
 certifi==2024.2.2

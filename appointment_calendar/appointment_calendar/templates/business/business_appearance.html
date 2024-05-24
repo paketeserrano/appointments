@@ -134,6 +134,13 @@
                 <img src="{{ form.instance.appointment_background_image.url|default:'/media/appointment/placeholder.jpg' }}" id="appointmentBackgroundPreview" class="img-fluid mb-2">
                 <input type="file" name="appointment_background_image" class="form-control" id="appointmentBackgroundImage" accept="image/png, image/jpeg" style="display: none;">
                 <button type="button" id="changeAppointmentBackgroundImageButton" class="btn btn-primary mt-2" onclick="document.getElementById('appointmentBackgroundImage').click();">Change</button>
+                <button type="button" id="removeAppointmentBackgroundImageButton" class="btn btn-danger mt-2">Remove</button>
+                <input type="hidden" name="remove_background_image" id="removeBackgroundImage" value="false">
+                {% if form.appointment_background_image.errors %}
+                  <div class="alert alert-danger mt-2">
+                    {{ form.appointment_background_image.errors }}
+                  </div>
+                {% endif %}
               </div>
             </div>
             <div class="col-md-3 form-group">
@@ -150,20 +157,49 @@
     </div>
   </div>
 </div>
+
 {% endblock %}
 
 {% block extra_script %}
 <script>
 $(document).ready(function() {
+
+  const placeholderUrl = '/media/appointment/placeholder.jpg';
+
+  // Check if the current image is the placeholder image
+  function checkPlaceholder() {
+    const currentSrc = $('#appointmentBackgroundPreview').attr('src');
+    if (currentSrc.includes(placeholderUrl)) {
+      $('#removeAppointmentBackgroundImageButton').prop('disabled', true);
+    } else {
+      $('#removeAppointmentBackgroundImageButton').prop('disabled', false);
+    }
+  }
+
+  checkPlaceholder();
+
   $('#appointmentBackgroundImage').change(function(e) {
-        if (e.target.files && e.target.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                $('#appointmentBackgroundPreview').attr('src', e.target.result);
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        }
+    if (e.target.files[0].size > 512000) { // 0.5Mb
+      alert('File size exceeds 0.5MB. Please upload a smaller file.');
+      return;
+    }
+    if (e.target.files && e.target.files[0]) {
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        $('#appointmentBackgroundPreview').attr('src', e.target.result);
+        $('#removeBackgroundImage').val('false'); 
+        checkPlaceholder();
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
   });
+
+  $('#removeAppointmentBackgroundImageButton').click(function() {
+      $('#appointmentBackgroundPreview').attr('src', placeholderUrl);
+      $('#removeBackgroundImage').val('true');
+      checkPlaceholder();
+  });
+
 });
 
 </script>

@@ -16,6 +16,16 @@
       border-radius: 15px;
       overflow: hidden;
     }
+    .centered-profile-image {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .half-width {
+      width: 50%;
+      margin: 0 auto;
+    }
 </style>
 {% endblock extra_css %}
 {% block content %}
@@ -25,22 +35,30 @@
         </ol>
     </nav>
     <div class="rc-card">
-        <h2>{{custom_user.user.first_name | capfirst}} {{custom_user.user.last_name | capfirst}}</h2>    
+        <h2 id="userFullName">{{custom_user.user.first_name | capfirst}} {{custom_user.user.last_name | capfirst}}</h2>    
     </div>
     <div class="rc-card card">
         <div class="container mt-5">
-            <!-- Profile Picture and Change Button -->
+            <!-- Profile Picture, Change Button, Name, and Surname -->
             <div class="row align-items-center mb-3">
-                <div class="col-6 col-md-4 col-lg-3">
+                <div class="col-12 col-md-4 centered-profile-image">
                     <div class="rounded-circle overflow-hidden" style="width: 100px; height: 100px;">
                         <img src="{{ custom_user.profile_image.url|default:'/media/user_profile/placeholder.jpg' }}" id="profilePicture" class="img-fluid" alt="Profile Picture">
                     </div>
-                </div>
-                <div class="col-6 col-md-8 col-lg-9">
-                    <label for="profileImageInput" class="btn btn-primary w-100">
+                    <label for="profileImageInput" class="btn btn-primary w-100 mt-3">
                         Change
                         <input type="file" id="profileImageInput" class="d-none" accept="image/jpeg, image/png">
                     </label>
+                </div>
+                <div class="col-12 col-md-8 d-flex flex-column align-items-center">
+                    <div class="mb-3 half-width">
+                        <label for="firstNameInput" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="firstNameInput" value="{{ custom_user.user.first_name }}">
+                    </div>
+                    <div class="mb-3 half-width">
+                        <label for="lastNameInput" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="lastNameInput" value="{{ custom_user.user.last_name }}">
+                    </div>
                 </div>
             </div>
             <!-- Presentation Textarea -->
@@ -132,6 +150,11 @@
         });
 
         $('#photo-upload').change(function(event) {
+            var file = event.target.files[0];
+            if (file.size > 512000) { // 0.5Mb
+                alert('File size exceeds 0.5MB. Please upload a smaller file.');
+                return;
+            }
             var formData = new FormData();
             formData.append('image', event.target.files[0]);
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
@@ -151,7 +174,11 @@
                                         '</div></div>';
                         $('.photo-row').prepend(newPhotoHtml);
                     } else {
-                        alert('Upload failed. Please try again.');
+                        if (response.message) {
+                            alert(response.message); // Display server-side error message
+                        } else {
+                            alert('Upload failed. Please try again.');
+                        }
                     }
                 },
                 error: function() {
@@ -252,6 +279,8 @@
         $('#saveButton').click(function() {
 
             var formData = new FormData();
+            formData.append('first_name', $('#firstNameInput').val());
+            formData.append('last_name', $('#lastNameInput').val());
             formData.append('presentation', $('#presentationTextarea').val());
             formData.append('experience', $('#experienceTextarea').val());
 
@@ -271,6 +300,7 @@
                 processData: false,  // Important: tells jQuery not to process the data
                 contentType: false,  // Important: tells jQuery not to set contentType
                 success: function(response) {
+                    $('#userFullName').text($('#firstNameInput').val() + ' ' + $('#lastNameInput').val());
                     console.log('Business UI details updated successfully');
                 },
                 error: function(xhr, status, error) {

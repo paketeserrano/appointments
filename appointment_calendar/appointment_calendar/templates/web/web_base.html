@@ -13,66 +13,66 @@
     <style>
         /* Background color for header bar and also footer */
         .appearance-header-bar {
-            background-color: {{ business.appearance.header_bar_color|default:"#ffffff" }};
+            background-color: {{ business.appearance.header_bar_color }};
         }
 
         /* Background color for the page */
         .appearance-background {
-            background-color: {{ business.appearance.background_color|default:"#defdef" }};
+            background-color: {{ business.appearance.background_color }};
         }
 
         /* General color for the font on the website */
         div, p, .appearance-font-color {
-            color: {{ business.appearance.text_color|default:"#defdef" }};
+            color: {{ business.appearance.text_color }};
         }
 
         /* Color for the section title */
         .section-header-font-color {
-            color: {{ business.appearance.section_header_font_color|default:"#defdef" }};
+            color: {{ business.appearance.section_header_font_color }};
         }
 
         /* Background color for service cards */
         .appearance-service-background {
-            background-color: {{ business.appearance.service_background_color|default:"#defdef" }};
+            background-color: {{ business.appearance.service_background_color }};
         }
 
         /* Background color for worker cards */
         .appearance-worker-background {
-            background-color: {{ business.appearance.worker_background_color|default:"#defdef" }};
+            background-color: {{ business.appearance.worker_background_color }};
         }
 
         /* Font color for hero image text */
         .hero-image-font-color {
-            color: {{ business.appearance.hero_image_font_color|default:"#defdef" }};
+            color: {{ business.appearance.hero_image_font_color }};
         }
 
         /* Font color for header bar text */
         .header-bar-font-color {
-            color: {{ business.appearance.header_bar_font_color|default:"#defdef" }};
+            color: {{ business.appearance.header_bar_font_color }};
         }
 
         /* Background color for main bar */
         .main-manu-background-color {
-            background-color: {{ business.appearance.main_manu_background_color|default:"#defdef" }};
+            background-color: {{ business.appearance.main_manu_background_color }};
         }
 
         /* Font color for links on main bar */
         .appearance-main-menu-font-color {
-            color: {{ business.appearance.main_menu_font_color|default:"#defdef" }};
+            color: {{ business.appearance.main_menu_font_color }};
         }
 
         .sidebar a:hover {
-            color: {{ business.appearance.main_menu_font_hover_color|default:"#defdef" }};
+            color: {{ business.appearance.main_menu_font_hover_color }};
         }
 
         /* Background color for burger main menu */
         .burger-button-background-color {
-            background-color: {{ business.appearance.burger_button_background_color|default:"#defdef" }};
+            background-color: {{ business.appearance.burger_button_background_color }};
         }
 
         /* Burger main menu lines color */
         .buger-menu-lines-color {
-            color: {{ business.appearance.buger_menu_lines_color|default:"#defdef" }};
+            color: {{ business.appearance.buger_menu_lines_color }};
         }
         .business-hours{
             border-collapse: collapse;
@@ -139,9 +139,8 @@
                     <div class="col-md-6" style="text-align: center;">
                         <h5>{{business.name}}</h5>
                         <ul class="list-unstyled">
-                            <li>1234 Business Blvd</li>
-                            <li>Marketing City, MC 12345</li>
-                            <li>(123) 456-7890</li>
+                            <li>{{business.address.address}}</li>
+                            <li>{{business.address.city}}, {{business.address.province}}, {{business.address.country}}</li>
                         </ul>
                     </div>
                 </div>
