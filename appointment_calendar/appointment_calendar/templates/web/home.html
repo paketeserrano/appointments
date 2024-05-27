@@ -69,13 +69,13 @@
                         <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-service-background fixed-height-card">                            
                             <img src="{{ event.ui.image.url|default:'/media/events/placeholder.jpg' }}" class="w-full card-image" />
                             <div class="text-center card-body">
-                                <div class="px-6 py-4">
+                                <div class="px-6 py-2">
                                     <div class="text-xl mb-2 text-center" style="font-weight:900">{{event.name}}</div>
-                                    <div class="mb-2 text-center overflow-hidden card-text-height card-text-font">
-                                        <p class="text-zinc-700 text-base dark:text-zinc-300">
+                                    <div class="mb-2 text-center card-text-height card-text-font">
+                                        <p>
                                             {{event.presentation}}
                                         </p>
-                                        <a  href="{% url 'service_view' business.id event.id%}"
+                                        <a  href="{% url 'service_view' business.handler event.handler%}"
                                             class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">
                                             Learn More
                                         </a>                                        
@@ -116,13 +116,13 @@
                     <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-service-background fixed-height-card">                            
                         <img src="{{ worker.profile_image.url|default:'/media/user_profiles/placeholder.jpg' }}" class="w-full card-image" />
                         <div class="text-center card-body">
-                            <div class="px-6 py-4">
+                            <div class="px-6 py-2">
                                 <div class="text-xl mb-2 text-center" style="font-weight:900">{{ worker.user.first_name | capfirst }} {{ worker.user.last_name | capfirst }}</div>
                                 <div class="mb-2 text-center overflow-hidden card-text-height card-text-font">
-                                    <p class="text-zinc-700 text-base dark:text-zinc-300">
+                                    <p>
                                         {{ worker.presentation }}
                                     </p>
-                                    <a  href="{% url 'web_user_profile' business.id worker.user.id %}"
+                                    <a  href="{% url 'web_user_profile' business.handler worker.user.id %}"
                                         class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">
                                         Learn More
                                     </a>                                        

@@ -61,7 +61,7 @@
         <h2 class="text-2xl font-bold mb-2">{{event.name}}</h2>
         <p class="text-lg font-semibold mb-2">{{event.price}}</p>
         <button class="btn btn-primary w-50" 
-                onclick="window.open('{% url 'client_appointment_for_event' event.account.id event.id %}', '_blank')"
+                onclick="window.open('{% url 'client_appointment_for_event' event.account.handler event.handler %}', '_blank')"
                 {% if not event.active %}disabled{% endif %}>
             Book me
         </button>

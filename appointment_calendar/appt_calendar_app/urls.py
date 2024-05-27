@@ -10,15 +10,15 @@ conditions_skip_event_worker = {'Event': False,
 
 urlpatterns = [    
     # Paths to set up an appointment within the admin page
-    path('appointment_wizard/<int:business_id>', views.BookingCreateWizardView.as_view(client_appointment=False), name='appointment_wizard'),
-    path('appointment_wizard/<int:business_id>/<int:event_id>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event), name='appointment_for_event'),
-    path('appointment_wizard/<int:business_id>/<int:event_id>/<int:worker_id>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event_worker), name='appointment_for_event_worker'),
+    path('appointment_wizard/<str:business_handler>', views.BookingCreateWizardView.as_view(client_appointment=False), name='appointment_wizard'),
+    path('appointment_wizard/<str:business_handler>/<str:event_handler>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event), name='appointment_for_event'),
+    path('appointment_wizard/<str:business_handler>/<str:event_handler>/<int:worker_id>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event_worker), name='appointment_for_event_worker'),
     path('event_inactive/', views.event_inactive_view, name='inactive_event_page'),
     
     # Paths to set up an appointment for clients
-    path('client_appointment/<int:business_id>', views.BookingCreateWizardView.as_view(client_appointment=True), name='client_appointment'),
-    path('client_appointment/<int:business_id>/<int:event_id>', views.BookingCreateWizardView.as_view(client_appointment=True, condition_dict = conditions_skip_event), name='client_appointment_for_event'),
-    path('client_appointment/<int:business_id>/<int:event_id>/<int:worker_id>', views.BookingCreateWizardView.as_view(client_appointment=True, condition_dict = conditions_skip_event_worker), name='client_appointment_for_event_worker'),
+    path('client_appointment/<str:business_handler>', views.BookingCreateWizardView.as_view(client_appointment=True), name='client_appointment'),
+    path('client_appointment/<str:business_handler>/<str:event_handler>', views.BookingCreateWizardView.as_view(client_appointment=True, condition_dict = conditions_skip_event), name='client_appointment_for_event'),
+    path('client_appointment/<str:business_handler>/<str:event_handler>/<int:worker_id>', views.BookingCreateWizardView.as_view(client_appointment=True, condition_dict = conditions_skip_event_worker), name='client_appointment_for_event_worker'),
 
     path('appointment/<int:appointment_id>/email_cancel/<uuid:cancel_uuid>', views.CancelAppointmentEmail.as_view(), name='appointment_email_cancel'),
     path('appointment/<int:appointment_id>/cancel', views.AppointmentView.as_view(show_cancel_button=True), name='appointment_cancel'),
@@ -71,7 +71,7 @@ urlpatterns = [
     path('events/<int:event_id>/remove_worker/<int:user_id>', views.event_remove_worker, name='event_remove_worker'),
 
     # Business Web pages section urls
-    path("web/business/<int:business_id>/", views.ViewBusiness.as_view(show_web = True), name='web_business'),    
-    path('web/business/service/<int:business_id>/<int:event_id>/', views.ServiceView.as_view(), name='service_view'),
-    path('web/business/user/<int:business_id>/<int:user_id>/', views.UserProfileView.as_view(show_web = True), name='web_user_profile'),
+    path("web/<str:business_handler>/", views.ViewBusiness.as_view(show_web = True), name='web_business'),    
+    path('web/<str:business_handler>/service/<str:event_handler>/', views.ServiceView.as_view(), name='service_view'),
+    path('web/<str:business_handler>/user/<int:user_id>/', views.UserProfileView.as_view(show_web = True), name='web_user_profile'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

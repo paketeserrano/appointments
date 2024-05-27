@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 import uuid
 import os
+from .libs import utils
 
 
 # Create your models here.
@@ -39,7 +40,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    instance.customuser.save()
+    instance.customuser.save()  
 
 class Address(models.Model):
     address = models.CharField(max_length=150)
@@ -54,6 +55,12 @@ class Account(models.Model):
     account_workers = models.ManyToManyField(CustomUser)
     time_slot_duration = models.IntegerField(default=30) 
     address = models.OneToOneField(Address, on_delete=models.CASCADE, related_name='account', null=True)
+    handler = models.SlugField(max_length=255, unique=True)
+
+    def save(self, *args, **kwargs):
+        if not self.handler:
+            self.handler = utils.generate_unique_handler(Account, self.name)
+        super().save(*args, **kwargs)
 
     def __str__(this):
         return this.name  
@@ -104,6 +111,7 @@ class Event(models.Model):
     account = models.ForeignKey(Account, on_delete = models.CASCADE, related_name = 'events')
     active = models.BooleanField(default=False)
     price = models.FloatField(validators=[MinValueValidator(-0.01)])
+    handler = models.SlugField(max_length=255, unique=True)
 
     def __str__(this):
         return this.name 

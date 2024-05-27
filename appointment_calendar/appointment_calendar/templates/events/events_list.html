@@ -60,8 +60,8 @@
                         <div class="row align-items-center">
                             <div class="col-5">
                                 <a href="#" class="btn btn-outline-primary w-100 share-btn" data-bs-toggle="tooltip"
-                                    data-appointment-url="{{domain}}{% url 'client_appointment_for_event' event.account.id event.id %}" 
-                                    data-appointment-worker-url="{{domain}}{% url 'client_appointment_for_event_worker' event.account.id event.id current_user.id %}">
+                                    data-appointment-url="{{domain}}{% url 'client_appointment_for_event' event.account.handler event.handler %}" 
+                                    data-appointment-worker-url="{{domain}}{% url 'client_appointment_for_event_worker' event.account.handler event.handler current_user.id %}">
                                     Share
                                 </a>
                             </div>

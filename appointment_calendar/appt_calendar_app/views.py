@@ -31,6 +31,7 @@ from functools import wraps
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from .libs import utils
 
 def user_owns_resource(function):
     @wraps(function)
@@ -137,11 +138,17 @@ class AppointmentWizardAccessMixin:
         if self.client_appointment:
             return super().dispatch(request, *args, **kwargs)
         
-        business_id = kwargs.get('business_id')
-        event_id = kwargs.get('event_id', None)
+        business_handler = kwargs['business_handler']
+        business = get_object_or_404(Account, handler=business_handler)
+        business_id = business.id     
+
+        event_handler = kwargs.get('event_handler', None)
+        event_id = None
+        if event_handler:
+            event = get_object_or_404(Event, handler=event_handler)
+            event_id = event.id     
+
         worker_id = kwargs.get('worker_id', None)
-        
-        business = get_object_or_404(Account, pk=business_id)
         
         # Check if the user is an admin for the first URL pattern
         if not event_id and not worker_id:
@@ -164,7 +171,7 @@ class AppointmentWizardAccessMixin:
 
 class AdminRequiredForBusinessMixin:
     def dispatch(self, request, *args, **kwargs):
-        if not self.show_web:  # When show_web is False, check for admin privileges
+        if not self.show_web:
             business_id = kwargs.get('business_id')
             business = get_object_or_404(Account, pk=business_id)
             if not request.user.is_authenticated:
@@ -225,7 +232,7 @@ class EventDetailView(EventAccessMixin, View):
         event = get_object_or_404(Event, pk=pk)
         event_ui, created = EventUI.objects.get_or_create(event=event)
         event_configuration_status = EventConfigurationStatus(event)
-        relative_event_url = reverse('client_appointment_for_event', args=[event.account.id, event.id])
+        relative_event_url = reverse('client_appointment_for_event', args=[event.account.handler, event.handler])
         event_url = request.build_absolute_uri(relative_event_url)
         relative_web_url = reverse('web_business', args=[event.account.id])
         web_url = self.request.build_absolute_uri(relative_web_url)
@@ -832,6 +839,7 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
     initial_dict = { }
     client_appointment = False
     base_template = 'appointments/base.html'
+    print('---------------------------////////////////////)))))))))))))))))))))))))))))))')
 
     def get_context_data(self, form, **kwargs):    
         print('-------------------- get_context_data')    
@@ -891,14 +899,15 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         return context
     
     def get_form(self, step=None, data=None, files=None):
+        print('---------------------------////////////////////')
         form = super().get_form(step, data, files)
         step = step or self.steps.current
         print('-----------> In get_form')
-        if 'event_id' in self.kwargs:
-            event_id = self.kwargs['event_id']
-            event = Event.objects.get(id=event_id)
+        if 'event_handler' in self.kwargs:
+            event_handler = self.kwargs['event_handler']
+            event = get_object_or_404(Event, handler=event_handler)
+            event_id = event.id                
             if not event.active:
-                print('------------------> Returning inactive form')
                 return InactiveEventForm()
             
         return form
@@ -908,11 +917,16 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         # Only business_id info -> Complete wizard: Select Event, Worker, Time and User Info
         # business_id and event_id -> Select Worker, Time and Info
         # business_id, event_id and worker_id selected -> Select Time and Info
-        business_id = self.kwargs['business_id']
+        print('---------------------------////////////////////')
+        business_handler = self.kwargs['business_handler']
+        business = get_object_or_404(Account, handler=business_handler)
+        business_id = business.id
 
         event_id = None
-        if 'event_id' in self.kwargs:
-            event_id = self.kwargs['event_id']
+        if 'event_handler' in self.kwargs:
+            event_handler = self.kwargs['event_handler']
+            event = get_object_or_404(Event, handler=event_handler)
+            event_id = event.id 
             
         worker_id = None
         if 'worker_id' in self.kwargs:
@@ -945,6 +959,7 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         return self.initial_dict
 
     def render(self, form=None, **kwargs):    
+        print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
         form = form or self.get_form()        
         
         if self.steps.current == 'Event':
@@ -971,8 +986,10 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         print(data)
 
         event_id = None
-        if 'event_id' in self.kwargs:
-            event_id = self.kwargs['event_id']
+        if 'event_handler' in self.kwargs:
+            event_handler = self.kwargs['event_handler']
+            event = get_object_or_404(Event, handler=event_handler)
+            event_id = event.id 
         else:
             event_id = data['events']
 
@@ -1000,8 +1017,9 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         if self.client_appointment:
             self.base_template = 'appointments/base_client_appointment.html'
             
-        business_id = self.kwargs['business_id']
-        business = Account.objects.get(pk=business_id)
+        business_handler = self.kwargs['business_handler']
+        business = get_object_or_404(Account, handler=business_handler)
+        business_id = business.id
         appearance, created = BusinessAppearance.objects.get_or_create(account_id=business_id)
 
         return render(self.request, 'appointments/appointment_done.html', {
@@ -1251,17 +1269,24 @@ class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        business_id = self.kwargs.get('business_id', -1)
-        business = get_object_or_404(Account, pk=business_id)
-        business_ui, created = AccountUI.objects.get_or_create(business=business)
-        business_hours = OpenningTime.objects.filter(account=business_id)
-        special_days = SpecialDay.objects.filter(account=business_id)
-        events = Event.objects.filter(account_id=business_id)
+
+        business = None
         if self.show_web:
-            events = Event.objects.filter(account_id=business_id, ui__is_visible = True)
+            business_handler = self.kwargs.get('business_handler', None)
+            business = get_object_or_404(Account, handler=business_handler)
+        else:
+            business_id = self.kwargs.get('business_id', None)
+            business = get_object_or_404(Account, id=business_id)
+    
+        business_ui, created = AccountUI.objects.get_or_create(business=business)
+        business_hours = OpenningTime.objects.filter(account=business.id)
+        special_days = SpecialDay.objects.filter(account=business.id)
+        events = Event.objects.filter(account_id=business.id)
+        if self.show_web:
+            events = Event.objects.filter(account_id=business.id, ui__is_visible = True)
 
         businesses_configuration = BusinessConfigurationStatus(business)
-        relative_web_url = reverse('web_business', args=[business_id])
+        relative_web_url = reverse('web_business', args=[business.handler])
         web_url = self.request.build_absolute_uri(relative_web_url)
 
         # Format business hours and special days times
@@ -1274,7 +1299,7 @@ class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
             special_day.from_hour = special_day.from_hour.strftime('%H:%M')
 
         for event in events:
-            relative_event_url = reverse('client_appointment_for_event', args=[event.account.id, event.id])
+            relative_event_url = reverse('client_appointment_for_event', args=[event.account.handler, event.handler])
             event.event_url = self.request.build_absolute_uri(relative_event_url)
 
         context.update({
@@ -1401,7 +1426,13 @@ class UserProfileView(UserProfileMixin, View):
     
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
-        business_id = kwargs.get('business_id')
+        business_id = None
+        if self.show_web:
+            business_handler = kwargs.get('business_handler')
+            business = get_object_or_404(Account, handler=business_handler)
+            business_id = business.id
+        else:
+            business_id = kwargs.get('business_id')
         custom_user = CustomUser.objects.get(user__id=user_id)     
         context =  {'custom_user': custom_user}
 
@@ -1441,9 +1472,10 @@ class ServiceView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        event_id = self.kwargs.get('event_id')
-        event = get_object_or_404(Event, pk=event_id)
-        business = get_object_or_404(Account, pk=event.account.id)
+
+        event_handler = kwargs['event_handler']
+        event = get_object_or_404(Event, handler=event_handler)
+        business = event.account
 
         context.update({
             'event': event,
