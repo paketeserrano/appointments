@@ -8,7 +8,7 @@ python manage.py makemigrations
 python manage.py migrate 
 
 # Collect static files (if necessary)
-# python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput
 
 # Start the server
 exec "$@"

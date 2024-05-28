@@ -131,15 +131,6 @@ USE_TZ = True
 LOGIN_REDIRECT_URL = '/dashboard/'
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = 'appointment_calendar/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "appointment_calendar/static"),
-    os.path.join(BASE_DIR, "appointment_calendar/static/img"),
-)
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -161,3 +152,12 @@ RECIPIENT_ADDRESS = env('RECIPIENT_ADDRESS')
 # IMageField and media configuration
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "appointment_calendar/static"),
+)
