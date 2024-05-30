@@ -32,6 +32,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from .libs import utils
+from django.templatetags.static import static
 
 def user_owns_resource(function):
     @wraps(function)
@@ -231,6 +232,12 @@ class EventDetailView(EventAccessMixin, View):
     def get(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
         event_ui, created = EventUI.objects.get_or_create(event=event)
+
+        if not event_ui.image:
+            event_ui.image_url = static('img/event/placeholder.jpg')
+        else:
+            event_ui.image_url = event_ui.image.url
+
         event_configuration_status = EventConfigurationStatus(event)
         relative_event_url = reverse('client_appointment_for_event', args=[event.account.handler, event.handler])
         event_url = request.build_absolute_uri(relative_event_url)
@@ -1279,6 +1286,11 @@ class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
             business = get_object_or_404(Account, id=business_id)
     
         business_ui, created = AccountUI.objects.get_or_create(business=business)
+        if not business_ui.header_image:
+            business_ui.header_image_url = static('img/business/placeholder.jpg')
+        else:
+            business_ui.header_image_url = business_ui.header_image.url
+
         business_hours = OpenningTime.objects.filter(account=business.id)
         special_days = SpecialDay.objects.filter(account=business.id)
         events = Event.objects.filter(account_id=business.id)
@@ -1434,6 +1446,11 @@ class UserProfileView(UserProfileMixin, View):
         else:
             business_id = kwargs.get('business_id')
         custom_user = CustomUser.objects.get(user__id=user_id)     
+        if not custom_user.profile_image:
+            custom_user.profile_image_url = static('img/user_profile/placeholder.jpg')
+        else:
+            custom_user.profile_image_url = custom_user.profile_image.url
+
         context =  {'custom_user': custom_user}
 
         if business_id:
@@ -1585,6 +1602,12 @@ class BusinessAppearanceView(BusinessAccessMixin, View):
         account_id = kwargs.get('business_id')
         business = get_object_or_404(Account, pk=account_id)
         appearance, created = BusinessAppearance.objects.get_or_create(account_id=account_id)
+
+        if not appearance.appointment_background_image:
+            appearance.appointment_background_image_url = static('img/appointment/placeholder.jpg')
+        else:
+            appearance.appointment_background_image_url = appearance.appointment_background_image.url
+
         form = BusinessAppearanceForm(instance=appearance)
         return render(request, self.template_name, {'form': form,
                                                     'business': business})
@@ -1619,7 +1642,10 @@ class BusinessConfigurationStatus:
         self.has_at_least_one_business_hour = business.opening_hours.count() > 0
         self.has_at_least_sevent_business_hours = business.opening_hours.count() > 7
         self.has_business_presentation = business.presentation.strip() != ''
-        self.has_header_image = business.ui.header_image and business.ui.header_image.name != 'businesses/placeholder.jpg'
+        self.has_header_image = False
+        default_image_url = static('img/business/placeholder.jpg')
+        if business.ui.header_image:
+            self.has_header_image = business.ui.header_image.url != default_image_url        
         self.percentage_completed = self.has_at_least_one_event * 20 + self.has_at_least_one_business_hour  * 20 + \
                                     self.has_at_least_sevent_business_hours * 20 + self.has_business_presentation * 20 + \
                                     self.has_header_image * 20
@@ -1642,7 +1668,10 @@ class EventConfigurationStatus:
         self.has_duration = event.duration > 0
         self.has_workers = event.event_workers.count() > 0
         self.has_price = event.price >= 0
-        self.has_front_image = event.ui.image and event.ui.image != 'events/placeholder.jpg'
+        self.has_front_image = False
+        default_image_url = static('img/event/placeholder.jpg')
+        if event.ui.image:
+            self.has_front_image = event.ui.image.url != default_image_url 
         self.percentage_completed = self.has_duration * 20 + self.has_workers * 20 + self.has_presentation * 15 + \
                                     self.has_description * 15 + self.has_price * 15 + self.has_front_image * 15
 

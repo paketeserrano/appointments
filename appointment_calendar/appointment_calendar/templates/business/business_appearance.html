@@ -131,7 +131,7 @@
                 <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="This image will show on the Booking Page background"></i>
               </div>
               <div class="image-container mb-3">
-                <img src="{{ form.instance.appointment_background_image.url|default:'/media/appointment/placeholder.jpg' }}" id="appointmentBackgroundPreview" class="img-fluid mb-2">
+                <img src="{{ form.instance.appointment_background_image_url }}" id="appointmentBackgroundPreview" class="img-fluid mb-2">
                 <input type="file" name="appointment_background_image" class="form-control" id="appointmentBackgroundImage" accept="image/png, image/jpeg" style="display: none;">
                 <button type="button" id="changeAppointmentBackgroundImageButton" class="btn btn-primary mt-2" onclick="document.getElementById('appointmentBackgroundImage').click();">Change</button>
                 <button type="button" id="removeAppointmentBackgroundImageButton" class="btn btn-danger mt-2">Remove</button>

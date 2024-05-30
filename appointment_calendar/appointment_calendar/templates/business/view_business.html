@@ -418,7 +418,7 @@
                                 <h4 class="mb-2">Business Header Image</h4>
                                 <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="This image will show on the front header of this business website"></i>
                             </div>
-                            <img src="{{ business_ui.header_image.url|default:'/media/businesses/placeholder.jpg' }}" id="headerImagePreview" class="img-fluid mb-2" style="max-height: 200px;">
+                            <img src="{{ business_ui.header_image_url }}" id="headerImagePreview" class="img-fluid mb-2" style="max-height: 200px;">
                             <!-- Button to open file picker -->
                             <button id="changeImageButton" class="btn btn-primary" style="width:50%;">Change</button>
                             <!-- Hidden File Input -->

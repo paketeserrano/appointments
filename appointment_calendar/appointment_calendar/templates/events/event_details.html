@@ -320,7 +320,7 @@
             <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="This image will show on the Event Page of this business website"></i>
           </div>
           <div class="image-container mb-3">
-            <img src="{{ event_ui.image.url|default:'/media/events/placeholder.jpg' }}" id="imagePreview" class="img-fluid mb-2">
+            <img src="{{ event_ui.image_url }}" id="imagePreview" class="img-fluid mb-2">
             <input type="file" class="form-control" id="eventImage" accept="image/png, image/jpeg" style="display: none;">
             <button id="changeImageButton" class="btn btn-primary mt-2" onclick="document.getElementById('eventImage').click();">Change</button>
           </div>

@@ -17,7 +17,7 @@ def custom_user_directory_path(instance, filename):
 class CustomUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=100)
-    profile_image = models.ImageField(upload_to=custom_user_directory_path, blank=True, null=True, default='user_profiles/placeholder.jpg')
+    profile_image = models.ImageField(upload_to=custom_user_directory_path, blank=True, null=True)
     presentation = models.CharField(max_length=150)
     experience = models.CharField(max_length=2000)
 
@@ -88,7 +88,7 @@ def account_directory_path(instance, filename):
 class AccountUI(models.Model):
     business = models.OneToOneField(Account, on_delete=models.CASCADE, related_name='ui')
     is_visible = models.BooleanField(default=True)
-    header_image = models.ImageField(upload_to=account_directory_path, blank=True, null=True, default='businesses/placeholder.jpg')
+    header_image = models.ImageField(upload_to=account_directory_path, blank=True, null=True)
     description = models.CharField(max_length=500)
 
     def __str__(self):
@@ -113,6 +113,11 @@ class Event(models.Model):
     price = models.FloatField(validators=[MinValueValidator(-0.01)])
     handler = models.SlugField(max_length=255, unique=True)
 
+    def save(self, *args, **kwargs):
+        if not self.handler:
+            self.handler = utils.generate_unique_handler(Event, self.name)
+        super().save(*args, **kwargs)
+
     def __str__(this):
         return this.name 
     
@@ -124,7 +129,7 @@ def event_directory_path(instance, filename):
 class EventUI(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='ui')
     is_visible = models.BooleanField(default=False)
-    image = models.ImageField(upload_to=event_directory_path, blank=True, null=True, default='events/placeholder.jpg')
+    image = models.ImageField(upload_to=event_directory_path, blank=True, null=True)
     description = models.CharField(max_length = 2000, default='')
 
     def __str__(self):
@@ -230,7 +235,7 @@ class BusinessAppearance(models.Model):
     main_menu_font_hover_color = models.CharField(max_length=7, default='#FFFFFF', help_text="Font colors for main menu links hover")  
     burger_button_background_color= models.CharField(max_length=7, default='#E09E50', help_text="Background color for burger main menu")  
     buger_menu_lines_color = models.CharField(max_length=7, default='#E8ECEB', help_text="Burger menu line colors") 
-    appointment_background_image = models.ImageField(upload_to=web_directory_path, blank=True, null=True, default='appointment/placeholder.jpg')   
+    appointment_background_image = models.ImageField(upload_to=web_directory_path, blank=True, null=True)   
     booking_form_background_color = models.CharField(max_length=7, default='#E8ECEB', help_text="Background color for main form on the booking page") 
 
     def __str__(self):
