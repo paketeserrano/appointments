@@ -1,11 +1,12 @@
 {% extends base_template %}
+{% load custom_filters %}
 
 {% block side_text %}
     <div class="booking-cta">
         <h1>{{title}}</h1>
         <p>{{description}}</p>
     </div>
-{% endblock side_text %}
+{% endblock side_text %} 
 
 {% block steps %}
 {% include 'common/show_errors.html' %} 
@@ -22,10 +23,32 @@
     <div class="row">     
         {% for field in wizard.form %}
             <div class="col-md-8 mb-3">
-                <div class="form-floating {% if field.is_hidden %}d-none{% endif %}">
-                    {{ field }}
-                    <label for="{{field.id_for_label}}">{{ field.label }}</label>
+                {% if field|widget_type == "radioselect" %}
+                <div style="background-color:white;padding:10px;border-radius:5px;color:#212529a6">
+                    <label>{{ field.label }}</label>
+                    {% for subfield in field %}
+                        <div class="form-check">
+                            {{ subfield.tag }}
+                            <label class="form-check-label" for="{{ subfield.id_for_label }}">{{ subfield.choice_label }}</label>
+                        </div>
+                    {% endfor %}
                 </div>
+                {% elif field|widget_type == "checkboxselectmultiple" %}
+                <div style="background-color:white;padding:10px;border-radius:5px;color:#212529a6">
+                    <label>{{ field.label }}</label>
+                    {% for subfield in field %}
+                        <div class="form-check">
+                            {{ subfield.tag }}
+                            <label class="form-check-label" for="{{ subfield.id_for_label }}">{{ subfield.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% else %}              
+                    <div class="form-floating {% if field.is_hidden %}d-none{% endif %}">
+                        {{ field }}
+                        <label for="{{field.id_for_label}}">{{ field.label }}</label>
+                    </div>
+                {% endif %}
             </div>
         {% endfor %}
 

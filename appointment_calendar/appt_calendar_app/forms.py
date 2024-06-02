@@ -4,9 +4,34 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError  
 from django.forms.fields import EmailField  
 from django.forms.forms import Form 
-from .models import Account, Event, Appointment, Invitee, Address, BusinessAppearance
+from .models import Account, Event, Appointment, Invitee, Address, BusinessAppearance, EventPageAnswer, EventPageQuestion
 import json
 
+class EventQuestionForm(forms.ModelForm):
+    class Meta:
+        model = EventPageQuestion
+        fields = ['text', 'required', 'active']
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'required': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class EventAnswerForm(forms.ModelForm):
+    class Meta:
+        model = EventPageAnswer
+        fields = ['answer_type', 'options']
+
+        widgets = {
+            'answer_type': forms.Select(attrs={'class': 'form-control'}, choices=[
+                ('single_line', 'Single Line'),
+                ('multi_line', 'Multi Line'),
+                ('checkbox', 'Checkbox'),
+                ('radio', 'Radio Button'),
+                ('dropdown', 'Dropdown')
+            ]),
+            'options': forms.Textarea(attrs={'class': 'form-control', 'style': 'display:none;'})
+        }
 
 class DateTimeInput(forms.DateTimeInput):
     input_type = 'datetime-local'
@@ -69,9 +94,58 @@ class SelectDateTimeForm(ChangeInputsStyle):
     time = forms.TimeField(widget=forms.HiddenInput())
 
 class CustomerInformationForm(ChangeInputsStyle):
-    user_name = forms.CharField(max_length=250)
-    user_email = forms.EmailField()
-    user_mobile = forms.CharField(required=False, max_length=10)
+    user_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    user_email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    user_mobile = forms.CharField(required=False, max_length=10, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    def __init__(self, *args, **kwargs):
+        event = kwargs.pop('event', None)
+        super(CustomerInformationForm, self).__init__(*args, **kwargs)
+        print('Inside the Customer Info Form Constructor')
+        if event:
+            print('Inside the form questions part')
+            questions = EventPageQuestion.objects.filter(event_page_options__event=event, active=True)
+            for question in questions:
+                print(f'question: {question.text}')
+                field_name = f'question_{question.id}'
+                field_label = question.text
+                answer_type = question.answers.first().answer_type
+
+                if question.required:
+                    required = True
+                else:
+                    required = False
+
+                # Determine the field type based on the answer type
+                if answer_type == 'single_line':
+                    self.fields[field_name] = forms.CharField(label=field_label, required=required, widget=forms.TextInput(attrs={'class': 'form-control'}))
+                elif answer_type == 'multi_line':
+                    self.fields[field_name] = forms.CharField(label=field_label, required=required, widget=forms.Textarea(attrs={'class': 'form-control'}))
+                elif answer_type == 'checkbox':                  
+                    options = question.answers.first().options
+                    options = json.loads((json.loads(options)[0]))              
+                    self.fields[field_name] = forms.MultipleChoiceField(
+                        label=field_label, 
+                        required=required, 
+                        widget=forms.CheckboxSelectMultiple(), 
+                        choices=[(opt, opt) for opt in options])
+                elif answer_type == 'radio':                
+                    options = question.answers.first().options
+                    # Done like this because of how we are saving the options
+                    options = json.loads((json.loads(options)[0]))                     
+                    self.fields[field_name] = forms.ChoiceField(
+                        label=field_label, 
+                        required=required, 
+                        widget=forms.RadioSelect(), 
+                        choices=[(opt, opt) for opt in options])
+                elif answer_type == 'dropdown':                   
+                    options = question.answers.first().options
+                    options = json.loads((json.loads(options)[0]))                   
+                    self.fields[field_name] = forms.ChoiceField(
+                        label=field_label, 
+                        required=required, 
+                        widget=forms.Select(attrs={'class': 'form-control'}), 
+                        choices=[(opt, opt) for opt in options])
 
 class AppointmentForm(forms.Form):
     def __init__(self,*args,**kwargs):

@@ -2,11 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
 from .forms import AppointmentForm, SignUpForm, BusinessAppearanceForm, AppointmentCancelForm, AddressForm, CreateAccountForm, \
                                     CreateEventForm, SelectWorkerForm, SelectEventForm, InactiveEventForm, SelectDateTimeForm, \
-                                    CustomerInformationForm
+                                    CustomerInformationForm, EventQuestionForm, EventAnswerForm
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import Appointment, Event, Account, AccountInvitation, BusinessAppearance, Invitee, CustomUser, OpenningTime, \
-                    BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI, UserWorkImageUpload, AppointmentCancellation
+                    BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI, UserWorkImageUpload, AppointmentCancellation, \
+                    EventPageOptions, AppointmentQuestionResponse, EventPageQuestion
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core import serializers
@@ -33,6 +34,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from .libs import utils
 from django.templatetags.static import static
+from django.forms.models import model_to_dict
 
 def user_owns_resource(function):
     @wraps(function)
@@ -52,7 +54,6 @@ def user_owns_resource(function):
 def user_is_event_admin(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-        print("Decorator called with kwargs:", kwargs)
         # Check if user is authenticated
         if not request.user.is_authenticated:
             return JsonResponse({'success': False, 'message': 'Authentication required.'}, status=401)
@@ -225,6 +226,88 @@ def event_remove_worker(request, event_id, user_id):
         status = 500
 
     return JsonResponse({'message': message}, status=status)
+ 
+@user_is_event_admin
+def add_event_question(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    event_page_options = get_object_or_404(EventPageOptions, event=event)
+
+    if request.method == 'POST':
+        question_form = EventQuestionForm(request.POST)
+        answer_form = EventAnswerForm(request.POST)
+        if question_form.is_valid() and answer_form.is_valid():
+            question = question_form.save(commit=False)
+            question.event_page_options = event_page_options
+            question.save()
+
+            answer = answer_form.save(commit=False)
+            answer.question = question
+
+            # Combine multiple 'options' parameters into a list and save as JSON
+            options = request.POST.getlist('options')
+            try:
+                answer.options = json.dumps(options)
+                print(answer.options)
+            except ValueError as e:
+                return JsonResponse({'success': False, 'errors': {'options': str(e)}}, status=400)            
+
+            answer.save()
+
+            return JsonResponse({'success': True, 'message': 'Question added successfully'})
+        else:
+            errors = {**question_form.errors, **answer_form.errors}
+            return JsonResponse({'success': False, 'errors': errors}, status=400)
+        
+@user_is_event_admin
+def edit_question(request, event_id, question_id):
+    question = get_object_or_404(EventPageQuestion, pk=question_id, event_page_options__event_id=event_id)
+    event_page_options = get_object_or_404(EventPageOptions, event=question.event_page_options.event)
+
+    if request.method == 'POST':
+        question_form = EventQuestionForm(request.POST, instance=question)
+        answer_form = EventAnswerForm(request.POST, instance=question.answers.first())
+        
+        if question_form.is_valid() and answer_form.is_valid():
+            question_form.save()
+            
+            answer = answer_form.save(commit=False)
+            options = request.POST.getlist('options')
+            try:
+                answer.options = json.dumps(options)
+            except ValueError as e:
+                return JsonResponse({'success': False, 'errors': {'options': str(e)}}, status=400)
+            
+            answer.save()
+
+            return JsonResponse({'success': True, 'message': 'Question updated successfully'})
+        else:
+            errors = {**question_form.errors, **answer_form.errors}
+            return JsonResponse({'success': False, 'errors': errors}, status=400)
+    
+@user_is_event_admin
+def remove_event_question(request, event_id, question_id):
+    try:
+        question = get_object_or_404(EventPageQuestion, pk=question_id, event_page_options__event_id=event_id)
+        question.delete()
+        return JsonResponse({'success': True, 'message': 'Question deleted successfully'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+@user_is_event_admin
+def event_question(request, event_id, question_id):
+    try:
+        question = get_object_or_404(EventPageQuestion, pk=question_id, event_page_options__event_id=event_id)
+        data = model_to_dict(question)
+
+        if question.answers.exists():
+            answer = question.answers.first()
+            options = json.loads(answer.options)
+            data['answer_type'] = answer.answer_type
+            data['options'] = json.loads(options[0]) if len(options) > 0 else []
+
+        return JsonResponse({'success': True, 'data': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
 # Only admins of the business that the event belongs to are allowed to access this view    
 class EventDetailView(EventAccessMixin, View):
@@ -232,7 +315,8 @@ class EventDetailView(EventAccessMixin, View):
     def get(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
         event_ui, created = EventUI.objects.get_or_create(event=event)
-
+        event_page_options, options_created = EventPageOptions.objects.get_or_create(event = event)
+ 
         if not event_ui.image:
             event_ui.image_url = static('img/event/placeholder.jpg')
         else:
@@ -243,13 +327,20 @@ class EventDetailView(EventAccessMixin, View):
         event_url = request.build_absolute_uri(relative_event_url)
         relative_web_url = reverse('web_business', args=[event.account.id])
         web_url = self.request.build_absolute_uri(relative_web_url)
+        questions = event_page_options.questions.all()
+
         return render(request, 
                       'events/event_details.html', 
                       {'event': event,
                        'event_ui': event_ui,
+                       'event_page_options' : event_page_options,
                        'event_configuration_status': event_configuration_status,
                        'event_url': event_url,
-                       'web_url': web_url})
+                       'web_url': web_url,
+                       'questions': questions,
+                       'question_form': EventQuestionForm(),
+                       'answer_form': EventAnswerForm(),                       
+                       })
 
     def post(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
@@ -320,7 +411,7 @@ class AccountListView(LoginRequiredMixin, ListView):
         user_accounts = self.get_queryset()
         # If only one account is assigned, redirect to that account's detail page
         if user_accounts.count() == 1 and self.show_dropdown:
-            return redirect('appointment_wizard', business_id=user_accounts.first().pk) 
+            return redirect('appointment_wizard', business_handler=user_accounts.first().handler) 
         
         # Otherwise, continue with the normal flow
         return super(AccountListView, self).get(request, *args, **kwargs)
@@ -916,6 +1007,8 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             event_id = event.id                
             if not event.active:
                 return InactiveEventForm()
+            elif step == 'CustomerInfo':
+                form = CustomerInformationForm(data=data, event=event)
             
         return form
                     
@@ -990,7 +1083,9 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
     def done(self, form_list, **kwargs):
         data = dict((key, value) for form in form_list for key,
                     value in form.cleaned_data.items())
+        print(':::::::::::::::::::::::::::::')
         print(data)
+        print(':::::::::::::::::::::::::::::')
 
         event_id = None
         if 'event_handler' in self.kwargs:
@@ -1016,6 +1111,14 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         appointment.invitees.add(invitee)
         appointmentCancellation = AppointmentCancellation(appointment=appointment)
         appointmentCancellation.save()
+
+        # Save responses to the questions
+        for key, value in data.items():
+            if key.startswith('question_'):
+                question_id = key.split('_')[1]
+                question = EventPageQuestion.objects.get(id=question_id)
+                response = AppointmentQuestionResponse(appointment=appointment, question=question, response=value)
+                response.save()
 
         # Send confirmation email to worker and clients
         send_appointment_confirmation_email(False,event, appointment, self.request)
@@ -1337,6 +1440,7 @@ def add_business_event(request, business_id = -1):
             try:
                 new_event = form.save(commit=False)
                 new_event.account = business
+                event_page_options = EventPageOptions(event=new_event)
                 new_event.save()
                 form.save_m2m()
                 return redirect('view_business', business_id = business_id)

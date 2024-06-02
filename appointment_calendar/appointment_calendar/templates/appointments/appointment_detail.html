@@ -1,71 +1,100 @@
 {% extends 'base2.html' %}
+{% load custom_filters %}
 
 {% block extra_css %}
-    <style>
-        .field-name {
-            background-color: rgb(237, 240, 241) !important;
-            width: 25%; /* Adjust the width as needed */
+<style>
+    .field-name {
+        font-weight: bold;
+        background-color: rgb(237, 240, 241);
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+    }
+    .field-value {
+        padding: 0.5rem;
+    }
+    .appointment-details {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .appointment-detail {
+        flex: 1 1 100%;
+        margin-bottom: 1rem;
+    }
+    @media (min-width: 768px) {
+        .appointment-detail {
+            flex: 1 1 48%;
+            margin-right: 1%;
         }
-        .table {
-            table-layout: fixed; /* Helps ensure the column width is respected */
+        .appointment-detail:nth-child(2n) {
+            margin-right: 0;
         }
-        .table td, .table th {
-            word-wrap: break-word; /* Ensure content fits within the cell */
-        }
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent backdrop */
-        }
-        #spinnerModal .modal-content {
-            width: 100  vw; /* Cover the viewport width */
-            height: 100vh; /* Cover the viewport height */
-        }
-    </style>
+    }
+</style>
 {% endblock extra_css %}
 
 {% block content %}
-<div class="rc-card">
-    <div class="container mt-5">
-        <h2>Appointment Details</h2>
-        <table class="table">
-            <tbody>
-                <tr>
-                    <td class="field-name">Date</td>
-                    <td>{{ appointment.date }}</td>
-                </tr>
-                <tr>
-                    <td class="field-name">Time</td>
-                    <td>{{ appointment.time }}</td>
-                </tr>
-                <tr>
-                    <td class="field-name">Location</td>
-                    <td>{{ appointment.location }}</td>
-                </tr>
-                <tr>
-                    <td class="field-name">Status</td>
-                    <td id="appointmentStatus">{{ appointment.status }}</td>
-                </tr>
-                <tr>
-                    <td class="field-name">Worker</td>
-                    <td>{{ appointment.worker.user.first_name }} {{ appointment.worker.user.last_name }}</td>
-                </tr>
-                <tr>
-                    <td class="field-name">Event</td>
-                    <td>{{ appointment.event.name }}</td>
-                </tr>
-                <tr>
-                    <td class="field-name">Invitees</td>
-                    <td>
-                        <ul>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>Appointment Details</h2>
+        </div>
+        <div class="card-body">
+            <div class="appointment-details">
+                <div class="appointment-detail">
+                    <div class="field-name">Date</div>
+                    <div class="field-value">{{ appointment.date }}</div>
+                </div>
+                <div class="appointment-detail">
+                    <div class="field-name">Time</div>
+                    <div class="field-value">{{ appointment.time }}</div>
+                </div>
+                <div class="appointment-detail">
+                    <div class="field-name">Location</div>
+                    <div class="field-value">{{ appointment.location }}</div>
+                </div>
+                <div class="appointment-detail">
+                    <div class="field-name">Status</div>
+                    <div class="field-value" id="appointmentStatus">{{ appointment.status }}</div>
+                </div>
+                <div class="appointment-detail">
+                    <div class="field-name">Worker</div>
+                    <div class="field-value">{{ appointment.worker.user.first_name }} {{ appointment.worker.user.last_name }}</div>
+                </div>
+                <div class="appointment-detail">
+                    <div class="field-name">Event</div>
+                    <div class="field-value">{{ appointment.event.name }}</div>
+                </div>
+                <div class="appointment-detail">
+                    <div class="field-name">Invitees</div>
+                    <div class="field-value">
+                        <ul class="list-unstyled">
                             {% for invitee in appointment.invitees.all %}
                                 <li>{{ invitee.name }}</li> 
                             {% endfor %}
                         </ul>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    </div>
+                </div>
+                {% for question in appointment.questions.all %}
+                <div class="appointment-detail">
+                    <div class="field-name">{{ question.question.text }}</div>
+                    <div class="field-value">
+                        {% with question.response|parse_list as response %}
+                            {% if response|is_list %}
+                                <ul class="list-unstyled">
+                                    {% for item in response %}
+                                        <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                {{ response }}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
 
-        {% if show_cancel_button %}
+            {% if show_cancel_button %}
             <button id="cancelButton" class="btn btn-danger mt-3" {% if appointment.status == 'CANCELLED' %} disabled {%endif%}>Cancel Appointment</button>
         
             <!-- Modal Definition -->
@@ -101,8 +130,8 @@
                     </div>
                 </div>
             </div>
-                  
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -165,5 +194,5 @@
             });
         });
     });
-    </script>
+</script>
 {% endblock extra_script %}

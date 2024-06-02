@@ -112,6 +112,7 @@ class Event(models.Model):
     active = models.BooleanField(default=False)
     price = models.FloatField(validators=[MinValueValidator(-0.01)])
     handler = models.SlugField(max_length=255, unique=True)
+    
 
     def save(self, *args, **kwargs):
         if not self.handler:
@@ -121,7 +122,35 @@ class Event(models.Model):
     def __str__(this):
         return this.name 
     
+class EventPageOptions(models.Model):
+    event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='event_page_options')
+
+class EventPageQuestion(models.Model):
+    event_page_options = models.ForeignKey(EventPageOptions, on_delete=models.CASCADE, related_name='questions')
+    text = models.CharField(max_length=2000)
+    required = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.text
     
+class EventPageAnswer(models.Model):
+    QUESTION_TYPE_CHOICES = [
+        ('single_line', 'Single Line'),
+        ('multi_line', 'Multiple Lines'),
+        ('checkbox', 'Checkbox'),
+        ('radio', 'Radio Button'),
+        ('dropdown', 'Dropdown')
+    ]
+
+    question = models.ForeignKey(EventPageQuestion, on_delete=models.CASCADE, related_name='answers')
+    answer_type = models.CharField(max_length=50, choices=QUESTION_TYPE_CHOICES)
+    options = models.JSONField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.question.text} - {self.answer_type}"
+
+
 def event_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/events/<event_id>/profile_<filename>
     return f'events/{instance.event.id}/profile_{filename}'
@@ -175,6 +204,14 @@ class Appointment(models.Model):
 
     def __str__(this):
         return f"Appt scheduled"
+    
+class AppointmentQuestionResponse(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='questions')
+    question = models.ForeignKey(EventPageQuestion, on_delete=models.CASCADE)
+    response = models.TextField()
+
+    def __str__(self):
+        return f"{self.question.text}: {self.response}"
 
 class AppointmentCancellation(models.Model):
     appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, related_name='cancellation')
