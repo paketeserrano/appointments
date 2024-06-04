@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{% static 'css/web_home.css' %}">
     <style>
         .hero-image {
-            background-image: url('{{ business_ui.header_image.url }}'); /* Path to your hero image */
+            background-image: url('{{ business_ui.header_image_url }}'); /* Path to your hero image */
             height: 70vh; /* Adjust height as necessary */
             background-position: center;
             background-repeat: no-repeat;
@@ -67,7 +67,7 @@
                     {% if event.ui.is_visible %}
                     <div class="flex justify-center items-center h-screen">
                         <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-service-background fixed-height-card">                            
-                            <img src="{{ event.ui.image.url|default:'/media/events/placeholder.jpg' }}" class="w-full card-image" />
+                            <img src="{{ event.ui.image_url }}" class="w-full card-image" />
                             <div class="text-center card-body">
                                 <div class="px-6 py-2">
                                     <div class="text-xl mb-2 text-center" style="font-weight:900">{{event.name}}</div>
@@ -111,10 +111,10 @@
                 <h2>Our Personnel</h2>
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                {% for worker in business.account_workers.all %}
+                {% for worker in workers %}
                 <div class="flex justify-center items-center h-screen">
                     <div class="max-w-sm rounded overflow-hidden shadow-lg appearance-service-background fixed-height-card">                            
-                        <img src="{{ worker.profile_image.url|default:'/media/user_profiles/placeholder.jpg' }}" class="w-full card-image" />
+                        <img src="{{ worker.profile_image_url }}" class="w-full card-image" />
                         <div class="text-center card-body">
                             <div class="px-6 py-2">
                                 <div class="text-xl mb-2 text-center" style="font-weight:900">{{ worker.user.first_name | capfirst }} {{ worker.user.last_name | capfirst }}</div>

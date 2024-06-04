@@ -59,6 +59,31 @@
                         <label for="lastNameInput" class="form-label">Last Name</label>
                         <input type="text" class="form-control" id="lastNameInput" value="{{ custom_user.user.last_name }}">
                     </div>
+                    <!-- Social Media Inputs -->
+                    <div class="mb-3 half-width">
+                        <label for="facebookInput" class="form-label">
+                            <i class="fab fa-facebook-square"></i> Facebook
+                        </label>
+                        <input type="url" class="form-control" id="facebookInput" value="{{ custom_user.social_media.facebook |default_if_none:'' }}">
+                    </div>
+                    <div class="mb-3 half-width">
+                        <label for="twitterInput" class="form-label">
+                            <i class="fab fa-twitter-square"></i> Twitter
+                        </label>
+                        <input type="url" class="form-control" id="twitterInput" value="{{ custom_user.social_media.twitter |default_if_none:'' }}">
+                    </div>
+                    <div class="mb-3 half-width">
+                        <label for="instagramInput" class="form-label">
+                            <i class="fab fa-instagram-square"></i> Instagram
+                        </label>
+                        <input type="url" class="form-control" id="instagramInput" value="{{ custom_user.social_media.instagram |default_if_none:'' }}">
+                    </div>
+                    <div class="mb-3 half-width">
+                        <label for="tiktokInput" class="form-label">
+                            <i class="fab fa-tiktok"></i> TikTok
+                        </label>
+                        <input type="url" class="form-control" id="tiktokInput" value="{{ custom_user.social_media.tiktok |default_if_none:'' }}">
+                    </div>                    
                 </div>
             </div>
             <!-- Presentation Textarea -->
@@ -283,6 +308,10 @@
             formData.append('last_name', $('#lastNameInput').val());
             formData.append('presentation', $('#presentationTextarea').val());
             formData.append('experience', $('#experienceTextarea').val());
+            formData.append('facebook', $('#facebookInput').val());
+            formData.append('twitter', $('#twitterInput').val());
+            formData.append('instagram', $('#instagramInput').val());
+            formData.append('tiktok', $('#tiktokInput').val());
 
             // Check if a new image is selected
             var profileImageInput = document.getElementById('profileImageInput');

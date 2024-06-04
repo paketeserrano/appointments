@@ -349,6 +349,7 @@ class EventDetailView(EventAccessMixin, View):
         # Update event fields with data from request
         event.name = request.POST.get('name', event.name)
         event.presentation = request.POST.get('presentation', event.presentation)
+        event.notes = request.POST.get('notes', event.notes)
         event.duration = int(request.POST.get('duration', event.duration))
 
         workerIds = json.loads(request.POST.get('worker_ids'))        
@@ -934,6 +935,7 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
     template_name = "appointments/appointment_wizard.html"
     form_list = APPOINTMENT_STEP_FORMS    
     progress_width = 25
+    booking_page_subheading = ''
     initial_dict = { }
     client_appointment = False
     base_template = 'appointments/base.html'
@@ -976,14 +978,17 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         business = Account.objects.get(pk=business_id)
         appearance, created = BusinessAppearance.objects.get_or_create(account_id=business_id)
         appointment_description = 'Select your Appt'
+        notes = ''
         if event_id:
             event = Event.objects.get(id=event_id)
             appointment_description = event.name
+            notes = event.notes
 
         context.update({
             "progress_width": self.progress_width,
             "booking_bg": 'booking_bg.jpg',
             "description": appointment_description,
+            "notes": notes,
             "title": business.name,
             "get_available_time" : time_list,
             "business_id" : business_id,
@@ -991,7 +996,9 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             "worker_id" : worker_id,
             "client_appointment" : self.client_appointment,
             "base_template" : self.base_template,
-            "appearance" : appearance
+            "appearance" : appearance,
+            'booking_page_subheading': self.booking_page_subheading,
+            'booking_page_heading' : self.booking_page_heading
         })
 
         return context
@@ -1064,12 +1071,20 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         
         if self.steps.current == 'Event':
             self.progress_width = 0
+            self.booking_page_heading = 'Events'
+            self.booking_page_subheading = 'Select the event you want.'
         elif self.steps.current == 'Worker':
-            self.progress_width = 25    
+            self.progress_width = 25   
+            self.booking_page_heading = 'Staff'
+            self.booking_page_subheading = 'Select one of our staff members.' 
         elif self.steps.current == 'DateTime':
             self.progress_width = 50    
+            self.booking_page_heading = 'Day and Time'
+            self.booking_page_subheading = 'Select the day and time of your appointment.'
         elif self.steps.current == 'CustomerInfo':
             self.progress_width = 75   
+            self.booking_page_heading = 'Customer Info'
+            self.booking_page_subheading = 'Complete this information.'
         
         context = self.get_context_data(form=form, **kwargs)    
 
@@ -1416,6 +1431,17 @@ class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
         for event in events:
             relative_event_url = reverse('client_appointment_for_event', args=[event.account.handler, event.handler])
             event.event_url = self.request.build_absolute_uri(relative_event_url)
+            if not event.ui.image:
+                event.ui.image_url = static('img/event/placeholder.jpg')
+            else:
+                event.ui.image_url = event.ui.image
+
+        workers = business.account_workers.all()
+        for worker in workers:
+            if not worker.profile_image:
+                worker.profile_image_url = static('img/user_profile/placeholder.jpg')
+            else:
+                worker.profile_image_url = worker.profile_image
 
         context.update({
             'business': business,
@@ -1426,7 +1452,8 @@ class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
             'available_days': WEEKDAYS,
             'gm_key': settings.GM_KP,
             'businesses_configuration': businesses_configuration,
-            'web_url': web_url
+            'web_url': web_url,
+            'workers': workers
         })
 
         return context
@@ -1572,10 +1599,17 @@ class UserProfileView(UserProfileMixin, View):
         user_id = kwargs.get('user_id')
         custom_user = CustomUser.objects.get(user__id=user_id)
         user = custom_user.user
+        social_media = custom_user.social_media
+
         presentation = request.POST.get('presentation')
         experience = request.POST.get('experience')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
+        social_media.facebook = request.POST.get('facebook')
+        social_media.twitter = request.POST.get('twitter')
+        social_media.instagram = request.POST.get('instagram')
+        social_media.tiktok = request.POST.get('tiktok')
+        
         user.first_name = first_name
         user.last_name = last_name
         custom_user.presentation = presentation
@@ -1585,6 +1619,7 @@ class UserProfileView(UserProfileMixin, View):
             custom_user.profile_image.save(profile_image.name, profile_image)
 
         custom_user.save()
+        social_media.save()
         user.save()
         return redirect('user_profile', user_id=user_id)
 
@@ -1597,6 +1632,11 @@ class ServiceView(TemplateView):
         event_handler = kwargs['event_handler']
         event = get_object_or_404(Event, handler=event_handler)
         business = event.account
+
+        if not event.ui.image:
+            event.ui.image_url = static('img/event/placeholder.jpg')
+        else:
+            event.ui.image_url = event.ui.image
 
         context.update({
             'event': event,

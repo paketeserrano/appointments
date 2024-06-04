@@ -33,10 +33,21 @@ class UserWorkImageUpload(models.Model):
     upload_date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to=user_uploads_directory_path)
 
+class UserSocialMedia(models.Model):
+    custom_user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='social_media')
+    facebook = models.URLField(blank=True, null=True)
+    twitter = models.URLField(blank=True, null=True)
+    tiktok = models.URLField(blank=True, null=True)
+    instagram = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return f'Social Media for {self.custom_user.user.username}'
+    
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        CustomUser.objects.create(user=instance)
+        custom_user = CustomUser.objects.create(user=instance)
+        UserSocialMedia.objects.create(custom_user=custom_user)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
@@ -105,6 +116,7 @@ class Invitee(models.Model):
 class Event(models.Model):
     name = models.CharField(max_length = 120)
     presentation = models.CharField(max_length = 200, default='')
+    notes = models.CharField(max_length = 500, default='')
     description = models.CharField(max_length = 2000, default='')
     duration = models.IntegerField(validators=[MinValueValidator(1)])
     event_workers = models.ManyToManyField(CustomUser)

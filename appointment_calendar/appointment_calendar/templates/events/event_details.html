@@ -236,6 +236,18 @@
 
             <div class="form-group">
               <div class="row">
+                <label for="eventNotes" class="col-12 col-md-3 col-form-label">Notes:</label>
+                <div class="col-12 col-md-7">
+                  <textarea type="text" class="form-control-plaintext" readonly id="eventNotes" rows="3" maxlength="500" placeholder="Notes important for the user to know when booking...">{{event.notes}}</textarea>
+                </div>
+                <div class="col-12 col-md-2 text-right">
+                  <button id="edit-eventNotes" class="btn btn-primary btn-sm">Edit</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="row">
                 <label for="duration" class="col-12 col-md-3 col-form-label">Duration (mins):</label>
                 <div class="col-12 col-md-7">
                   <input type="text" readonly class="form-control-plaintext" id="duration" value="{{ event.duration }}">
@@ -1155,6 +1167,7 @@ function savePage(fieldId) {
     var formData = new FormData();
     formData.append('name', $('#name').val());
     formData.append('presentation', $('#presentation').val());
+    formData.append('notes', $('#eventNotes').val());
     formData.append('duration', $('#duration').val());
     formData.append('worker_ids', JSON.stringify(workerIds));
     formData.append('is_visible', $('#is_visible').is(':checked'));
@@ -1169,7 +1182,9 @@ function savePage(fieldId) {
         processData: false,  // Important: tells jQuery not to process the data
         contentType: false,  // Important: tells jQuery not to set contentType
         success: function(response) {
+          console.log('Here 1')
           if (response.success) {
+            console.log('Here 2')
               // Keep the last saved values
               originalImage = $('#imagePreview').attr('src');
               originalVisibility = $('#is_visible').is(':checked');
@@ -1209,6 +1224,14 @@ function revertUI(fieldId, value) {
 function revertUIForAll() {
     // Revert UI for all fields to read-only
     $('input[type="text"]').each(function() {
+        $(this).prop('readonly', true).removeClass('form-control').addClass('form-control-plaintext');
+        var fieldId = $(this).attr('id');
+        $('#edit-' + fieldId).show();
+        $('#save-' + fieldId).remove();
+        $('#cancel-' + fieldId).remove();
+    });
+    console.log('Revertinggggg')
+    $('#eventNotes').each(function() {
         $(this).prop('readonly', true).removeClass('form-control').addClass('form-control-plaintext');
         var fieldId = $(this).attr('id');
         $('#edit-' + fieldId).show();

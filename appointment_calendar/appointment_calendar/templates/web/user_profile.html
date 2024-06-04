@@ -49,7 +49,7 @@
         <div class="col-md-3 p-1 round-corners"> <!-- Half width on medium screens and above -->
             <div class="bg-white shadow-lg rounded-lg p-2 text-center">
                 <div class="profile-image-container">
-                    <img src="{{ custom_user.profile_image.url|default:'/media/user_profile/placeholder.jpg' }}" alt="Profile Picture" class="profile-image">            
+                    <img src="{{ custom_user.profile_image_url }}" alt="Profile Picture" class="profile-image">            
                 </div>
             </div>
         </div>
@@ -58,14 +58,22 @@
                 <h2 class="text-lg font-bold text-center">{{custom_user.user.first_name | capfirst }} {{custom_user.user.last_name | capfirst }}</h2>
             </div>
             <div class="bg-white shadow-lg rounded-lg p-4 section-header section-header-font-color round-corners">
-                <p class="text-zinc-700">{{ custom_user.presentation}}</p>
+                <p class="">{{ custom_user.presentation|linebreaksbr}}</p>
             </div>
             <div class="bg-white shadow-lg rounded-lg p-4 round-corners">
                 <div class="col text-center">
-                    <img src="{% static 'img/tiktok-icon.png' %}" alt="TikTok" class="social-icon mx-2">
-                    <img src="{% static 'img/instagram-icon.png' %}" alt="Instagram" class="social-icon mx-2">
-                    <img src="{% static 'img/youtube-icon.png' %}" alt="YouTube" class="social-icon mx-2">
-                    <img src="{% static 'img/facebook-icon.png' %}" alt="Facebook" class="social-icon mx-2">
+                    <a href="{{ custom_user.social_media.tiktok }}" target="_blank">
+                        <img src="{% static 'img/tiktok-icon.png' %}" alt="TikTok" class="social-icon mx-2">
+                    </a>
+                    <a href="{{ custom_user.social_media.instagram }}" target="_blank">
+                        <img src="{% static 'img/instagram-icon.png' %}" alt="Instagram" class="social-icon mx-2">
+                    </a>
+                    <a href="{{ custom_user.social_media.youtube }}" target="_blank">
+                        <img src="{% static 'img/youtube-icon.png' %}" alt="YouTube" class="social-icon mx-2">
+                    </a>
+                    <a href="{{ custom_user.social_media.facebook }}" target="_blank">
+                        <img src="{% static 'img/facebook-icon.png' %}" alt="Facebook" class="social-icon mx-2">
+                    </a>
                 </div>
             </div>
         </div>
@@ -74,7 +82,7 @@
     <div class="row justify-content-center p-2 round-corners">
         <div class="bg-white shadow-lg rounded-lg p-4 section-header section-header-font-color round-corners">
             <h2 class="text-lg font-bold text-center">Experience</h2>
-            <p class="text-zinc-700">{{custom_user.experience}}</p>
+            <p class="text-zinc-700">{{custom_user.experience|linebreaksbr}}</p>
         </div>
     </div>
 
