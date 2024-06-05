@@ -4,8 +4,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError  
 from django.forms.fields import EmailField  
 from django.forms.forms import Form 
-from .models import Account, Event, Appointment, Invitee, Address, BusinessAppearance, EventPageAnswer, EventPageQuestion
+from .models import Account, Event, Appointment, Invitee, Address, BusinessAppearance, EventPageAnswer, EventPageQuestion, CustomUser
 import json
+from django.utils import timezone
 
 class EventQuestionForm(forms.ModelForm):
     class Meta:
@@ -268,3 +269,34 @@ class BusinessAppearanceForm(forms.ModelForm):
                 if field in cleaned_data and not (cleaned_data[field].startswith('#') and len(cleaned_data[field]) == 7):
                     raise forms.ValidationError(f"{field.replace('_', ' ').capitalize()} must be a valid hex code.")
         return cleaned_data
+    
+class AppointmentSearchForm(forms.Form):
+    start_date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        initial=timezone.now().date()
+    )
+    end_date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        initial=timezone.now().date() + timezone.timedelta(days=30)
+    )
+    user = forms.ModelChoiceField(queryset=CustomUser.objects.none(), widget=forms.Select(attrs={'class': 'form-select'}))
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request', None)
+        super(AppointmentSearchForm, self).__init__(*args, **kwargs)
+        if request:
+            user = request.user.customuser
+            user_ids = set()
+
+            # Get all account workers and admins where the user is an admin
+            for account in Account.objects.filter(admins=user):
+                user_ids.update(account.account_workers.values_list('id', flat=True))
+                user_ids.update(account.admins.values_list('id', flat=True))
+
+            # Include the user itself if they are a worker in some accounts where they are not an admin
+            for account in Account.objects.filter(account_workers=user):
+                user_ids.add(user.id)
+
+            # Get distinct CustomUser objects
+            users = CustomUser.objects.filter(id__in=user_ids).distinct()
+            self.fields['user'].queryset = users

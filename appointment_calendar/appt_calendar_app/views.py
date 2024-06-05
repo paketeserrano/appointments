@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
 from .forms import AppointmentForm, SignUpForm, BusinessAppearanceForm, AppointmentCancelForm, AddressForm, CreateAccountForm, \
                                     CreateEventForm, SelectWorkerForm, SelectEventForm, InactiveEventForm, SelectDateTimeForm, \
-                                    CustomerInformationForm, EventQuestionForm, EventAnswerForm
+                                    CustomerInformationForm, EventQuestionForm, EventAnswerForm, AppointmentSearchForm
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import Appointment, Event, Account, AccountInvitation, BusinessAppearance, Invitee, CustomUser, OpenningTime, \
@@ -35,6 +35,7 @@ from django.contrib.auth import get_user_model
 from .libs import utils
 from django.templatetags.static import static
 from django.forms.models import model_to_dict
+from collections import defaultdict
 
 def user_owns_resource(function):
     @wraps(function)
@@ -1117,8 +1118,17 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             worker_id = data['workers']
 
         # Create the appointment
-        invitee = Invitee(name = data['user_name'], email = data['user_email'], phone_number = data['user_mobile'])
-        invitee.save()
+        invitee, created = Invitee.objects.get_or_create(
+            email=data['user_email'],
+            name=data['user_name'],
+            phone_number=data['user_mobile']
+        )
+
+        if created:
+            print(f"New invitee created: {invitee}")
+        else:
+            print(f"Invitee already exists: {invitee}")
+
         event = Event.objects.get(id = event_id)
         custom_user = CustomUser.objects.get(id = worker_id)
         appointment = Appointment(event = event, date = data['date'], time = data['time'], worker = custom_user, location='Default' )
@@ -1157,53 +1167,7 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             "base_template": self.base_template,
             'appearance': appearance
         })        
-'''
-def appointment(request, business_id, event_id):
-    if request.method == 'POST':
-        form = AppointmentForm(request.POST, business_id = business_id, event_id = event_id)
-        if form.is_valid():
-            print('++++++++++++++++++++++++++++++++')
-            dt = form.cleaned_data['datetime']
-            name = form.cleaned_data['user_name']
-            email = form.cleaned_data['email']
-            workers = form.cleaned_data['workers']
-            print(workers[0])
-            print('----------------------')
-            print(f"user: {name} with email: {email} made an appointment for: {dt}")
 
-            # Create the new appointment in the db
-            event = Event.objects.get(id=event_id)
-            worker = CustomUser.objects.get(id=workers[0])
-            invitee = Invitee.objects.create(name = name, email = email)
-            invitee.save()
-            appt = Appointment(datetime = dt, event = event, worker = worker)
-            appt.save()
-            appt.invitees.add(invitee)
-            
-            # Send emails with smtp
-            send_mail(
-                subject='Your reservation with IMH Studio',
-                message='Thanks for booking with IMH Studio, your appointment is on 12th May 2024',
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=['farrones@yahoo.com']
-            )
-            
-            # Testing send emails with OAuth2
-            #mail_subject = "Test Email"
-            #mail_body = "Hola nen!"
-            #creds = gmail_credentials()
-            #email_recipient = 'farrones@yahoo.com'
-            #mail_content = gmail_compose(mail_subject, email_recipient, mail_body)
-            #gmail_send(creds, mail_content)           
-            
-
-            return HttpResponse('Form successfully submitted') 
-
-    elif request.method == 'GET':
-        form = AppointmentForm(business_id = business_id, event_id = event_id)
-        context = {'form': form}
-        return render(request, 'appointment.html', context)
-'''
 # Personal dashboard for users. It requires the user to be logged in.
 # The response is based on the logged user so they can't access any other info altering the url
 # Returns:
@@ -1940,3 +1904,39 @@ def confirm_invitation(request, token):
     
 def home(request):
     return render(request, 'home/home.html')
+
+@login_required
+def search_appointments(request):
+    form = AppointmentSearchForm(request=request, data=request.GET or None)
+    appointments = defaultdict(list)
+    error_message = None
+    initial_load = True
+    if request.method == 'GET' and 'start_date' in request.GET and 'end_date' in request.GET and 'user' in request.GET:
+        form = AppointmentSearchForm(request=request, data=request.GET or None) 
+        if request.method == 'GET' and form.is_valid():
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+            user = form.cleaned_data['user']
+
+            if (end_date - start_date).days > 60:
+                error_message = "Date range cannot exceed 60 days."
+            else:
+                appointment_queryset = Appointment.objects.filter(
+                    date__range=(start_date, end_date),
+                    worker=user
+                ).select_related('event', 'event__account').order_by('date', 'time')
+
+            for appointment in appointment_queryset:
+                appointments[appointment.date].append(appointment)
+
+            initial_load = False
+        else:
+            error_message = "Invalid form data. Please check your input."
+
+    context = {
+        'form': form,
+        'appointments': dict(appointments),
+        'error_message': error_message,
+        'initial_load': initial_load
+    }
+    return render(request, 'users/search_appointments.html', context)
