@@ -29,7 +29,6 @@ urlpatterns = [
 
     # Dashboard urls
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
-    path("", views.DashboardView.as_view(), name="home"),
 
     # Business admin urls
     path("business/<int:business_id>/", views.ViewBusiness.as_view(show_web=False), name="view_business"),
@@ -78,4 +77,7 @@ urlpatterns = [
     path("web/<str:business_handler>/", views.ViewBusiness.as_view(show_web = True), name='web_business'),    
     path('web/<str:business_handler>/service/<str:event_handler>/', views.ServiceView.as_view(), name='service_view'),
     path('web/<str:business_handler>/user/<int:user_id>/', views.UserProfileView.as_view(show_web = True), name='web_user_profile'),
+
+    # Website home pages
+    path('', views.home, name='home'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

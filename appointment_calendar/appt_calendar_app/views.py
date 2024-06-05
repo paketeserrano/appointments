@@ -1467,8 +1467,16 @@ def add_business_event(request, business_id = -1):
             try:
                 new_event = form.save(commit=False)
                 new_event.account = business
-                event_page_options = EventPageOptions(event=new_event)
                 new_event.save()
+
+                # Create EventPageOptions object
+                event_page_options = EventPageOptions(event=new_event)
+                event_page_options.save()
+                
+                # Create EventUI object
+                event_ui = EventUI(event=new_event)
+                event_ui.save()
+
                 form.save_m2m()
                 return redirect('view_business', business_id = business_id)
             except ValueError as e:  
@@ -1929,3 +1937,6 @@ def confirm_invitation(request, token):
                 return redirect(registration_url)
     except AccountInvitation.DoesNotExist:
         return render(request, 'generic_error.html', {'message': 'Invalid or expired invitation.'})
+    
+def home(request):
+    return render(request, 'home/home.html')
