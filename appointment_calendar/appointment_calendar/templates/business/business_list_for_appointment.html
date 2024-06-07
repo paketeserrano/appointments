@@ -1,6 +1,13 @@
 {% extends 'base2.html' %}
 
 {% block content %}
+<nav aria-label="breadcrumb" class="mobile-margin-top">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Create Appointment</li>
+    </ol>
+  </nav>
+
 <h1>Add Appointment</h1>
 
 {% if accounts %}

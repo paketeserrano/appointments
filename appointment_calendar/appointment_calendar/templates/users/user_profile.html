@@ -23,8 +23,13 @@
       flex-direction: column;
     }
     .half-width {
-      width: 50%;
+      width: 75%;
       margin: 0 auto;
+    }
+    @media (max-width: 768px) {
+        .half-width {
+            width: 100%;
+        }
     }
 </style>
 {% endblock extra_css %}
@@ -42,7 +47,7 @@
             <!-- Profile Picture, Change Button, Name, and Surname -->
             <div class="row align-items-center mb-3">
                 <div class="col-12 col-md-4 centered-profile-image">
-                    <div class="rounded-circle overflow-hidden" style="width: 100px; height: 100px;">
+                    <div class="rounded-circle overflow-hidden" style="width: 200px; height: 200px;">
                         <img src="{{ custom_user.profile_image_url }}" id="profilePicture" class="img-fluid" alt="Profile Picture">
                     </div>
                     <label for="profileImageInput" class="btn btn-primary w-100 mt-3">
@@ -50,7 +55,7 @@
                         <input type="file" id="profileImageInput" class="d-none" accept="image/jpeg, image/png">
                     </label>
                 </div>
-                <div class="col-12 col-md-8 d-flex flex-column align-items-center">
+                <div class="col-12 col-md-8 d-flex flex-column align-items-center mt-3">
                     <div class="mb-3 half-width">
                         <label for="firstNameInput" class="form-label">First Name</label>
                         <input type="text" class="form-control" id="firstNameInput" value="{{ custom_user.user.first_name }}">

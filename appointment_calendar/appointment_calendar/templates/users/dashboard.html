@@ -2,69 +2,6 @@
  
 {% block extra_css %}
 <style> 
-    .card {
-        width: 400px; /* Adjusted width */
-        height: auto; /* Adjust height as necessary */
-        border-radius: 8px;
-        background-image: linear-gradient(to bottom right, #dde6e4, #b7d6b4);
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        color: black;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        margin: 10px; /* Add some margin for spacing between cards */
-    }
-
-    .cards-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: start; 
-    }
-
-    .card-content h2 {
-        margin: 0;
-        font-size: 24px;
-    }
-
-    .card-content p {
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    .card-link {
-        color: #000000;
-        text-decoration: none;
-        font-weight: bold;
-        margin-top: 15px;
-        font-size: 16px;
-    }
-
-    .card-link:hover {
-        text-decoration: underline;
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 550px) {
-        .card {
-            width: 100%;
-            height: auto;
-            padding: 20px;
-        }
-
-        .card-content h2 {
-            font-size: 20px;
-        }
-
-        .card-content p {
-            font-size: 12px;
-        }
-
-        .card-link {
-            font-size: 14px;
-        }
-    }
     .sidebar .btn-schedule {
             width: 60%; /* Make the button 60% of the sidebar width */
             margin-left: 10px; /* Center the button by setting the left margin to 20% */
@@ -86,7 +23,7 @@
         <a href="{% url 'business_list_dropdown' %}" class="btn btn-primary btn-schedule mt-4 mb-3">Schedule Time</a>
     </div>
     {% if appointments %}
-        <div class="accordion" id="userAppointments">
+        <div class="accordion custom-accordion" id="userAppointments">
         {% for date, appt_list in appointments.items %}
         <div class="accordion-item">
             <h2 class="accordion-header">
@@ -119,27 +56,27 @@
         {% endfor %}
         </div>
     {% else %}
-    <div class="cards-container">
+    <div class="rc-cards-container">
         <div class="alert alert-info" role="alert">
             You don't have any appointments scheduled in the next 30 days.
         </div>
     </div>
     {% endif %}
     <div class="mt-3" style="text-align: right;">
-        <a href="{% url 'user_search_appointments' %}" class="btn btn-primary btn-search-appointments">Search Appointments</a>
+        <a href="{% url 'user_appointments' %}" class="btn btn-primary btn-search-appointments">Search Appointments</a>
     </div>
 </div>
 <div class="rc-card">
     <h1>Your Businesses</h1>
 
-    <div class="cards-container">
+    <div class="rc-cards-container">
         {% if accounts %}
             {% for business in accounts %}
-            <div class="card">
-                <div class="card-content">
-                <h2>{{business.name}}</h2>
-                <p>{{business.description}}</p>
-                <a href="{% url 'view_business' business.id %}" class="card-link">View →</a>
+            <div class="rc-resource-card">
+                <div class="rc-card-content">
+                    <h2>{{business.name}}</h2>
+                    <p>{{business.description}}</p>
+                    <a href="{% url 'view_business' business.id %}" class="rc-card-link">View →</a>
                 </div>
             </div>
             {% endfor %}
@@ -150,16 +87,16 @@
         {% endif %}
     </div>
     <div class="mt-3" style="text-align: right;">
-        <a href="{% url 'add_business'%}" class="btn btn-outline-primary" style="border-color: #3182CE; color: #3182CE;">Add Business</a>
+        <a href="{% url 'add_business'%}" class="btn btn-primary">Add Business</a>
     </div>
 </div>
 {% if businesses_user_is_working_for %}
 <div class="rc-card">
     <h1>Working For</h1>
-    <div class="cards-container">
+    <div class="rc-cards-container">
             {% for business in businesses_user_is_working_for %}
-            <div class="card">
-                <div class="card-content">
+            <div class="rc-resource-card">
+                <div class="rc-card-content">
                 <h2>{{business.name}}</h2>
                 <p>{{business.description}}</p>
                 </div>

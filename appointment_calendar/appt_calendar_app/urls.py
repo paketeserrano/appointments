@@ -58,7 +58,7 @@ urlpatterns = [
     path('user_profile/<int:custom_user_id>/upload_photo/', views.upload_custom_user_photo, name='upload_custom_user_photo'),  
     path('user_profile/delete_custom_user_photos/', views.delete_custom_user_photos, name='delete_custom_user_photos'),
     path('user_profile/<int:custom_user_id>/load_more_images/', views.load_more_custom_user_images, name='load_more_custom_user_images'),
-    path('user/search_appointment/', views.search_appointments, name='user_search_appointments'),
+    path('user/appointments/', views.appointments, name='user_appointments'),
     
     # Event admin urls
     path('events/<int:pk>/', views.EventDetailView.as_view(), name='event_detail'),

@@ -1,70 +1,5 @@
 {% extends 'base2.html' %}
 {% block extra_css %}
-<style>  
-    .card {
-        width: 400px; /* Adjusted width */
-        height: auto; /* Adjust height as necessary */
-        border-radius: 8px;
-        background-image: linear-gradient(to bottom right, #dde6e4, #b7d6b4);
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        color: black;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        margin: 10px; /* Add some margin for spacing between cards */
-    }
-
-    .cards-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: start; 
-    }
-
-    .card-content h2 {
-        margin: 0;
-        font-size: 24px;
-    }
-
-    .card-content p {
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    .card-link {
-        color: #000000;
-        text-decoration: none;
-        font-weight: bold;
-        margin-top: 15px;
-        font-size: 16px;
-    }
-
-    .card-link:hover {
-        text-decoration: underline;
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 550px) {
-        .card {
-            width: 100%;
-            height: auto;
-            padding: 20px;
-        }
-
-        .card-content h2 {
-            font-size: 20px;
-        }
-
-        .card-content p {
-            font-size: 12px;
-        }
-
-        .card-link {
-            font-size: 14px;
-        }
-    }
-</style>
 {% endblock extra_css%}
 
 {% block content %}
@@ -75,14 +10,14 @@
 </nav>
 <div class="rc-card">
     <h1>Businesses</h1>
-    <div class="cards-container">
+    <div class="rc-cards-container">
         {% if accounts %}
             {% for account in accounts %}
-            <div class="card">
-                <div class="card-content">
+            <div class="rc-resource-card">
+                <div class="rc-card-content">
                 <h2>{{account.name}}</h2>
                 <p>{{account.description}}</p>
-                <a href="{% url 'view_business' account.id %}" class="card-link">View →</a>
+                <a href="{% url 'view_business' account.id %}" class="rc-card-link">View →</a>
                 </div>
             </div>
             {% endfor %}

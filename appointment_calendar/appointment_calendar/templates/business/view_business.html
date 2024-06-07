@@ -8,10 +8,24 @@
       align-items: center;
       padding: 0.5rem 1rem;
       border-bottom: 1px solid #dee2e6;
+      width: 100%;
+    }
+
+    .table-row span {
+        flex: 1; /* Ensure the span elements take up equal space */
+        text-align: center; /* Center align text for better readability */
     }
 
     .table-row:last-child {
       border-bottom: 0;
+    }
+
+    .table-row input {
+        width: 100%; /* Ensure inputs take the full width */
+    }
+
+    .table-row .dropdown {
+        flex: 0; /* Ensure the dropdown doesn't take up more space than necessary */
     }
 
     .table-button {
@@ -35,7 +49,9 @@
         background-color: white;
         border-radius: 10px;
         padding: 10px;
-        width: 300px; /* Fixed width for the progress bar card */
+        width: 100%; /* Set to 100% to ensure it takes the full width in its container */
+        margin-bottom: 10px;
+        margin-right: 10px;
     }
 
     .progress {
@@ -49,27 +65,15 @@
         transition: width 0.6s ease;
     }
 
-    /* Custom Styling for Responsive Adjustments */
     .profile-progress {
         display: flex;
-        flex-direction: column; /* Stack vertically by default */
-        align-items: flex-start; /* Align items at the start */
+        flex-wrap: wrap; 
+        text-align: center;
     }
 
-    .profile-details {
-        width: 100%; /* Ensure it fills the container */
-    }
-
-    @media (min-width: 768px) {
-        .profile-progress {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        }
-
-        .profile-details {
-        margin-right: 20px; /* Space between text and progress bar */
-        }
+    .profile-details, .dropdown {
+        flex: 1; /* Allow these items to take equal space */
+        margin-bottom: 10px; /* Add space below these items on smaller screens */
     }
 
     .card-title {
@@ -83,7 +87,12 @@
         color: #333;
     }
 
-  </style>
+    @media (min-width: 768px) {
+        .card-custom {
+            width: 48%; /* Set width to 48% to fit two cards per row with some gap */
+        }
+    }
+</style>
 {% endblock extra_css %}
 
 {% block content %}
@@ -98,16 +107,18 @@
         <div class="profile-details">
           <h1>{{ business.name | capfirst }}</h1>
           <p>{{ business.presentation }}</p>
+          <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-cog"></i>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteBusinessModal">Delete Business</a></li>
+              </ul>
+          </div>
         </div>
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-cog"></i>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
-              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteBusinessModal">Delete Business</a></li>
-            </ul>
-        </div>
-        <div class="card card-custom" style="margin: 5px;">
+    </div>
+    <div class="profile-progress" style="justify-content: center;">
+        <div class="card card-custom">
           <div class="card-body">
             <div class="card-title">
               <h5>Business Status</h5>
@@ -119,19 +130,6 @@
             <a href="#" data-bs-toggle="modal" data-bs-target="#actionsModal">Actions</a>
           </div>
         </div>
-        <div class="card card-custom" style="margin: 5px;">
-            <div class="card-body">
-              <div class="card-title">
-                <h5>Business Website</h5>
-              </div>
-              <div class="event-link text-center">
-                <a href="{{web_url}}" class="info-link" id="businessWebsite" aria-disabled="false" target="_blank">
-                  View Business Website           
-                </a>
-                <i class="fas fa-info-circle ms-2" id="infoIcon"  data-bs-toggle="tooltip" data-bs-placement="right" title="The more info you add to your business and events, the better the website will look"></i>
-              </div>
-            </div>
-          </div>
     </div>
 </div>
 <div class="modal fade" id="actionsModal" tabindex="-1" aria-labelledby="actionsModalLabel" aria-hidden="true">
@@ -192,7 +190,7 @@
             {% for event in events %}
             <div class="col">
                 <div class="card h-100 mx-auto" style="border-radius: .75rem; box-shadow: 0 4px 8px rgba(0, 0, 0, .1);">
-                    <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, #C6F6D5);">
+                    <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, teal);">
                         <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{ event.name }}</h5>
                         <p class="card-text" style="color: #718096;">{{ event.duration }} mins</p>
                         <a href="{% url 'event_detail' event.id %}" class="text-primary" style="color: #3182CE;">View event page</a>
@@ -228,8 +226,7 @@
     </div>
 </div>
 
-
-<div class="container-fluid">
+<div class="rc-card container-fluid">
     <div class="row">
         <!-- Business Hours Section -->
         <div class="col-md-6">
@@ -255,12 +252,8 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item delete-hour" href="#">Delete</a></li>
-                                <li><a class="dropdown-item edit-hour" href="#">Edit</a></li>
+                                <li><a class="dropdown-item edit-hour" href="#" data-bs-toggle="modal" data-bs-target="#editBusinessHourModal" data-hour-id="{{ hour.id }}" data-weekday="{{ hour.get_weekday_display }}" data-from-hour="{{ hour.from_hour }}" data-to-hour="{{ hour.to_hour }}">Edit</a></li>
                             </ul>
-                        </div>
-                        <div class="edit-actions d-none">
-                            <button class="btn btn-success commit-hour-edit">Save</button>
-                            <button class="btn btn-danger cancel-hour-edit">Cancel</button>
                         </div>
                     </div>
                     {% endfor %}
@@ -277,7 +270,7 @@
                             <input type="time" id="newFromHour" class="form-control">
                             <input type="time" id="newToHour" class="form-control">
                         </div>
-                        <button id="commitNewHour" class="btn btn-success mt-2">Commit</button>
+                        <button id="commitNewHour" class="btn btn-success mt-2">Add</button>
                         <button id="cancelNewHour" class="btn btn-danger mt-2">Cancel</button>
                     </div>
                 </div>
@@ -286,11 +279,11 @@
         <!-- Days Closed or Holidays Section -->
         <div class="col-md-6">
             <div class="rc-card">
-                <div class="row align-items-center"> <!-- Ensure vertical alignment in the middle -->
-                    <div class="col-auto"> <!-- Use 'col-auto' to only take necessary width -->
+                <div class="row align-items-center">
+                    <div class="col-auto">
                         <h2>Days Closed or Holidays</h2>
                     </div>
-                    <div class="col-auto"> <!-- Use 'col-auto' for the icon to stay close to the text -->
+                    <div class="col-auto">
                         <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
                         data-bs-placement="right" title="Add special days you are closed. Maybe a bank holiday or something unexpected happened"></i>
                     </div>
@@ -298,10 +291,9 @@
                 <div class="container mt-5" id="specialDays">        
                     {% for day in special_days %}
                         <div class="table-row special-day-entry" data-day-id="{{ day.id }}" data-url="{% url 'special_day_update_delete' business.id day.id %}">
-                            <span class="date">{{ day.date }}</span> <!-- Added class="date" -->
-                            <span class="from-hour">{{ day.from_hour }}</span> <!-- Added class="from-hour" -->
-                            <span class="to-hour">{{ day.to_hour }}</span> <!-- Added class="to-hour" -->                
-                            <!-- Dropdown Button -->
+                            <span class="date">{{ day.date }}</span>
+                            <span class="from-hour">{{ day.from_hour }}</span>
+                            <span class="to-hour">{{ day.to_hour }}</span>                
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-ellipsis-v"></i>
@@ -310,11 +302,6 @@
                                     <li><a class="dropdown-item delete-day" href="#">Delete</a></li>
                                     <li><a class="dropdown-item edit-day" href="#">Edit</a></li>
                                 </ul>
-                            </div>
-                            <!-- Edit and Delete Actions -->
-                            <div class="edit-actions d-none">
-                                <button class="btn btn-success commit-edit">Save</button>
-                                <button class="btn btn-danger cancel-edit">Cancel</button>
                             </div>
                         </div>
                     {% endfor %}
@@ -327,15 +314,15 @@
                             <input type="time" id="newDateFromHour" class="form-control">
                             <input type="time" id="newDateToHour" class="form-control">
                         </div>
-                        <button id="commitNewSpecialDay" class="btn btn-success mt-2">Commit</button>
+                        <button id="commitNewSpecialDay" class="btn btn-success mt-2">Add</button>
                         <button id="cancelNewSpecialDay" class="btn btn-danger mt-2">Cancel</button>
                     </div>
                 </div>
-            </div>   
+            </div>            
         </div>
     </div>
 </div>
-<div class="container-fluid">
+<div class="container-fluid rc-card">
     <div class="row">
         <div class="col-md-6">
             <div class="rc-card">
@@ -353,7 +340,7 @@
                     <div class="table-responsive">
                         {% for worker in business.account_workers.all %}
                             <div class="table-row">
-                                <span>{{worker.user.first_name}} {{worker.user.last_name}}</span>
+                                <span style="text-align:unset">{{worker.user.first_name}} {{worker.user.last_name}}</span>
                                 <div class="dropdown">
                                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
@@ -368,7 +355,7 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inviteWorkerModal">Add Worker</button>
                     </div>
                 </div>
@@ -378,19 +365,17 @@
             <div class="rc-card card">
                 <div class="row align-items-center"> <!-- Title row with icon -->
                     <div class="col-auto">
-                        <h2>Website Settings</h2>
+                        <h2>Business Website</h2>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
                         data-bs-placement="right" title="Manage how your website looks"></i>
                     </div>
                 </div>
-                <div class="container mt-5">
                     <div class="row">
                         <!-- Left column for visibility toggle and business description -->
                         <div class="col-md-6">
                             <div class="card-body">
-                                <!-- Toggle Visibility -->
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" id="is_visible" {% if business_ui.is_visible %}checked{% endif %}>
                                     <label class="form-check-label" for="is_visible">Is Visible</label>
@@ -409,6 +394,14 @@
                                         <a href="{% url 'business_appearance' business_id=business.id %}">Website Appearance</a>
                                         <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="Set up your website aooearance"></i>
                                     </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="event-link">
+                                        <a href="{{web_url}}" class="info-link" id="businessWebsite" aria-disabled="false" target="_blank">
+                                          View Business Website           
+                                        </a>
+                                        <i class="fas fa-info-circle ms-2" id="infoIcon"  data-bs-toggle="tooltip" data-bs-placement="right" title="The more info you add to your business and events, the better the website will look"></i>
+                                      </div>
                                 </div>
                             </div>
                         </div>
@@ -432,7 +425,6 @@
                             <button type="button" class="btn btn-secondary" id="cancelSettings">Cancel</button>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
         <div class="col-md-6">            
@@ -490,6 +482,72 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Business Hour Modal -->
+<div class="modal fade" id="editBusinessHourModal" tabindex="-1" aria-labelledby="editBusinessHourModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editBusinessHourModalLabel">Edit Business Hour</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editBusinessHourForm">
+                    <div class="mb-3">
+                        <label for="editWeekday" class="form-label">Weekday</label>
+                        <select class="form-control" id="editWeekday">
+                            {% for available_day in available_days %}
+                                <option value="{{available_day.0}}">{{available_day.1}}</option>
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFromHour" class="form-label">From Hour</label>
+                        <input type="time" id="editFromHour" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editToHour" class="form-label">To Hour</label>
+                        <input type="time" id="editToHour" class="form-control">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="saveEditHour">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editSpecialDayModal" tabindex="-1" aria-labelledby="editSpecialDayModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSpecialDayModalLabel">Edit Special Day</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editSpecialDayForm">
+                    <div class="mb-3">
+                        <label for="editSpecialDayDate" class="form-label">Date</label>
+                        <input type="date" id="editSpecialDayDate" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editSpecialDayFromHour" class="form-label">From Hour</label>
+                        <input type="time" id="editSpecialDayFromHour" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editSpecialDayToHour" class="form-label">To Hour</label>
+                        <input type="time" id="editSpecialDayToHour" class="form-control">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveEditSpecialDay">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div class="modal fade" id="deleteBusinessModal" tabindex="-1" aria-labelledby="deleteBusinessModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -750,68 +808,27 @@ $(document).ready(function() {
       });
     });
 
-    function makeHoursEditable($row) {
-        var weekday = $row.find('.weekday').text().trim();
-        var fromHour = $row.find('.from-hour').text().trim();
-        var toHour = $row.find('.to-hour').text().trim();
-
-        // Store original values
-        $row.data('original', {weekday: weekday, fromHour: fromHour, toHour: toHour});
-
-        weekday_control_html = '<select class="form-control">'
-        for (i = 0; i < available_week_days.length; i++){
-            selected = ''
-            if (available_week_days[i]["label"] == weekday){
-                selected = 'selected'
-            }
-            weekday_control_html += '<option ' + selected + ' value="' + available_week_days[i]["id"] + '">' + available_week_days[i]["label"] + '</option>'
-        }           
-
-        $row.find('.weekday').html(weekday_control_html);
-        $row.find('.from-hour').html('<input type="time" class="form-control" value="' + fromHour + '">');
-        $row.find('.to-hour').html('<input type="time" class="form-control" value="' + toHour + '">');
-
-        // Show Save and Cancel buttons
-        $row.find('.edit-actions').removeClass('d-none');
-        $row.find('.dropdown').addClass('d-none');
-    }
-
-    // Edit business hour
+    // Open edit modal and populate with current data
     $(document).on('click', '.edit-hour', function() {
-        var $row = $(this).closest('.hour-entry');
-        makeHoursEditable($row);
+        var hourId = $(this).data('hour-id');
+        var weekday = $(this).data('weekday');
+        var fromHour = $(this).data('from-hour');
+        var toHour = $(this).data('to-hour');
+
+        $('#editBusinessHourModal').data('hour-id', hourId);
+        $('#editWeekday').val(weekday);
+        $('#editFromHour').val(fromHour);
+        $('#editToHour').val(toHour);
     });
 
-    // Cancel edit
-    $(document).on('click', '.cancel-hour-edit', function() {
-        var $row = $(this).closest('.hour-entry');
-        var original = $row.data('original');
+    // Save changes from the modal
+    $('#saveEditHour').click(function() {
+        var hourId = $('#editBusinessHourModal').data('hour-id');
+        var weekday = $('#editWeekday').val();
+        var fromHour = $('#editFromHour').val();
+        var toHour = $('#editToHour').val();
+        var url = $(`.hour-entry[data-hour-id="${hourId}"]`).data('url');
 
-        // Restore original values
-        $row.find('.weekday').html('<span>' + original.weekday + '</span>');
-        $row.find('.from-hour').html('<span>' + original.fromHour + '</span>');
-        $row.find('.to-hour').html('<span>' + original.toHour + '</span>');
-
-        // Hide Save and Cancel buttons, show dropdown
-        $row.find('.edit-actions').addClass('d-none');
-        $row.find('.dropdown').removeClass('d-none');
-    });
-
-    // Commit edit
-    $(document).on('click', '.commit-hour-edit', function() {
-        var $row = $(this).closest('.hour-entry');
-        var hourId = $row.data('hour-id');
-        var url = $row.data('url');
-        var weekday = $row.find('.weekday select').val();
-        var fromHour = $row.find('.from-hour input').val();
-        var toHour = $row.find('.to-hour input').val();
-
-        console.log('hourId: ' + hourId )
-        console.log('weekday: ' + weekday )
-        console.log('fromHour: ' + fromHour )
-        console.log('toHour: ' + toHour )
-
-        // Post to server
         $.post(url, {
             weekday: weekday,
             from_hour: fromHour,
@@ -821,19 +838,19 @@ $(document).ready(function() {
         }, function(response) {
             if(response.success) {
                 // Update the display
-                weekday_label = weekday
-                for (i = 0; i < available_week_days.length; i++){
-                    if (available_week_days[i]["id"] == weekday){
-                        weekday_label = available_week_days[i]["label"]
+                var $row = $(`.hour-entry[data-hour-id="${hourId}"]`);
+                var weekday_label = weekday;
+                for (var i = 0; i < available_week_days.length; i++) {
+                    if (available_week_days[i]["id"] == weekday) {
+                        weekday_label = available_week_days[i]["label"];
                     }
-                }     
-                $row.find('.weekday').html('<span>' + weekday_label + '</span>');
-                $row.find('.from-hour').html('<span>' + fromHour + '</span>');
-                $row.find('.to-hour').html('<span>' + toHour + '</span>');
+                }
+                $row.find('.weekday').text(weekday_label);
+                $row.find('.from-hour').text(fromHour);
+                $row.find('.to-hour').text(toHour);
 
-                // Hide Save and Cancel buttons, show dropdown
-                $row.find('.edit-actions').addClass('d-none');
-                $row.find('.dropdown').removeClass('d-none');
+                // Close the modal
+                $('#editBusinessHourModal').modal('hide');
             } else {
                 alert("Error updating the business hour.");
             }
@@ -1076,35 +1093,39 @@ $(document).ready(function() {
         }
     });
 
-    // Edit Action
-    $(".edit-day").click(function(e) {
-        e.preventDefault();
+    $(document).on('click', '.edit-day', function() {
         var $row = $(this).closest('.special-day-entry');
-        makeEditable($row);
+        var dayId = $row.data('day-id');
+        var date = $row.find('.date').text().trim();
+        var fromHour = $row.find('.from-hour').text().trim();
+        var toHour = $row.find('.to-hour').text().trim();
+        
+        $('#editSpecialDayDate').val(date);
+        $('#editSpecialDayFromHour').val(fromHour);
+        $('#editSpecialDayToHour').val(toHour);
+        $('#editSpecialDayModal').data('day-id', dayId).modal('show');
     });
 
-    // Confirm Edit Action
-    $(".commit-edit").click(function() {
-        var $row = $(this).closest('.special-day-entry');
+    // Save the changes
+    $('#saveEditSpecialDay').click(function() {
+        var dayId = $('#editSpecialDayModal').data('day-id');
+        var date = $('#editSpecialDayDate').val();
+        var fromHour = $('#editSpecialDayFromHour').val();
+        var toHour = $('#editSpecialDayToHour').val();
+        var $row = $('.special-day-entry[data-day-id="' + dayId + '"]');
         var url = $row.data('url');
-        var newDate = $row.find('input[type="date"]').val();
-        var newFromHour = $row.find('input[type="time"]').first().val();
-        var newToHour = $row.find('input[type="time"]').last().val();
-        var dayId = $row.data('day-id');
         
-        // Placeholder for update endpoint
         $.post(url, {
-            date: newDate, 
-            from_hour: newFromHour, 
-            to_hour: newToHour,
+            date: date,
+            from_hour: fromHour,
+            to_hour: toHour,
             csrfmiddlewaretoken: '{{ csrf_token }}'
         }, function(response) {
-            if(response.success) {
-                $row.find('.date').text(newDate);
-                $row.find('.from-hour').text(newFromHour);
-                $row.find('.to-hour').text(newToHour);
-                $row.find('.edit-actions').addClass('d-none');
-                $row.find('.dropdown').removeClass('d-none');
+            if (response.success) {
+                $row.find('.date').text(date);
+                $row.find('.from-hour').text(fromHour);
+                $row.find('.to-hour').text(toHour);
+                $('#editSpecialDayModal').modal('hide');
             } else {
                 alert("Error updating the special day.");
             }

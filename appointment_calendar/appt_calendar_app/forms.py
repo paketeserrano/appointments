@@ -300,3 +300,4 @@ class AppointmentSearchForm(forms.Form):
             # Get distinct CustomUser objects
             users = CustomUser.objects.filter(id__in=user_ids).distinct()
             self.fields['user'].queryset = users
+            self.fields['user'].initial = user

@@ -1,0 +1,89 @@
+.rc-card {
+    background-color: #ffffff; /* white background */
+    border-radius: 8px; /* rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* subtle shadow */
+    margin-bottom: 5px; /* space outside the card */
+    padding: 5px 5px;
+}
+
+.custom-accordion .accordion-button:not(.collapsed) {
+    --bs-accordion-active-bg: #1E90FF; /* Custom active background color */
+    --bs-accordion-active-color: #fff; /* Custom active text color */
+}
+
+.mobile-margin-top {
+    margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+    .mobile-margin-top {
+        margin-top: 70px;
+    }
+}
+
+.rc-resource-card {
+    width: 400px; /* Adjusted width */
+    height: auto; /* Adjust height as necessary */
+    border-radius: 8px;
+    background-image: linear-gradient(to bottom left, #dde6e4, teal);
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: black;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 10px; /* Add some margin for spacing between cards */
+}
+
+.rc-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start; 
+}
+
+.rc-card-content h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.rc-card-content p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.rc-card-link {
+    color: #000000;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+.rc-card-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Styles */
+@media (max-width: 550px) {
+    .rc-resource-card {
+        width: 100%;
+        height: auto;
+        padding: 20px;
+    }
+
+    .rc-card-content h2 {
+        font-size: 20px;
+    }
+
+    .rc-card-content p {
+        font-size: 12px;
+    }
+
+    .rc-card-link {
+        font-size: 14px;
+    }
+}
+
+
+

@@ -19,130 +19,142 @@
   }
 
   .card-custom {
-        background-color: white;
-        border-radius: 10px;
-        padding: 10px;
-        width: 300px; /* Fixed width for the progress bar card */
-    }
+    background-color: white;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%; 
+    text-align: center;
+  }
 
-    .progress {
-        height: 10px;
-        border-radius: 5px;
-        background-color: #f0f0f0;
+  @media (min-width: 768px) {
+    .card-custom {
+      width: 50%; /* Ensure it takes up 50% on medium and larger screens */
     }
+  }
 
-    .progress-bar {
-        background-color: green;
-        transition: width 0.6s ease;
-    }
+  .progress {
+    height: 10px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+  }
 
-    /* Custom Styling for Responsive Adjustments */
+  .progress-bar {
+    background-color: green;
+    transition: width 0.6s ease;
+  }
+
+  /* Custom Styling for Responsive Adjustments */
+  .profile-progress {
+    display: flex;
+    flex-direction: column; /* Stack vertically by default */
+    align-items: space-between; /* Align items at the start */
+  }
+
+  .profile-details {
+    width: 100%; /* Ensure it fills the container */
+  }
+
+  @media (min-width: 768px) {
     .profile-progress {
-        display: flex;
-        flex-direction: column; /* Stack vertically by default */
-        align-items: flex-start; /* Align items at the start */
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .profile-details {
-        width: 100%; /* Ensure it fills the container */
+      margin-right: 20px; /* Space between text and progress bar */
     }
+  }
 
-    @media (min-width: 768px) {
-        .profile-progress {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        }
+  .card-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-        .profile-details {
-        margin-right: 20px; /* Space between text and progress bar */
-        }
-    }
+  .percentage-label {
+    font-size: 16px;
+    color: #333;
+  }
 
-    .card-title {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+  .event-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items horizontally */
+  }
 
-    .percentage-label {
-        font-size: 16px;
-        color: #333;
-    }
+  .event-info .d-flex {
+    margin-top: 10px; /* Adjust spacing as needed */
+  }
 
-    .event-info {
-      display: flex;
-      flex-direction: column;
-      align-items: center; /* Center items horizontally */
-    }
+  .event-link {
+    margin-top: 10px; /* Space between the event name and the link */
+  }
 
-    .event-link {
-        margin-top: 10px; /* Space between the event name and the link */
-    }
+  .info-link {
+    display: flex;
+    align-items: center; /* Center the icon and text vertically */
+    color: #007bff; /* Bootstrap primary blue for link color, adjust as needed */
+    text-decoration: none; /* Optional: removes underline from links */
+  }
 
-    .info-link {
-        display: flex;
-        align-items: center; /* Center the icon and text vertically */
-        color: #007bff; /* Bootstrap primary blue for link color, adjust as needed */
-        text-decoration: none; /* Optional: removes underline from links */
-    }
+  .info-link i {
+    margin-left: 5px; /* Space between the icon and text */
+  }
 
-    .info-link i {
-        margin-right: 5px; /* Space between the icon and text */
-    }
+  .info-link[aria-disabled="true"] {
+    color: grey;
+    cursor: not-allowed;
+  }
 
-    .info-link[aria-disabled="true"] {
-      color: grey;
-      cursor: not-allowed;
-    }
+  .info-link[aria-disabled="true"] i {
+    color: grey;
+  }
 
-    .info-link[aria-disabled="true"] i {
-      color: grey;
-    }
+  .image-container img {
+    max-height: 200px;
+    border-radius: 15px;
+    border: 2px solid #ccc;
+  }
 
-    .image-container img {
-      max-height: 200px;
-      border-radius: 15px;
-      border: 2px solid #ccc;
-    }
+  .image-container {
+    position: relative;
+    display: inline-block; /* Center image container */
+  }
 
-    .image-container {
-      position: relative;
-      display: inline-block; /* Center image container */
-    }
+  #changeImageButton {
+    width: 100%; /* Button width matches image width */
+  }
 
-    #changeImageButton {
-      width: 100%; /* Button width matches image width */
-    }
+  .form-check {
+    display: flex;
+  }
 
-    .form-check {
-      display: flex;
-    }
+  .toggle-label {
+    white-space: nowrap; /* Ensures the label does not wrap */
+    font-size: 1rem; /* Optionally reduce font size if space is still tight */
+  }
 
-    .toggle-label {
-        white-space: nowrap; /* Ensures the label does not wrap */
-        font-size: 1rem; /* Optionally reduce font size if space is still tight */
-    }
+  /* Increase the size of the toggle switch */
+  .form-check-input.event-toggle {
+    cursor: pointer;
+    transform: scale(1.5); /* Adjust scale as needed */
+    margin-right: 10px; /* Ensure space between toggle and label */
+  }
 
-    /* Increase the size of the toggle switch */
-    .form-check-input.event-toggle {
-        cursor: pointer;
-        transform: scale(1.5); /* Adjust scale as needed */
-        margin-right: 10px; /* Ensure space between toggle and label */
-    }
+  /* Change gear button color to match the theme */
+  #settingsDropdown.btn-secondary {
+    background-color: #007bff; /* Standard Bootstrap primary blue */
+    border-color: #007bff; /* Match border color if needed */
+  }
 
-    /* Change gear button color to match the theme */
-    #settingsDropdown.btn-secondary {
-        background-color: #007bff; /* Standard Bootstrap primary blue */
-        border-color: #007bff; /* Match border color if needed */
-    }
-
-    /* Optional: Change dropdown item text color for visibility */
-    .dropdown-menu .dropdown-item {
-        color: black; /* Adjust based on your design needs */
-    }
+  /* Optional: Change dropdown item text color for visibility */
+  .dropdown-menu .dropdown-item {
+    color: black; /* Adjust based on your design needs */
+  }
 </style>
 {% endblock extra_css %}
+
 
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
@@ -155,27 +167,24 @@
 <div class="rc-card">
   <div class="profile-progress">
     <div class="profile-details">
-      <div class="event-info">
+      <div class="event-info text-center">
         <h1 id="eventName">{{ event.name }}</h1>
-        <div class="row align-items-center justify-content-center">
-          <span class="badge bg-secondary">{{event.account.name}}</span>
-        </div>
-        <div class="row align-items-center justify-content-center">
-          <div class="col-12 col-md-8 d-flex justify-content-center align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-center align-items-center mt-3">
+          <div class="p-2">
             <a href="#" class="info-link" id="shareLink" data-share-url="{{ event_url }}" aria-disabled="false">
               Share Event Link
               <i class="fas fa-copy ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="Copy link to clipboard."></i>
             </a>
-            <i class="fas fa-info-circle ms-2" id="infoIcon" style="display: none;" data-bs-toggle="tooltip" data-bs-placement="right" title="Enable this link by adding at least 1 worker and setting duration above 0 minutes."></i>
           </div>
-          <div class="col-12 col-md-4 d-flex justify-content-center align-items-center">
-            <div class="form-check form-switch me-2">
+          <div class="p-2">
+            <div class="form-check form-switch">
               <input class="form-check-input event-toggle" type="checkbox" id="event-active-toggle" data-event-id="{{ event.id }}" {% if event.active %}checked{% endif %}>
               <label class="form-check-label toggle-label" for="event-active-toggle" style="color: #4299E1;">
                 {% if event.active %} Turn Off {% else %} Turn On {% endif %}
               </label>
             </div>
-            <!-- Dropdown for Gear Icon -->
+          </div>
+          <div class="p-2">
             <div class="dropdown">
               <button class="btn btn-secondary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-cog"></i>
@@ -188,77 +197,62 @@
         </div>
       </div>
     </div>
-    <div class="card card-custom">
-      <div class="card-body">
-        <div class="card-title">
-          <h5>Event Status</h5>
-          <span id='eventConfigurationStatusPercentage' class="percentage-label">{{ event_configuration_status.percentage_completed }}%</span>
+    <div class="d-flex justify-content-center mt-3 w-100">
+      <div class="card card-custom w-md-50 w-sm-100">
+        <div class="card-body">
+          <div class="card-title">
+            <h5>Event Status</h5>
+            <span id='eventConfigurationStatusPercentage' class="percentage-label">{{ event_configuration_status.percentage_completed }}%</span>
+          </div>
+          <div class="progress my-3">
+            <div class="progress-bar" role="progressbar" style="width: {{ event_configuration_status.percentage_completed }}%;" aria-valuenow="{{ event_configuration_status.percentage_completed }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <a href="#" data-bs-toggle="modal" data-bs-target="#actionsModal">Actions</a>
         </div>
-        <div class="progress my-3">
-          <div class="progress-bar" role="progressbar" style="width: {{ event_configuration_status.percentage_completed }}%;" aria-valuenow="{{ event_configuration_status.percentage_completed }}" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <a href="#" data-bs-toggle="modal" data-bs-target="#actionsModal">Actions</a>
       </div>
     </div>
   </div>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid rc-card">
 <div class="row">
   <div class="col-md-6">
     <div class="rc-card">
       <h2>Booking Page Details</h2>
       <div class="container mt-5">
           <div class="event-details"> 
-            <div class="form-group">
-              <div class="row">
-                <label for="name" class="col-12 col-md-3 col-form-label">Name:</label>
-                <div class="col-12 col-md-7">
-                  <input type="text" readonly class="form-control-plaintext" id="name" value="{{ event.name }}">
-                </div>
-                <div class="col-12 col-md-2 text-right">
-                  <button id="edit-name" class="btn btn-primary btn-sm">Edit</button>
-                </div>
+            <div class="form-group mb-3">
+              <label for="name" class="form-label">Name</label>
+              <div class="d-flex">
+                <input type="text" readonly class="form-control me-2" id="name" value="{{ event.name }}">
+                <button id="edit-name" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editNameModal">Edit</button>
               </div>
             </div>
-
-            <div class="form-group">
-              <div class="row">
-                <label for="presentation" class="col-12 col-md-3 col-form-label">Presentation:</label>
-                <div class="col-12 col-md-7">
-                  <input type="text" readonly class="form-control-plaintext" id="presentation" value="{{ event.presentation }}">
-                </div>
-                <div class="col-12 col-md-2 text-right">
-                  <button id="edit-presentation" class="btn btn-primary btn-sm">Edit</button>
-                </div>
+    
+            <div class="form-group mb-3">
+              <label for="presentation" class="form-label">Presentation</label>
+              <div class="d-flex">
+                <input type="text" readonly class="form-control me-2" id="presentation" value="{{ event.presentation }}">
+                <button id="edit-presentation" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPresentationModal">Edit</button>
               </div>
             </div>
-
-            <div class="form-group">
-              <div class="row">
-                <label for="eventNotes" class="col-12 col-md-3 col-form-label">Notes:</label>
-                <div class="col-12 col-md-7">
-                  <textarea type="text" class="form-control-plaintext" readonly id="eventNotes" rows="3" maxlength="500" placeholder="Notes important for the user to know when booking...">{{event.notes}}</textarea>
-                </div>
-                <div class="col-12 col-md-2 text-right">
-                  <button id="edit-eventNotes" class="btn btn-primary btn-sm">Edit</button>
-                </div>
+    
+            <div class="form-group mb-3">
+              <label for="eventNotes" class="form-label">Notes</label>
+              <div class="d-flex">
+                <textarea type="text" class="form-control me-2" readonly id="eventNotes" rows="3" maxlength="500">{{ event.notes }}</textarea>
+                <button id="edit-eventNotes" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editNotesModal">Edit</button>
               </div>
             </div>
-
-            <div class="form-group">
-              <div class="row">
-                <label for="duration" class="col-12 col-md-3 col-form-label">Duration (mins):</label>
-                <div class="col-12 col-md-7">
-                  <input type="text" readonly class="form-control-plaintext" id="duration" value="{{ event.duration }}">
-                </div>
-                <div class="col-12 col-md-2 text-right">
-                  <button id="edit-duration" class="btn btn-primary btn-sm">Edit</button>
-                </div>
+    
+            <div class="form-group mb-3">
+              <label for="duration" class="form-label">Duration (mins)</label>
+              <div class="d-flex">
+                <input type="number" readonly class="form-control me-2" id="duration" value="{{ event.duration }}">
+                <button id="edit-duration" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editDurationModal">Edit</button>
               </div>
             </div>
-          </div>
-          <h3>Event Workers</h3>
+          <h5>Event Workers</h5>
           <ul class="list-group" id="workers-list">
             {% for worker in event.event_workers.all %}
               <li class="list-group-item d-flex justify-content-between align-items-center" id="{{worker.id}}" data-worker-id="{{worker.id}}">
@@ -276,23 +270,10 @@
               </li>
             {% endfor %}
           </ul>
-          <button id="add-new-worker" class="btn btn-primary mt-3">+ Add New</button>        
-          <div id="new-worker-template" class="d-none">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <select class="form-select">
-                <option value="">Select Worker</option>
-                {% for worker in event.account.account_workers.all %}
-                  <option value="{{ worker.id }}">{{ worker.user.first_name }} {{ worker.user.last_name }}</option>
-                {% endfor %}
-              </select>
-              <div>
-                <button class="btn btn-success btn-sm mr-1 btn-save-new-worker">Save</button>
-                <button class="btn btn-secondary btn-sm btn-cancel-new-worker">Cancel</button>
-              </div>
-            </li>
-          </div>
+          <button id="add-new-worker" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addWorkerModal">+ Add New</button>
 
-          <h3>Questions</h3>
+
+          <h5 class="mt-3">Questions</h5>
           <div class="container">            
             <ul class="list-group">
                 {% for question in questions %}
@@ -374,7 +355,7 @@
                 </div>
             </div>
           </div>          
-
+        </div>
       </div>
     </div>
 </div>
@@ -398,7 +379,7 @@
             </label>
             <textarea class="form-control" id="eventDescription" rows="3" maxlength="500" placeholder="Enter event description here...">{{event_ui.description}}</textarea>
           </div>
-          <div class="mt-3 d-flex align-items-center">
+          <div class="mt-3 d-flex align-items-center mb-3">
             <a href="{{ web_url }}" class="info-link" id="businessWebsite" aria-disabled="false" target="_blank">
               View Business Website
             </a>
@@ -430,7 +411,7 @@
 <div class="rc-card">
   <h2>Show Your Work</h2>
   <div class="container mt-5">    
-    <button id="add-photo" class="btn btn-success">Add</button>
+    <button id="add-photo" class="btn btn-primary">Add</button>
     <input type="file" id="photo-upload" accept=".jpg, .jpeg, .png" style="display: none;">
     <button id="delete-photo" class="btn btn-danger" disabled>Delete Selected</button>
     <div class="row photo-row">
@@ -447,6 +428,7 @@
   </div>
 </div>
 </div>
+
 <div class="modal fade" id="actionsModal" tabindex="-1" aria-labelledby="actionsModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -454,7 +436,7 @@
         <h5 class="modal-title" id="actionsModalLabel">Event Actions</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body event-status-body">
           <div class="d-flex align-items-center">
               {% if event_configuration_status.has_presentation %} 
                   <i class="fas fa-check-circle fa-sm text-success"></i>
@@ -513,6 +495,32 @@
     </div>
   </div>
 </div>
+
+<!-- Modal for Adding Worker -->
+<div class="modal fade" id="addWorkerModal" tabindex="-1" aria-labelledby="addWorkerModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addWorkerModalLabel">Add Worker</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <select class="form-select" id="addWorkerSelect">
+          <option value="">Select Worker</option>
+          {% for worker in event.account.account_workers.all %}
+            <option value="{{ worker.id }}">{{ worker.user.first_name }} {{ worker.user.last_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveAddWorker">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- Bootstrap Modal for Confirmation of photo deletion -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -558,6 +566,82 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-danger" id="confirmDeleteEvent">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Editing Name -->
+<div class="modal fade" id="editNameModal" tabindex="-1" aria-labelledby="editNameModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editNameModalLabel">Edit Name</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="modalNameInput" value="{{ event.name }}">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveName">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Editing Presentation -->
+<div class="modal fade" id="editPresentationModal" tabindex="-1" aria-labelledby="editPresentationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPresentationModalLabel">Edit Presentation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="modalPresentationInput" value="{{ event.presentation }}">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="savePresentation">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Editing Notes -->
+<div class="modal fade" id="editNotesModal" tabindex="-1" aria-labelledby="editNotesModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editNotesModalLabel">Edit Notes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <textarea type="text" class="form-control" id="modalNotesInput" rows="3" maxlength="500">{{ event.notes }}</textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveNotes">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Editing Duration -->
+<div class="modal fade" id="editDurationModal" tabindex="-1" aria-labelledby="editDurationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editDurationModalLabel">Edit Duration</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="number" class="form-control" id="modalDurationInput" value="{{ event.duration }}">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveDuration">Save</button>
       </div>
     </div>
   </div>
@@ -614,6 +698,37 @@ $(document).ready(function() {
             $('#infoIcon').show();
         }
     }
+
+    $('#saveName').click(function() {
+        var newName = $('#modalNameInput').val();
+        $('#name').val(newName);
+        $('#editNameModal').modal('hide');
+        savePage('name');
+    });
+
+    // Save Presentation
+    $('#savePresentation').click(function() {
+        var newPresentation = $('#modalPresentationInput').val();
+        $('#presentation').val(newPresentation);
+        $('#editPresentationModal').modal('hide');
+        savePage('presentation');
+    });
+
+    // Save Notes
+    $('#saveNotes').click(function() {
+        var newNotes = $('#modalNotesInput').val();
+        $('#eventNotes').val(newNotes);
+        $('#editNotesModal').modal('hide');
+        savePage('eventNotes');
+    });
+
+    // Save Duration
+    $('#saveDuration').click(function() {
+        var newDuration = $('#modalDurationInput').val();
+        $('#duration').val(newDuration);
+        $('#editDurationModal').modal('hide');
+        savePage('duration');
+    });
 
     // Optional: If there's any interaction that may change the number of workers or duration, bind this function to that event too
     $('#duration').change(enableDisableShareEventLink);
@@ -794,104 +909,67 @@ $(document).ready(function() {
       });
     });
 
-    function getExistingWorkersIds(){
-        return existingWorkerIds = $('#workers-list li').map(function() {
-          return String($(this).data('worker-id'));
-        }).get();
+  // Event handler for 'Save' button click on add worker modal
+  $('#saveAddWorker').click(function() {
+    var workerSelect = $('#addWorkerSelect');
+    var selectedValue = workerSelect.val();
+    var selectedText = workerSelect.find("option:selected").text();
+
+    if (selectedValue) {
+      // Create a new list item with the worker name
+      var newListHtml = `
+        <li class="list-group-item d-flex justify-content-between align-items-center" id="${selectedValue}" data-worker-id="${selectedValue}">
+          ${selectedText}
+          <div class="dropdown">
+            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${selectedValue}" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${selectedValue}">
+              <li><a class="dropdown-item" href="/worker/{{event.account.id}}/${selectedValue}">View User</a></li>
+              <li><a class="dropdown-item remove-worker-from-event" data-worker-id="${selectedValue}" data-remove-url="/events/{{event.id}}/remove_worker/${selectedValue}">Remove worker</a></li>
+            </ul>
+          </div>
+        </li>`;
+
+      // Append the new list item
+      $('#workers-list').append(newListHtml);
+      
+      // Clear the select and close the modal
+      workerSelect.val('');
+      $('#addWorkerModal').modal('hide');
+
+      // Show the 'Add New' button again
+      $('#add-new-worker').show();
+
+      savePage()
+    } else {
+      alert('Please select a worker.');
     }
+  });
+
+  // Event handler for 'Cancel' button click on add worker modal
+  $('#addWorkerModal').on('hidden.bs.modal', function () {
+    $('#addWorkerSelect').val(''); // Clear the select
+  });
   
-    // Event handler for 'Add new' button click
-    $('#add-new-worker').click(function() {
-        var workerSelect = $('#new-worker-template select');
-        workerSelect.empty(); 
-        existingWorkerIds = getExistingWorkersIds();
-        allWorkers.forEach(function(worker) {
-            if (!existingWorkerIds.includes(String(worker.id))) {
-                workerSelect.append($('<option></option>').attr('value', worker.id).text(worker.name));
-            }
-        });
+  function getExistingWorkersIds() {
+    return $('#workers-list li').map(function() {
+        return String($(this).data('worker-id'));
+    }).get();
+}
 
-        // Show the template
-        var newWorkerRow = $('#new-worker-template').clone().removeAttr('id').removeClass('d-none');
-        $(this).before(newWorkerRow);
-        $(this).hide();
-    });
-
-    // Event handler for 'Save' button click on new worker
-    $(document).on('click', '.btn-save-new-worker', function() {
-        // Get the selected worker name and value
-        var workerSelect = $(this).closest('.list-group-item').find('select');
-        var selectedValue = workerSelect.val();
-        var selectedText = workerSelect.find("option:selected").text();
-
-        if (selectedValue) {
-            // Create a new list item with the worker name
-            var newListHtml = `
-                <li class="list-group-item d-flex justify-content-between align-items-center" id="${selectedValue}" data-worker-id="${selectedValue}">
-                    ${selectedText}
-                    <div class="dropdown">
-                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton${selectedValue}" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${selectedValue}">
-                            <li><a class="dropdown-item" href="/worker/{{event.account.id}}/${selectedValue}">View User</a></li>
-                            <li><a class="dropdown-item remove-worker-from-event" data-worker-id="${selectedValue}" data-remove-url="/events/{{event.id}}/remove_worker/${selectedValue}">Remove worker</a></li>
-                        </ul>
-                    </div>
-                </li>`;
-
-            // Append the new list item
-            $('#workers-list').append(newListHtml);
-            
-            // Remove the new worker form row
-            $(this).closest('.list-group-item').remove();
-            
-            // Show the 'Add New' button again
-            $('#add-new-worker').show();
-
-            savePage()
-        } else {
-            alert('Please select a worker.');
+$('#add-new-worker').click(function() {
+    var workerSelect = $('#addWorkerSelect');
+    workerSelect.empty();
+    existingWorkerIds = getExistingWorkersIds();
+    allWorkers.forEach(function(worker) {
+        if (!existingWorkerIds.includes(String(worker.id))) {
+            workerSelect.append($('<option></option>').attr('value', worker.id).text(worker.name));
         }
     });
 
-    // Event handler for 'Cancel' button click
-    $(document).on('click', '.btn-cancel-new-worker', function() {
-        // Remove the form row
-        $(this).closest('.list-group-item').remove();
-        
-        // Show the 'Add New' button again
-        $('#add-new-worker').show();
-    });
-
-    $('button[id^="edit-"]').each(function() {
-        $(this).click(function() {
-            var fieldId = this.id.replace('edit-', '');
-            var $input = $('#' + fieldId);
-            var originalValue = $input.val();
-            $input.prop('readonly', false).removeClass('form-control-plaintext').addClass('form-control');
-
-            $(this).hide();
-
-            var saveBtn = $('<button>', {
-                text: 'Save',
-                class: 'btn btn-success btn-sm',
-                id: 'save-' + fieldId
-            }).click(function() { 
-                savePage(fieldId); 
-            });
-
-            var cancelBtn = $('<button>', {
-                text: 'Cancel',
-                class: 'btn btn-secondary btn-sm ml-2',
-                id: 'cancel-' + fieldId
-            }).click(function() { 
-                cancel(fieldId, originalValue); 
-            });
-
-            $(this).after(cancelBtn).after(saveBtn);
-        });
-    });
+    $('#addWorkerModal').modal('show');
+});
 
     // Event delegation to handle clicks on dynamically added dropdowns
     $(document).on('click', '.dropdown-toggle', function(e) {
@@ -1132,7 +1210,7 @@ $(document).ready(function() {
 });
 
 function updateModal(eventConfigurationStatus) {
-    var modalBody = $('.modal-body');
+    var modalBody = $('.event-status-body');
     modalBody.empty();  // Clear the existing content
 
     var items = [
@@ -1191,7 +1269,6 @@ function savePage(fieldId) {
               originalEventDescription = $('#eventDescription').val()
               $('#eventName').text( $('#name').val() )
               $('#eventConfigurationStatusPercentage').text(response['event_configuration_status']['percentage_completed'])
-              revertUIForAll();
               updateModal(response['event_configuration_status'])
           }
           else{
@@ -1219,25 +1296,6 @@ function revertUI(fieldId, value) {
     $('#edit-' + fieldId).show();
     $('#save-' + fieldId).remove();
     $('#cancel-' + fieldId).remove();
-}
-
-function revertUIForAll() {
-    // Revert UI for all fields to read-only
-    $('input[type="text"]').each(function() {
-        $(this).prop('readonly', true).removeClass('form-control').addClass('form-control-plaintext');
-        var fieldId = $(this).attr('id');
-        $('#edit-' + fieldId).show();
-        $('#save-' + fieldId).remove();
-        $('#cancel-' + fieldId).remove();
-    });
-    console.log('Revertinggggg')
-    $('#eventNotes').each(function() {
-        $(this).prop('readonly', true).removeClass('form-control').addClass('form-control-plaintext');
-        var fieldId = $(this).attr('id');
-        $('#edit-' + fieldId).show();
-        $('#save-' + fieldId).remove();
-        $('#cancel-' + fieldId).remove();
-    });
 }
 
 </script>

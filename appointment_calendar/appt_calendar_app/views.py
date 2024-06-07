@@ -326,7 +326,8 @@ class EventDetailView(EventAccessMixin, View):
         event_configuration_status = EventConfigurationStatus(event)
         relative_event_url = reverse('client_appointment_for_event', args=[event.account.handler, event.handler])
         event_url = request.build_absolute_uri(relative_event_url)
-        relative_web_url = reverse('web_business', args=[event.account.id])
+
+        relative_web_url = reverse('web_business', args=[event.account.handler])
         web_url = self.request.build_absolute_uri(relative_web_url)
         questions = event_page_options.questions.all()
 
@@ -1906,37 +1907,58 @@ def home(request):
     return render(request, 'home/home.html')
 
 @login_required
-def search_appointments(request):
-    form = AppointmentSearchForm(request=request, data=request.GET or None)
-    appointments = defaultdict(list)
+def appointments(request):
+    # Default values for the initial load
+    start_date = timezone.now().date()
+    end_date = timezone.now().date() + timezone.timedelta(days=30)
+    user = request.user.customuser
+
     error_message = None
-    initial_load = True
-    if request.method == 'GET' and 'start_date' in request.GET and 'end_date' in request.GET and 'user' in request.GET:
-        form = AppointmentSearchForm(request=request, data=request.GET or None) 
-        if request.method == 'GET' and form.is_valid():
+    initial_load = False
+
+    if request.method == 'GET':
+        # Check if the form has been submitted
+        if 'start_date' in request.GET and 'end_date' in request.GET and 'user' in request.GET:
+            form = AppointmentSearchForm(request=request, data=request.GET)
+        else:
+            # Use default values if the form is not submitted
+            initial_load = True
+            initial_data = {
+                'start_date': start_date,
+                'end_date': end_date,
+                'user': user.id
+            }
+            form = AppointmentSearchForm(request=request, initial=initial_data)
+
+        if form.is_valid():
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
             user = form.cleaned_data['user']
 
+        if form.is_valid() or initial_load:
             if (end_date - start_date).days > 60:
                 error_message = "Date range cannot exceed 60 days."
+                appointments = defaultdict(list)
             else:
-                appointment_queryset = Appointment.objects.filter(
+                print('Querying results')
+                appointments_query = Appointment.objects.filter(
                     date__range=(start_date, end_date),
                     worker=user
                 ).select_related('event', 'event__account').order_by('date', 'time')
+                print(appointments_query)
+                appointments = defaultdict(list)
+                for appt in appointments_query:
+                    appointments[appt.date].append(appt)
 
-            for appointment in appointment_queryset:
-                appointments[appointment.date].append(appointment)
-
-            initial_load = False
+                print(f'appointments: {appointments}')
         else:
+            print('Form not valid')
+            appointments = defaultdict(list)
             error_message = "Invalid form data. Please check your input."
 
     context = {
         'form': form,
         'appointments': dict(appointments),
         'error_message': error_message,
-        'initial_load': initial_load
     }
-    return render(request, 'users/search_appointments.html', context)
+    return render(request, 'users/appointments.html', context)
