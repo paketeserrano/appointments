@@ -1072,7 +1072,7 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         form = form or self.get_form()        
         
         if self.steps.current == 'Event':
-            self.progress_width = 0
+            self.progress_width = 5
             self.booking_page_heading = 'Events'
             self.booking_page_subheading = 'Select the event you want.'
         elif self.steps.current == 'Worker':

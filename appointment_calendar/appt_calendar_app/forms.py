@@ -72,7 +72,9 @@ class SelectWorkerForm(ChangeInputsStyle):
 
     def __init__(self,*args,**kwargs):
         super(SelectWorkerForm,self).__init__(*args,**kwargs)
-        self.fields['workers'] = forms.ChoiceField(choices=self.create_choices(self.initial['Worker']['event_id']), required=True, widget=forms.Select(attrs={'class': 'form-select form-select-lg'}))
+        self.fields['workers'] = forms.ChoiceField(choices=self.create_choices(self.initial['Worker']['event_id']), 
+                                                   required=True, 
+                                                   widget=forms.Select(attrs={'class': 'form-select form-select-lg', 'style': 'padding-top: 1.5rem;'}))
 
 
     def create_choices(self, event_id):
