@@ -252,6 +252,15 @@
                 <button id="edit-duration" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editDurationModal">Edit</button>
               </div>
             </div>
+
+            <div class="form-group mb-3">
+              <label for="time-slots" class="form-label">Calendar time slots (mins)</label>
+              <div class="d-flex">
+                <input type="number" readonly class="form-control me-2" id="time-slots" value="{{ event.time_slot_duration }}">
+                <button id="edit-time-slots" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editTimeSlotModal">Edit</button>
+              </div>
+            </div>
+
           <h5>Event Workers</h5>
           <ul class="list-group" id="workers-list">
             {% for worker in event.event_workers.all %}
@@ -295,6 +304,62 @@
                 Add New Question
             </button>
           </div>
+
+          <h5 class="mt-3">Locations</h5>
+          <div class="form-group mb-3">
+            <label for="video-conference" class="form-label">Video Conference</label>
+            <i class="fas fa-info-circle" data-bs-toggle="tooltip" title="Leave empty if video conference is not an option. Otherwise, add your favourite online meeting conference link"></i>
+            <div class="d-flex">
+              <input type="text" readonly class="form-control me-2" id="video-conference" value="{{ event.video_conference }}">
+              <button id="edit-video-conference" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editVideoConferenceModal">Edit</button>
+            </div>            
+          </div>
+          <label class="mt-3">Physical Locations</label>
+          <i class="fas fa-info-circle" data-bs-toggle="tooltip" title="We will use your business address on the booking page unless you define here other available locations"></i>
+          <div id="locations-list">
+            {% for location in event.locations.all %}
+            <div class="card mb-2">
+              <div class="card-body">
+                <p class="card-text">{{ location.address }}, {{ location.city }}, {{ location.province }}, {{ location.country }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <button id="add-new-location" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addLocationModal">+ Add New Location</button>
+
+          <div class="modal fade" id="addLocationModal" tabindex="-1" aria-labelledby="addLocationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addLocationModalLabel">Add New Location</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group mb-3">
+                    <label for="modalAddress">Address:</label>
+                    <input type="text" class="form-control" id="modalAddress" name="address" placeholder="Enter address">
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="modalCity">City:</label>
+                    <input type="text" class="form-control" id="modalCity" name="city" placeholder="Enter city">
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="modalProvince">Province:</label>
+                    <input type="text" class="form-control" id="modalProvince" name="province" placeholder="Enter province">
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="modalCountry">Country:</label>
+                    <input type="text" class="form-control" id="modalCountry" name="country" placeholder="Enter country">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary" id="saveLocationButton">Add Location</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
 
           <div class="modal fade" id="addQuestionModal" tabindex="-1" role="dialog" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -377,7 +442,7 @@
                 Event Description
                 <i class="fas fa-info-circle" data-bs-toggle="tooltip" title="Provide a detailed description of your event. This will show on your event page on the website"></i>
             </label>
-            <textarea class="form-control" id="eventDescription" rows="3" maxlength="500" placeholder="Enter event description here...">{{event_ui.description}}</textarea>
+            <textarea class="form-control" id="eventDescription" rows="6" maxlength="500" placeholder="Enter event description here...">{{event_ui.description}}</textarea>
           </div>
           <div class="mt-3 d-flex align-items-center mb-3">
             <a href="{{ web_url }}" class="info-link" id="businessWebsite" aria-disabled="false" target="_blank">
@@ -578,13 +643,32 @@
       <div class="modal-header">
         <h5 class="modal-title" id="editNameModalLabel">Edit Name</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
+      </div>Address
       <div class="modal-body">
         <input type="text" class="form-control" id="modalNameInput" value="{{ event.name }}">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-primary" id="saveName">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Editing Name -->
+<div class="modal fade" id="editVideoConferenceModal" tabindex="-1" aria-labelledby="editVideoConferenceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editVideoConferenceModalLabel">Edit Video Conference</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="modalVideoConferenceInput" value="{{ event.video_conference }}">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelAddressButton" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveVideoConference">Save</button>
       </div>
     </div>
   </div>
@@ -647,6 +731,24 @@
   </div>
 </div>
 
+<!-- Modal for Editing Duration -->
+<div class="modal fade" id="editTimeSlotModal" tabindex="-1" aria-labelledby="editTimeSlotModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editTimeSlotModalModalLabel">Edit Calendar Time Slots</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="number" class="form-control" id="modalTimeSlotInput" value="{{ event.time_slot_duration }}">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveTimeSlot">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 
@@ -728,6 +830,79 @@ $(document).ready(function() {
         $('#duration').val(newDuration);
         $('#editDurationModal').modal('hide');
         savePage('duration');
+    }); 
+
+    // Save Time Slots
+    $('#saveTimeSlot').click(function() {
+        var newTimeSlow = $('#modalTimeSlotInput').val();
+        $('#time-slots').val(newTimeSlow);
+        $('#editTimeSlotModal').modal('hide');
+        savePage('time-slots');
+    });
+
+    $('#saveVideoConference').click(function() {
+        var newName = $('#modalVideoConferenceInput').val();
+        $('#video-conference').val(newName);
+        $('#editVideoConferenceModal').modal('hide');
+        savePage('video-conference');
+    });
+
+    // Event handler for 'Save' button click on add location modal
+    $('#saveLocationButton').click(function() {
+      var address = $('#modalAddress').val();
+      var city = $('#modalCity').val();
+      var province = $('#modalProvince').val();
+      var country = $('#modalCountry').val();
+
+      if (address && city && province && country) {
+        var newLocationHtml = `
+          <div class="card mb-2">
+            <div class="card-body">
+              <p class="card-text">${address}, ${city}, ${province}, ${country}</p>
+            </div>
+          </div>`;
+
+        $('#locations-list').append(newLocationHtml);
+        
+        // Post the new location to the server
+        $.ajax({
+          url: '{% url "add_event_location" event.id %}',
+          type: 'POST',
+          data: {
+            'address': address,
+            'city': city,
+            'province': province,
+            'country': country,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+          },
+          success: function(response) {
+            if (response.success) {
+              alert('Location added successfully!');
+              $('#addLocationModal').modal('hide');
+              $('#modalAddress').val('');
+              $('#modalCity').val('');
+              $('#modalProvince').val('');
+              $('#modalCountry').val('');
+            } else {
+              alert('Error adding location. Please try again.');
+            }
+          },
+          error: function() {
+            alert('Server error, please try again later.');
+          }
+        });
+
+      } else {
+        alert('Please fill out all fields.');
+      }
+    });
+
+    // Event handler for 'Cancel' button click on add location modal
+    $('#cancelAddressButton').click(function() {
+      $('#modalAddress').val('');
+      $('#modalCity').val('');
+      $('#modalProvince').val('');
+      $('#modalCountry').val('');
     });
 
     // Optional: If there's any interaction that may change the number of workers or duration, bind this function to that event too
@@ -1247,6 +1422,7 @@ function savePage(fieldId) {
     formData.append('presentation', $('#presentation').val());
     formData.append('notes', $('#eventNotes').val());
     formData.append('duration', $('#duration').val());
+    formData.append('time-slots', $('#time-slots').val());
     formData.append('worker_ids', JSON.stringify(workerIds));
     formData.append('is_visible', $('#is_visible').is(':checked'));
     formData.append('image', $('#eventImage')[0].files[0]);  // Assumes there is a file selected

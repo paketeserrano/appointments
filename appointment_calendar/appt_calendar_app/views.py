@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from .models import Appointment, Event, Account, AccountInvitation, BusinessAppearance, Invitee, CustomUser, OpenningTime, \
                     BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI, UserWorkImageUpload, AppointmentCancellation, \
-                    EventPageOptions, AppointmentQuestionResponse, EventPageQuestion
+                    EventPageOptions, AppointmentQuestionResponse, EventPageQuestion, Address
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core import serializers
@@ -191,6 +191,29 @@ def delete_business(request, business_id):
         return JsonResponse({'message': 'Business deleted successfully'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+@user_is_event_admin
+def add_event_location(request, event_id):
+    if request.method == 'POST':
+        address = request.POST.get('address')
+        city = request.POST.get('city')
+        province = request.POST.get('province')
+        country = request.POST.get('country')
+        
+        if address and city and province and country:
+            new_address = Address.objects.create(
+                address=address,
+                city=city,
+                province=province,
+                country=country
+            )
+            event = Event.objects.get(pk=event_id)
+            event.locations.add(new_address)
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'message': 'All fields are required.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
 @user_is_event_admin
 def update_event_status(request):
@@ -353,6 +376,7 @@ class EventDetailView(EventAccessMixin, View):
         event.presentation = request.POST.get('presentation', event.presentation)
         event.notes = request.POST.get('notes', event.notes)
         event.duration = int(request.POST.get('duration', event.duration))
+        event.time_slot_duration = int(request.POST.get('time-slots', event.time_slot_duration))
 
         workerIds = json.loads(request.POST.get('worker_ids'))        
         workers = CustomUser.objects.filter(pk__in=workerIds)
@@ -671,13 +695,13 @@ def generate_time_slots(start_time, end_time, duration):
 def build_available_time_slots(business_id, event_id, worker_id, date_str):
     print(f'-------------> In build_available_time_slots. business_id: {business_id}, event_id:{event_id}, worker_id:{worker_id}, date_str:{date_str}')
     # Get the business info
-    account = Account.objects.get(id=business_id)
-    time_slot_duration = account.time_slot_duration
+    account = Account.objects.get(id=business_id)    
 
     # Get the event duration
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
     event = Event.objects.get(id=event_id)
     event_duration = event.duration
+    time_slot_duration = event.time_slot_duration
 
     # Get the account opening hours   
     opening_hours_list = OpenningTime.objects.filter(account=business_id, weekday=str(date.weekday()))

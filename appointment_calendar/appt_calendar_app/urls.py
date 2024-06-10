@@ -73,6 +73,7 @@ urlpatterns = [
     path('update-event-status/', views.update_event_status, name='update-event-status'),
     path('toggle-event-active/', views.toggle_event_active, name='toggle_event_active'),
     path('events/<int:event_id>/remove_worker/<int:user_id>', views.event_remove_worker, name='event_remove_worker'),
+    path('event/<int:event_id>/add_location/', views.add_event_location, name='add_event_location'),
 
     # Business Web pages section urls
     path("web/<str:business_handler>/", views.ViewBusiness.as_view(show_web = True), name='web_business'),    

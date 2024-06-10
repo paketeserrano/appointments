@@ -124,7 +124,9 @@ class Event(models.Model):
     active = models.BooleanField(default=False)
     price = models.FloatField(validators=[MinValueValidator(-0.01)])
     handler = models.SlugField(max_length=255, unique=True)
-    
+    locations = models.ManyToManyField(Address, related_name='events')   
+    time_slot_duration = models.IntegerField(default=30)
+    video_conference = models.URLField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.handler:
@@ -210,7 +212,8 @@ class Appointment(models.Model):
     date = models.DateField()
     time = models.TimeField()
     event = models.ForeignKey(Event, on_delete = models.CASCADE)
-    location = models.CharField(max_length = 120)
+    location = models.ForeignKey('Address', on_delete=models.CASCADE, related_name='appointments', null=True)
+    video_conference = models.URLField(blank=True, null=True)
     worker = models.ForeignKey(CustomUser, on_delete = models.CASCADE) # NOTE: on_delete should change to something else because if we delete a worker, the appointment should be kept
     status = models.CharField(max_length = 40, choices = APPOINTMENT_STATUS, default='ACTIVE')    
 
