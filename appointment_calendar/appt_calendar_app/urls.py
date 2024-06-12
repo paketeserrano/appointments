@@ -59,6 +59,10 @@ urlpatterns = [
     path('user_profile/delete_custom_user_photos/', views.delete_custom_user_photos, name='delete_custom_user_photos'),
     path('user_profile/<int:custom_user_id>/load_more_images/', views.load_more_custom_user_images, name='load_more_custom_user_images'),
     path('user/appointments/', views.appointments, name='user_appointments'),
+
+    # Invitees urls
+    path('search_clients/', views.search_invitees, name='search_invitees'),
+    path('clients/<int:invitee_id>/', views.invitee_detail_view, name='invitee_detail'),
     
     # Event admin urls
     path('events/<int:pk>/', views.EventDetailView.as_view(), name='event_detail'),
@@ -74,6 +78,9 @@ urlpatterns = [
     path('toggle-event-active/', views.toggle_event_active, name='toggle_event_active'),
     path('events/<int:event_id>/remove_worker/<int:user_id>', views.event_remove_worker, name='event_remove_worker'),
     path('event/<int:event_id>/add_location/', views.add_event_location, name='add_event_location'),
+    path('event/<int:event_id>/location/<int:location_id>/', views.get_event_location, name='get_event_location'),
+    path('event/<int:event_id>/edit_location/<int:location_id>/', views.edit_event_location, name='edit_event_location'),
+    path('event/<int:event_id>/remove_location/<int:location_id>/', views.remove_event_location, name='remove_event_location'),
 
     # Business Web pages section urls
     path("web/<str:business_handler>/", views.ViewBusiness.as_view(show_web = True), name='web_business'),    

@@ -59,6 +59,9 @@ class Address(models.Model):
     province = models.CharField(max_length=50)
     country = models.CharField(max_length=50)
 
+    def __str__(this):
+        return f'{this.address}, {this.city}, {this.province}, {this.country}' 
+    
 class Account(models.Model):
     admins = models.ManyToManyField(CustomUser, related_name='account_admins_set')
     name = models.CharField(max_length = 120)
@@ -109,6 +112,7 @@ class Invitee(models.Model):
     email = models.EmailField(max_length = 240)
     name = models.CharField(max_length = 120)
     phone_number = models.CharField(max_length = 15, blank=True, null=True)
+    accounts = models.ManyToManyField('Account', related_name='invitees')
 
     def __str__(this):
         return this.name

@@ -93,9 +93,40 @@ class InactiveEventForm(ChangeInputsStyle):
         self.fields['info'] = forms.CharField(widget=forms.HiddenInput(), required=False, initial="This event is currently not available.")
 
 class SelectDateTimeForm(ChangeInputsStyle):
+    location = forms.ChoiceField(required=True, choices=[])
     date = forms.DateField(required=True)
-    time = forms.TimeField(widget=forms.HiddenInput())
+    time = forms.TimeField(widget=forms.HiddenInput())    
+    
+    def __init__(self, *args, **kwargs):        
+        event = kwargs.pop('event', None)
+        location_choices = []        
+        super(SelectDateTimeForm, self).__init__(*args, **kwargs)        
 
+        if event:
+            location_choices = [(location.id, str(location)) for location in event.locations.all()]
+            if event.video_conference:
+                location_choices.append(('video_conference', 'Video Conference'))
+
+            # If the event has no locations, try to use the business address
+            # Otherwise just choose the business name
+            if not location_choices:
+                if event.account.address:
+                    location_choices.append((event.account.address.id, str(event.account.address)))
+                else:
+                    location_choices.append((event.account.name, event.account.name))
+                                        
+            self.fields['location'].choices = location_choices
+
+        # Ensure the date field retains its attributes
+        # For some reason the html id for this element is not kept when calling super(). I think it is because
+        # super creates different id names
+        self.fields['date'].widget.attrs.update({'id': 'id_DateTime-date'}) 
+        self.fields['time'].widget.attrs.update({'id': 'id_DateTime-time'})
+
+        # Debugging prints after modification
+        print("Fields after modification:", self.fields)
+        print("ID of date field after modification:", self.fields['date'].widget.attrs.get('id'))
+    
 class CustomerInformationForm(ChangeInputsStyle):
     user_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'class': 'form-control'}))
     user_email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
@@ -176,6 +207,38 @@ class AppointmentForm(forms.Form):
     datetime = forms.DateTimeField(widget = DateTimeInput())
     email = forms.EmailField(label='Email', max_length = 254)
     user_name = forms.CharField(label='Name', max_length='120') 
+
+class InviteeSearchForm(forms.Form):
+    account = forms.ModelChoiceField(
+        queryset=Account.objects.none(), 
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    name = forms.CharField(
+        max_length=120, 
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter name'}))
+    
+    email = forms.EmailField(
+        max_length=240, 
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter email'}))
+    
+    phone_number = forms.CharField(
+        max_length=15, 
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'}))
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            accounts = Account.objects.filter(admins=user.customuser)
+            self.fields['account'].queryset = accounts
+            if accounts.count() > 1:
+                self.fields['account'].empty_label = "All"
+            else:
+                self.fields['account'].empty_label = None 
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')

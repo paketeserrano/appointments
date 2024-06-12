@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
 from .forms import AppointmentForm, SignUpForm, BusinessAppearanceForm, AppointmentCancelForm, AddressForm, CreateAccountForm, \
                                     CreateEventForm, SelectWorkerForm, SelectEventForm, InactiveEventForm, SelectDateTimeForm, \
-                                    CustomerInformationForm, EventQuestionForm, EventAnswerForm, AppointmentSearchForm
+                                    CustomerInformationForm, EventQuestionForm, EventAnswerForm, AppointmentSearchForm, \
+                                    InviteeSearchForm
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import Appointment, Event, Account, AccountInvitation, BusinessAppearance, Invitee, CustomUser, OpenningTime, \
@@ -36,6 +37,7 @@ from .libs import utils
 from django.templatetags.static import static
 from django.forms.models import model_to_dict
 from collections import defaultdict
+from django.core.paginator import Paginator
 
 def user_owns_resource(function):
     @wraps(function)
@@ -191,7 +193,41 @@ def delete_business(request, business_id):
         return JsonResponse({'message': 'Business deleted successfully'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+@user_is_event_admin
+def get_event_location(request, event_id, location_id):
+    location = get_object_or_404(Address, pk=location_id, events__id = event_id)
+    return JsonResponse({
+        'success': True,
+        'data': {
+            'id': location.id,
+            'address': location.address,
+            'city': location.city,
+            'province': location.province,
+            'country': location.country
+        }
+    })
+
+@user_is_event_admin
+def edit_event_location(request, event_id, location_id):
+    if request.method == 'POST':
+        location = get_object_or_404(Address, pk=location_id, events__id = event_id)
+        location.address = request.POST.get('address')
+        location.city = request.POST.get('city')
+        location.province = request.POST.get('province')
+        location.country = request.POST.get('country')
+        location.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+@user_is_event_admin
+def remove_event_location(request, event_id, location_id):
+    if request.method == 'POST':
+        location = get_object_or_404(Address, pk=location_id, events__id = event_id)
+        location.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
 @user_is_event_admin
 def add_event_location(request, event_id):
     if request.method == 'POST':
@@ -209,7 +245,7 @@ def add_event_location(request, event_id):
             )
             event = Event.objects.get(pk=event_id)
             event.locations.add(new_address)
-            return JsonResponse({'success': True})
+            return JsonResponse({'success': True, 'id': event.id, 'location_id': new_address.id})
         else:
             return JsonResponse({'success': False, 'message': 'All fields are required.'})
 
@@ -376,6 +412,7 @@ class EventDetailView(EventAccessMixin, View):
         event.presentation = request.POST.get('presentation', event.presentation)
         event.notes = request.POST.get('notes', event.notes)
         event.duration = int(request.POST.get('duration', event.duration))
+        event.video_conference = request.POST.get('video-conference', event.video_conference)
         event.time_slot_duration = int(request.POST.get('time-slots', event.time_slot_duration))
 
         workerIds = json.loads(request.POST.get('worker_ids'))        
@@ -965,7 +1002,6 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
     initial_dict = { }
     client_appointment = False
     base_template = 'appointments/base.html'
-    print('---------------------------////////////////////)))))))))))))))))))))))))))))))')
 
     def get_context_data(self, form, **kwargs):    
         print('-------------------- get_context_data')    
@@ -986,15 +1022,12 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         worker_id = None
         if 'Event' in self.initial_dict:
             business_id = self.initial_dict['Event'].get('business_id')
-            print('----------------- business_id: ' + str(business_id))
 
         if 'Worker' in self.initial_dict:
             event_id = self.initial_dict['Worker'].get('event_id')
-            print('----------------- event_id: ' + str(event_id))
 
         if 'DateTime' in self.initial_dict:
             worker_id = self.initial_dict['DateTime'].get('worker_id')
-            print('----------------- worker_id: ' + str(worker_id))
         
         if business_id != None and event_id != None and worker_id != None:
             today = datetime.today().strftime('%Y-%m-%d')
@@ -1030,18 +1063,26 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         return context
     
     def get_form(self, step=None, data=None, files=None):
-        print('---------------------------////////////////////')
         form = super().get_form(step, data, files)
         step = step or self.steps.current
-        print('-----------> In get_form')
+        print('--------------- IN GET_FORM: step ' + step)
         if 'event_handler' in self.kwargs:
+            print('----------------- INSIDE EVENT_HANDLER')
             event_handler = self.kwargs['event_handler']
-            event = get_object_or_404(Event, handler=event_handler)
-            event_id = event.id                
+            event = get_object_or_404(Event, handler=event_handler)             
             if not event.active:
                 return InactiveEventForm()
             elif step == 'CustomerInfo':
                 form = CustomerInformationForm(data=data, event=event)
+        elif step == 'DateTime':
+            print('IN SELECT DATETIME FORM')
+            if 'event_handler' in self.kwargs:
+                event_handler = self.kwargs['event_handler']
+                event = get_object_or_404(Event, handler=event_handler)
+            else:
+                event_id = self.initial_dict['Worker'].get('event_id')
+                event = get_object_or_404(Event, id=event_id)
+            form = SelectDateTimeForm(data=data, event=event)
             
         return form
                     
@@ -1050,7 +1091,6 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         # Only business_id info -> Complete wizard: Select Event, Worker, Time and User Info
         # business_id and event_id -> Select Worker, Time and Info
         # business_id, event_id and worker_id selected -> Select Time and Info
-        print('---------------------------////////////////////')
         business_handler = self.kwargs['business_handler']
         business = get_object_or_404(Account, handler=business_handler)
         business_id = business.id
@@ -1092,7 +1132,6 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         return self.initial_dict
 
     def render(self, form=None, **kwargs):    
-        print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
         form = form or self.get_form()        
         
         if self.steps.current == 'Event':
@@ -1105,8 +1144,8 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             self.booking_page_subheading = 'Select one of our staff members.' 
         elif self.steps.current == 'DateTime':
             self.progress_width = 50    
-            self.booking_page_heading = 'Day and Time'
-            self.booking_page_subheading = 'Select the day and time of your appointment.'
+            self.booking_page_heading = 'Location, Day and Time'
+            self.booking_page_subheading = 'Select the location, day and time of your appointment.'
         elif self.steps.current == 'CustomerInfo':
             self.progress_width = 75   
             self.booking_page_heading = 'Customer Info'
@@ -1143,20 +1182,51 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
             worker_id = data['workers']
 
         # Create the appointment
-        invitee, created = Invitee.objects.get_or_create(
-            email=data['user_email'],
-            name=data['user_name'],
-            phone_number=data['user_mobile']
-        )
+        event = Event.objects.get(id=event_id)
+        account = Account.objects.get(pk=event.account.id)
 
-        if created:
-            print(f"New invitee created: {invitee}")
+        # Get or Create invitee
+        # Check if there is an invitee with the given email for this account
+        existing_invitee = Invitee.objects.filter(email=data['user_email'], accounts=account).first()
+
+        if existing_invitee:
+            invitee = existing_invitee
+            # Update with the latest information
+            invitee.name = data['user_name']
+            user_mobile = data.get('user_mobile')
+
+            if user_mobile:  # Only update if user_mobile is not empty or None
+                invitee.phone_number = user_mobile
+
+            invitee.save()
+            created = False
         else:
-            print(f"Invitee already exists: {invitee}")
+            # Create the invitee and associate with the account
+            invitee = Invitee.objects.create(
+                email=data['user_email'],
+                name=data['user_name'],
+                phone_number=data.get('user_mobile', '')
+            )
+            invitee.accounts.add(account)
+            created = True
 
-        event = Event.objects.get(id = event_id)
-        custom_user = CustomUser.objects.get(id = worker_id)
-        appointment = Appointment(event = event, date = data['date'], time = data['time'], worker = custom_user, location='Default' )
+        custom_user = CustomUser.objects.get(id=worker_id)
+        location = data.get('location')
+        if location == 'video_conference':
+            video_conference = event.video_conference
+            location = None
+        else:
+            location = Address.objects.get(id=location)
+            video_conference = None
+        
+        appointment = Appointment(
+            event=event, 
+            date=data['date'], 
+            time=data['time'], 
+            worker=custom_user, 
+            location=location,
+            video_conference=video_conference
+        )
         appointment.save()
         appointment.invitees.add(invitee)
         appointmentCancellation = AppointmentCancellation(appointment=appointment)
@@ -1986,3 +2056,55 @@ def appointments(request):
         'error_message': error_message,
     }
     return render(request, 'users/appointments.html', context)
+
+#TODO: Add access control!!!
+def search_invitees(request):
+    form = InviteeSearchForm(request.GET or None, user=request.user)
+    invitees = Invitee.objects.none()
+
+    if request.method == 'GET' and form.is_valid():
+        account = form.cleaned_data.get('account')
+        name = form.cleaned_data.get('name')
+        email = form.cleaned_data.get('email')
+        phone_number = form.cleaned_data.get('phone_number')
+
+        invitees = Invitee.objects.all()
+
+        if account:
+            invitees = invitees.filter(accounts=account)
+        else:
+            # Include all accounts where the user is an admin if 'All' is selected.
+            # All string does not render as an account so that is way it is none
+            accounts = Account.objects.filter(admins=request.user.customuser)
+            invitees = invitees.filter(accounts__in=accounts)
+        if name:
+            invitees = invitees.filter(name__icontains=name)
+        if email:
+            invitees = invitees.filter(email__icontains=email)
+        if phone_number:
+            invitees = invitees.filter(phone_number__icontains=phone_number)
+
+        invitees = invitees.distinct()
+
+    paginator = Paginator(invitees, 9)  # Show 10 invitees per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'invitee/search_invitees.html', {
+        'form': form,
+        'invitees': page_obj,
+    })
+
+def invitee_detail_view(request, invitee_id):
+    invitee = get_object_or_404(Invitee, id=invitee_id)
+    appointments = Appointment.objects.filter(invitees=invitee, worker=request.user.customuser).order_by('-date')
+
+    paginator = Paginator(appointments, 10)  # Show 10 appointments per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'invitee': invitee,
+        'page_obj': page_obj,
+    }
+    return render(request, 'invitee/invitee_detail.html', context)

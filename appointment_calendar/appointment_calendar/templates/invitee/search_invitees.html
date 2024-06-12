@@ -1,0 +1,214 @@
+{% extends 'base2.html' %}
+
+{% block extra_css %}
+<style>
+    .card {
+        width: 400px;
+        height: auto;
+        border-radius: 8px;
+        background-color: teal;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        color: white;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        margin: 10px;
+    }
+
+    .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: start;
+    }
+
+    .error-message {
+        color: red;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .sidebar .btn-schedule {
+        width: 60%;
+        margin-left: 10px;
+        margin-top: 15px;
+    }
+
+    #searchForm {
+        display: none;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination li {
+        margin: 0 5px;
+    }
+
+    .pagination li a, .pagination li span {
+        display: block;
+        padding: 10px 15px;
+        color: #007bff;
+        text-decoration: none;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+    }
+
+    .pagination .active span {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .pagination .disabled span {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mobile-margin-top">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Manage Clients</li>
+    </ol>
+</nav>
+
+<div class="rc-card">
+    <h1>Search Clients</h1>
+    <form id="searchForm" method="get" style='display:none' action="{% url 'search_invitees' %}">
+        <div class="mb-3 col-6">
+            <label for="id_account" class="form-label">Business</label>
+            {{ form.account }}
+        </div>
+        <div class="mb-3 col-6">
+            <label for="id_name" class="form-label">Name</label>
+            {{ form.name }}
+        </div>
+        <div class="mb-3 col-6">
+            <label for="id_email" class="form-label">Email</label>
+            {{ form.email }}
+        </div>
+        <div class="mb-3 col-6">
+            <label for="id_phone_number" class="form-label">Phone Number</label>
+            {{ form.phone_number }}
+        </div>
+        <button type="submit" class="btn btn-primary" id="searchButton">Search</button>
+    </form>
+    {% if error_message %}
+        <div class="error-message">{{ error_message }}</div>
+    {% endif %}
+</div>
+
+<div class="rc-card">
+    <h1>Invitees</h1>
+    <div class="accordion custom-accordion" id="inviteesList">
+        {% if invitees %}
+            <div class="alert alert-primary" role="alert">
+                Invitees found.
+                <button type="button" class="btn btn-primary" id="changeSearchLink">Change Search</button>
+            </div>
+            <div class="cards-container">
+                {% for invitee in invitees %}
+                    <div class="card">
+                        <div>
+                            <h5>{{ invitee.name }}</h5>
+                            <p>Email: {{ invitee.email }}</p>
+                            <p>Phone: {{ invitee.phone_number }}</p>
+                        </div>
+                        <a href="{% url 'invitee_detail' invitee.id %}" class="btn btn-secondary" <button class="btn btn-secondary" style="background-color:#07367c">View More Info</a>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="pagination">
+                <ul class="pagination">
+                    {% if invitees.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ invitees.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">First</span></li>
+                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+
+                    {% for num in invitees.paginator.page_range %}
+                        {% if invitees.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > invitees.number|add:'-3' and num < invitees.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if invitees.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ invitees.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ invitees.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Last</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Next</span></li>
+                        <li class="page-item disabled"><span class="page-link">Last</span></li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                No invitees found.
+                <button type="button" class="btn btn-primary" id="changeSearchLink">Show Search Params</button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const accountInput = document.getElementById('id_account');
+        const nameInput = document.getElementById('id_name');
+        const emailInput = document.getElementById('id_email');
+        const phoneNumberInput = document.getElementById('id_phone_number');
+        const searchButton = document.getElementById('searchButton');
+        const searchForm = document.getElementById('searchForm');
+        const changeSearchLink = document.getElementById('changeSearchLink');
+        const alertMessage = document.querySelector('.alert-primary');
+
+        function toggleSearchButton() {
+            const account = accountInput.value;
+            const name = nameInput.value;
+            const email = emailInput.value;
+            const phoneNumber = phoneNumberInput.value;
+        }
+
+        function toggleSearchForm() {
+            searchForm.style.display = searchForm.style.display === 'none' ? 'block' : 'none';
+            $('#changeSearchLink').text(searchForm.style.display === 'none' ? 'Show Search Params' : 'Hide Search Params')
+        }
+
+        accountInput.addEventListener('input', toggleSearchButton);
+        nameInput.addEventListener('input', toggleSearchButton);
+        emailInput.addEventListener('input', toggleSearchButton);
+        phoneNumberInput.addEventListener('input', toggleSearchButton);
+
+        changeSearchLink.addEventListener('click', function(e) {
+            toggleSearchForm();
+        });
+
+        searchForm.addEventListener('submit', function() {
+            toggleSearchForm();
+        });
+
+        toggleSearchButton(); // Initial call to set button state
+    });
+</script>
+{% endblock extra_script %}

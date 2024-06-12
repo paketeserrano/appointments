@@ -57,7 +57,7 @@
                 </div>
                 <div class="appointment-detail">
                     <div class="field-name">Location</div>
-                    <div class="field-value">{{ appointment.location }}</div>
+                    <div class="field-value">{% if appointment.location %} {{ appointment.location }} {% else %} {{ appointment.video_conference }} {% endif %}</div>
                 </div>
                 <div class="appointment-detail">
                     <div class="field-name">Status</div>
