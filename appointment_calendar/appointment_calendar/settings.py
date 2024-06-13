@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
+    'django_q',
     'appt_calendar_app'
 ]
 
@@ -161,3 +162,16 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "appointment_calendar/static"),
 )
+
+Q_CLUSTER = {
+    'name': 'DjangORM',
+    'workers': 8,
+    'recycle': 500,
+    'timeout': 10,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default',  # Use the Django ORM for task storage and broker
+    'retry': 12,  
+    'max_attempts': 3,
+    'ack_failures': False, 
+}

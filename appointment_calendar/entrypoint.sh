@@ -10,5 +10,8 @@ python manage.py migrate
 # Collect static files (if necessary)
 python manage.py collectstatic --noinput
 
+# Start qcluster in the background - Used to send emails asynchonously
+python manage.py qcluster &
+
 # Start the server
 exec "$@"

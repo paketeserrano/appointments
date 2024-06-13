@@ -38,6 +38,7 @@ from django.templatetags.static import static
 from django.forms.models import model_to_dict
 from collections import defaultdict
 from django.core.paginator import Paginator
+from .tasks import send_email_with_retries
 
 def user_owns_resource(function):
     @wraps(function)
@@ -611,11 +612,11 @@ def send_cancellation_email(appointment, reason):
             The ReservaClick Team</p>
         """
 
-        send_mail(            
+        send_email_with_retries(            
             subject=subject,
-            message=plain_message,
+            plain_message=plain_message,
             from_email= f"ReservaClick <{settings.EMAIL_HOST_USER}>",
-            recipient_list=[invitee.email],
+            recipient_email=[invitee.email],
             html_message=html_message
         )   
 
@@ -976,13 +977,13 @@ def send_appointment_confirmation_email(to_client, event, appointment, request):
 
     print(f'****************************The link is: {cancel_appt_url}')
 
-    # Send email to clients to confirm the reservation
+    # Send email to clients to confirm the reservation   
     for invitee in appointment.invitees.all():
-        send_mail(            
+        send_email_with_retries(            
             subject=subject,
-            message=message,
+            plain_message=message,
             from_email= f"{event.account.name} via ReservaClick <{settings.EMAIL_HOST_USER}>",
-            recipient_list=[invitee.email],
+            recipient_email=[invitee.email],
             html_message=html_message
         )
 
@@ -1388,13 +1389,13 @@ def user_registration(request):
                 <p>The ReservaClick Team</p>
             """
 
-            send_mail(            
+            send_email_with_retries(            
                 subject=subject,
-                message=plain_message,
                 from_email= f"ReservaClick <{settings.EMAIL_HOST_USER}>",
-                recipient_list=[user.email],
+                plain_message=plain_message,                
+                recipient_email=[user.email],
                 html_message=html_message
-            )      
+            )   
 
             redirect_url = reverse('user_login') if not next_url else next_url
             return redirect(redirect_url)
@@ -1945,11 +1946,11 @@ def send_business_invitation(request):
             <p>Please <a href="{confirmation_url}">click here</a> to accept the invitation.</p>
         """
 
-        send_mail(            
+        send_email_with_retries(            
             subject=subject,
-            message=plain_message,
+            plain_message=plain_message,
             from_email= f"{business.name} via ReservaClick <{settings.EMAIL_HOST_USER}>",
-            recipient_list=[recipient_email],
+            recipient_email=[recipient_email],
             html_message=html_message
         )        
 
