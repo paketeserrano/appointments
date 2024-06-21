@@ -92,6 +92,12 @@
             width: 48%; /* Set width to 48% to fit two cards per row with some gap */
         }
     }
+
+    .div-rounded-border {
+        border: 1px solid gray;
+        border-radius: 10px; 
+        padding: 10px; 
+    }
 </style>
 {% endblock extra_css %}
 
@@ -408,6 +414,27 @@
                                     <textarea class="form-control" id="businessDescription" rows="6
                                     " maxlength="500" placeholder="{% translate "Enter business description here..." %}">{{business_ui.description}}</textarea>
                                 </div>
+
+                                {% if business.ui.blogs.count == 0 %}
+                                    <button class="btn btn-primary mt-3" id="addBlogButton">{% translate "Add Blog" %}</button>
+                                {% else %}
+                                    <div class="div-rounded-border">
+                                        <h4>Blog</h4>
+                                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                                            <span class="mx-4">{{ business.ui.blogs.first.title }}</span>
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="blogActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="blogActionsDropdown">
+                                                    <li><a class="dropdown-item" href="#" id="configureBlog">{% translate "Configure" %}</a></li>
+                                                    <li><a class="dropdown-item" href="#" id="deleteBlog">{% translate "Delete" %}</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}                           
+
                                 <div class="mb-3">
                                     <div class="form-label">
                                         <a href="{% url 'business_appearance' business_id=business.id %}">{% translate "Website Appearance" %}</a>
@@ -625,6 +652,47 @@
     </div>
 </div>
 
+<div class="modal fade" id="deleteBlogModal" tabindex="-1" aria-labelledby="deleteBlogModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteBlogModalLabel">{% translate "Confirm Blog Deletion" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% translate "Are you sure you want to delete this blog?" %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBlog">{% translate "Delete" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addBlogModal" tabindex="-1" aria-labelledby="addBlogModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBlogModalLabel">{% translate "Add Blog" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addBlogForm">
+                    <div class="mb-3">
+                        <label for="blogTitle" class="form-label">{% translate "Blog Title" %}</label>
+                        <input type="text" class="form-control" id="blogTitle" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                <button type="button" class="btn btn-primary" id="saveBlogButton">{% translate "Save" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}
 
@@ -651,6 +719,81 @@
         $('.percentage-label').text(percentage + '%');
     }
 $(document).ready(function() {    
+
+    // Handle "Add Blog" button click
+    $('#addBlogButton').click(function() {
+        $('#addBlogModal').modal('show');
+    });
+
+    // Handle "Save" button click in Add Blog modal
+    
+    $('#saveBlogButton').click(function() {
+        var blogTitle = $('#blogTitle').val();
+        if (blogTitle) {
+            // Placeholder for creating a blog via an AJAX request
+            // Replace this with your actual AJAX call
+            $.ajax({
+                url: '{% url "create_blog" business.id %}',
+                type: 'POST',
+                data: {
+                    title: blogTitle,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update the UI to show the new blog title and configure/delete buttons
+                        location.reload();
+                    } else {
+                        alert('Error creating blog');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error creating blog: ' + xhr.responseJSON.message);
+                }
+            });
+        }
+    });
+
+    {% if business.ui.blogs.first.slug %}    
+    // Handle "Configure" button click in the dropdown menu
+    $('#configureBlog').click(function() {
+        // Placeholder for redirecting to the configure blog page
+        window.location.href =  '{% url "blog_detail" business.ui.blogs.first.slug %}';
+    });
+    {% endif %}
+    
+    {% if business.ui.blogs.first.id %}
+
+    // Handle "Delete" button click in the dropdown menu
+    $('#deleteBlog').click(function() {
+        $('#deleteBlogModal').modal('show');
+    });
+
+    // Handle "Confirm Delete" button click in Delete Blog modal
+    $('#confirmDeleteBlog').click(function() {
+        // Placeholder for deleting a blog via an AJAX request
+        // Replace this with your actual AJAX call
+        $.ajax({
+            url: '{% url "delete_blog" business.ui.blogs.first.id %}',
+            type: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update the UI to show the "Add Blog" button again
+                    alert('Blog deleted successfully');
+                    location.reload();
+                } else {
+                    alert('Error deleting blog');
+                }
+            },
+            error: function() {
+                alert('Error deleting blog');
+            }
+        });
+    });
+    {% endif %}
 
     // Delete hour endpoint base url. We need this when we remove an hour that was just added
     // NOTE: This url is hardcoded and if it changes in the server we have to change it here

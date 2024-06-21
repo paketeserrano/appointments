@@ -4,6 +4,7 @@ from django.db.models.signals import post_save, post_delete
 from django.core.validators import MinValueValidator
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.text import slugify
 import uuid
 import os
 from .libs import utils
@@ -299,3 +300,40 @@ class BusinessAppearance(models.Model):
     def __str__(self):
         return f"UI Configuration for Header Color {self.header_bar_color}" 
     
+class Blog(models.Model):
+    account_ui = models.ForeignKey(AccountUI, on_delete=models.CASCADE, related_name='blogs')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title) + "-" + str(uuid.uuid4())[:8]
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+
+class Post(models.Model):
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='posts')
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(blank=True, null=True)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.is_published and not self.published_at:
+            self.published_at = timezone.now()
+        if not self.slug:
+            self.slug = slugify(self.title) + "-" + str(uuid.uuid4())[:8]
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title

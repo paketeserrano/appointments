@@ -4,7 +4,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError  
 from django.forms.fields import EmailField  
 from django.forms.forms import Form 
-from .models import Account, Event, Appointment, Invitee, Address, BusinessAppearance, EventPageAnswer, EventPageQuestion, CustomUser
+from .models import Account, Event, Appointment, Invitee, Address, BusinessAppearance, EventPageAnswer, EventPageQuestion, CustomUser, \
+                    Blog, Post
 import json
 from django.utils import timezone
 
@@ -362,3 +363,23 @@ class AppointmentSearchForm(forms.Form):
             users = CustomUser.objects.filter(id__in=user_ids).distinct()
             self.fields['user'].queryset = users
             self.fields['user'].initial = user
+
+class BlogForm(forms.ModelForm):
+    class Meta:
+        model = Blog
+        fields = ['title', 'description', 'is_active']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter blog title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Enter blog description'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'is_published']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

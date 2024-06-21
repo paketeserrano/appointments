@@ -49,6 +49,13 @@ urlpatterns = [
     path("business/invite_worker/", views.send_business_invitation, name="send_business_invitation"),
     path('business/invite_worker/confirm/<uuid:token>/', views.confirm_invitation, name='confirm_business_invitation'),
 
+    # Blog admin urls
+    path('blogs/<slug:slug>/', views.BlogDetailView.as_view(), name='blog_detail'),
+    path("blogs/<int:business_id>/create_blog", views.create_blog, name="create_blog"),
+    path("blogs/<int:blog_id>/delete_blog", views.delete_blog, name="delete_blog"),
+    path('blogs/<slug:slug>/new', views.BlogPostView.as_view(), name='new_post'),
+    path('blogs/<slug:slug>/<slug:post_slug>', views.BlogPostView.as_view(), name='edit_post'),
+
     # User admin managment urls
     path('registration', views.user_registration, name='user_registration'), 
     path('logout/', LogoutView.as_view(next_page=settings.LOGOUT_REDIRECT_URL), name='logout'),

@@ -3,12 +3,12 @@ from django.http import HttpResponse, JsonResponse, Http404, HttpResponseRedirec
 from .forms import AppointmentForm, SignUpForm, BusinessAppearanceForm, AppointmentCancelForm, AddressForm, CreateAccountForm, \
                                     CreateEventForm, SelectWorkerForm, SelectEventForm, InactiveEventForm, SelectDateTimeForm, \
                                     CustomerInformationForm, EventQuestionForm, EventAnswerForm, AppointmentSearchForm, \
-                                    InviteeSearchForm
+                                    InviteeSearchForm, BlogForm, PostForm
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import Appointment, Event, Account, AccountInvitation, BusinessAppearance, Invitee, CustomUser, OpenningTime, \
                     BusinessEventImageUpload, SpecialDay, WEEKDAYS, EventUI, AccountUI, UserWorkImageUpload, AppointmentCancellation, \
-                    EventPageOptions, AppointmentQuestionResponse, EventPageQuestion, Address
+                    EventPageOptions, AppointmentQuestionResponse, EventPageQuestion, Address, Blog, Post
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.core import serializers
@@ -2195,3 +2195,78 @@ def set_language(request):
 
         return response
     return redirect('/')
+
+def create_blog(request, business_id):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        try:
+            account_ui = AccountUI.objects.get(business_id=business_id)
+            blog = Blog.objects.create(account_ui=account_ui, title=title)
+            return JsonResponse({'success': True, 'blog_id': blog.id})
+        except AccountUI.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'AccountUI not found'}, status=404)
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+def delete_blog(request, blog_id):
+    if request.method == 'POST':
+        try:
+            blog = Blog.objects.get(id=blog_id)
+            blog.delete()
+            return JsonResponse({'success': True})
+        except Blog.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Blog not found'}, status=404)
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+class BlogDetailView(View):
+    template_name = 'blogs/blog_detail.html'
+
+    def get(self, request, slug):
+        blog = get_object_or_404(Blog, slug=slug)
+        form = BlogForm(instance=blog)
+        account = blog.account_ui.business
+        posts = blog.posts.all()
+        return render(request, self.template_name, {'form': form, 'blog': blog, 'business': account, 'posts': posts})
+
+    def post(self, request, slug):
+        blog = get_object_or_404(Blog, slug=slug)
+        form = BlogForm(request.POST, instance=blog)
+        if form.is_valid():
+            form.save()
+            return redirect('blog_detail', slug=slug)
+        return render(request, self.template_name, {'form': form, 'blog': blog})
+    
+class BlogPostView(View):
+    template_name = 'blogs/post_details.html'
+
+    def get(self, request, slug, post_slug=None):
+        blog = get_object_or_404(Blog, slug=slug)
+        if post_slug:
+            post = get_object_or_404(Post, blog=blog, slug=post_slug)
+            form = PostForm(instance=post)
+        else:
+            post = None
+            form = PostForm()
+        return render(request, self.template_name, {'form': form, 'blog': blog, 'post': post})
+
+    def post(self, request, slug, post_slug=None):
+        blog = get_object_or_404(Blog, slug=slug)
+        if post_slug:
+            post = get_object_or_404(Post, blog=blog, slug=post_slug)
+            form = PostForm(request.POST, instance=post)
+        else:
+            post = None
+            form = PostForm(request.POST)
+        
+        if form.is_valid():
+            new_post = form.save(commit=False)
+            new_post.blog = blog
+            if not post:
+                new_post.author = request.user
+                new_post.created_at = timezone.now()
+            if new_post.is_published and not new_post.published_at:
+                new_post.published_at = timezone.now()
+            new_post.updated_at = timezone.now()
+            new_post.save()
+            return redirect('edit_post', slug=slug, post_slug=new_post.slug)
+        
+        return render(request, self.template_name, {'form': form, 'blog': blog, 'post': post})

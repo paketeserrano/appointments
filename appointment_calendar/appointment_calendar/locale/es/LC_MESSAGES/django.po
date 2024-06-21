@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-20 11:35+0000\n"
+"POT-Creation-Date: 2024-06-21 10:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,7 +32,7 @@ msgstr "¿Estás seguro de que quieres eliminar esta reserva?"
 
 #: appointment_calendar/templates/appointments/appointment_cancel.html:15
 #: appointment_calendar/templates/appointments/appointment_detail.html:51
-#: appointment_calendar/templates/business/view_business.html:545
+#: appointment_calendar/templates/business/view_business.html:567
 #: appointment_calendar/templates/invitee/invitee_detail.html:27
 msgid "Date"
 msgstr "Fecha"
@@ -60,7 +60,8 @@ msgstr "Confirmar Cancelacion"
 #: appointment_calendar/templates/appointments/appointment_detail.html:134
 #: appointment_calendar/templates/appointments/base.html:65
 #: appointment_calendar/templates/appointments/base_client_appointment.html:85
-#: appointment_calendar/templates/business/view_business.html:590
+#: appointment_calendar/templates/business/view_business.html:612
+#: appointment_calendar/templates/registration/password_reset_form.html:34
 msgid "Loading..."
 msgstr "Cargando..."
 
@@ -250,7 +251,7 @@ msgid "Presentation:"
 msgstr "Presentacion"
 
 #: appointment_calendar/templates/business/add_business.html:26
-#: appointment_calendar/templates/business/view_business.html:450
+#: appointment_calendar/templates/business/view_business.html:472
 msgid "Address"
 msgstr "Direccion"
 
@@ -259,7 +260,7 @@ msgid "Submit"
 msgstr "Enviar"
 
 #: appointment_calendar/templates/business/business_appearance.html:46
-#: appointment_calendar/templates/business/view_business.html:409
+#: appointment_calendar/templates/business/view_business.html:431
 msgid "Website Appearance"
 msgstr "Apariencia del Sitio Web"
 
@@ -298,7 +299,7 @@ msgid "This image will show on the Booking Page background"
 msgstr "Esta imagen se mostrará en el fondo de la página de reservas"
 
 #: appointment_calendar/templates/business/business_appearance.html:139
-#: appointment_calendar/templates/business/view_business.html:431
+#: appointment_calendar/templates/business/view_business.html:453
 #: appointment_calendar/templates/events/event_details.html:518
 #: appointment_calendar/templates/users/user_profile.html:54
 msgid "Change"
@@ -311,13 +312,13 @@ msgid "Remove"
 msgstr "Eliminar"
 
 #: appointment_calendar/templates/business/business_appearance.html:156
-#: appointment_calendar/templates/business/view_business.html:439
+#: appointment_calendar/templates/business/view_business.html:461
 #: appointment_calendar/templates/events/event_details.html:400
 msgid "Save Changes"
 msgstr "Guardar Cambios"
 
 #: appointment_calendar/templates/business/business_appearance.html:185
-#: appointment_calendar/templates/business/view_business.html:700
+#: appointment_calendar/templates/business/view_business.html:887
 #: appointment_calendar/templates/events/event_details.html:1090
 #: appointment_calendar/templates/events/event_details.html:1339
 #: appointment_calendar/templates/users/user_profile.html:185
@@ -408,7 +409,7 @@ msgstr "Crear un Evento"
 
 #: appointment_calendar/templates/business/view_business.html:155
 #: appointment_calendar/templates/business/view_business.html:160
-#: appointment_calendar/templates/business/view_business.html:236
+#: appointment_calendar/templates/business/view_business.html:240
 msgid "Business Hours"
 msgstr "Horas de Apertura"
 
@@ -442,14 +443,14 @@ msgstr "minutos"
 msgid "View event page"
 msgstr "Ver página del evento"
 
-#: appointment_calendar/templates/business/view_business.html:201
+#: appointment_calendar/templates/business/view_business.html:204
 #: appointment_calendar/templates/events/events_list.html:66
 #: appointment_calendar/templates/worker_detail.html:87
 msgid "Share"
 msgstr "Compartir"
 
-#: appointment_calendar/templates/business/view_business.html:209
-#: appointment_calendar/templates/business/view_business.html:780
+#: appointment_calendar/templates/business/view_business.html:213
+#: appointment_calendar/templates/business/view_business.html:967
 #: appointment_calendar/templates/events/event_details.html:183
 #: appointment_calendar/templates/events/event_details.html:1134
 #: appointment_calendar/templates/events/events_list.html:78
@@ -461,8 +462,8 @@ msgstr "Compartir"
 msgid "Turn Off"
 msgstr "Apagar"
 
-#: appointment_calendar/templates/business/view_business.html:211
-#: appointment_calendar/templates/business/view_business.html:780
+#: appointment_calendar/templates/business/view_business.html:215
+#: appointment_calendar/templates/business/view_business.html:967
 #: appointment_calendar/templates/events/event_details.html:183
 #: appointment_calendar/templates/events/event_details.html:1134
 #: appointment_calendar/templates/events/events_list.html:76
@@ -474,22 +475,24 @@ msgstr "Apagar"
 msgid "Turn On"
 msgstr "Encender"
 
-#: appointment_calendar/templates/business/view_business.html:225
+#: appointment_calendar/templates/business/view_business.html:229
 msgid "Add Event"
 msgstr "Añadir Evento"
 
-#: appointment_calendar/templates/business/view_business.html:240
+#: appointment_calendar/templates/business/view_business.html:244
 msgid ""
 "Days declared here will be available in your events when customers book them"
 msgstr ""
 "Los días declarados aquí estarán disponibles en tus eventos cuando los "
 "clientes los reserven"
 
-#: appointment_calendar/templates/business/view_business.html:254
-#: appointment_calendar/templates/business/view_business.html:302
-#: appointment_calendar/templates/business/view_business.html:579
-#: appointment_calendar/templates/business/view_business.html:911
-#: appointment_calendar/templates/business/view_business.html:1018
+#: appointment_calendar/templates/business/view_business.html:258
+#: appointment_calendar/templates/business/view_business.html:306
+#: appointment_calendar/templates/business/view_business.html:423
+#: appointment_calendar/templates/business/view_business.html:601
+#: appointment_calendar/templates/business/view_business.html:658
+#: appointment_calendar/templates/business/view_business.html:1098
+#: appointment_calendar/templates/business/view_business.html:1205
 #: appointment_calendar/templates/events/event_details.html:296
 #: appointment_calendar/templates/events/event_details.html:418
 #: appointment_calendar/templates/events/event_details.html:476
@@ -497,10 +500,10 @@ msgstr ""
 msgid "Delete"
 msgstr "Eliminar"
 
-#: appointment_calendar/templates/business/view_business.html:255
-#: appointment_calendar/templates/business/view_business.html:303
-#: appointment_calendar/templates/business/view_business.html:912
-#: appointment_calendar/templates/business/view_business.html:1019
+#: appointment_calendar/templates/business/view_business.html:259
+#: appointment_calendar/templates/business/view_business.html:307
+#: appointment_calendar/templates/business/view_business.html:1099
+#: appointment_calendar/templates/business/view_business.html:1206
 #: appointment_calendar/templates/events/event_details.html:228
 #: appointment_calendar/templates/events/event_details.html:236
 #: appointment_calendar/templates/events/event_details.html:244
@@ -513,28 +516,31 @@ msgstr "Eliminar"
 msgid "Edit"
 msgstr "Editar"
 
-#: appointment_calendar/templates/business/view_business.html:261
-#: appointment_calendar/templates/business/view_business.html:309
+#: appointment_calendar/templates/business/view_business.html:265
+#: appointment_calendar/templates/business/view_business.html:313
 #: appointment_calendar/templates/events/event_details.html:282
 msgid "Add New"
 msgstr "Añadir Nuevo"
 
-#: appointment_calendar/templates/business/view_business.html:273
-#: appointment_calendar/templates/business/view_business.html:317
+#: appointment_calendar/templates/business/view_business.html:277
+#: appointment_calendar/templates/business/view_business.html:321
 #: appointment_calendar/templates/events/event_details.html:533
 #: appointment_calendar/templates/users/user_profile.html:118
 msgid "Add"
 msgstr "Añadir"
 
-#: appointment_calendar/templates/business/view_business.html:274
-#: appointment_calendar/templates/business/view_business.html:318
-#: appointment_calendar/templates/business/view_business.html:440
-#: appointment_calendar/templates/business/view_business.html:466
-#: appointment_calendar/templates/business/view_business.html:528
-#: appointment_calendar/templates/business/view_business.html:559
-#: appointment_calendar/templates/business/view_business.html:578
-#: appointment_calendar/templates/business/view_business.html:917
-#: appointment_calendar/templates/business/view_business.html:1024
+#: appointment_calendar/templates/business/view_business.html:278
+#: appointment_calendar/templates/business/view_business.html:322
+#: appointment_calendar/templates/business/view_business.html:462
+#: appointment_calendar/templates/business/view_business.html:488
+#: appointment_calendar/templates/business/view_business.html:550
+#: appointment_calendar/templates/business/view_business.html:581
+#: appointment_calendar/templates/business/view_business.html:600
+#: appointment_calendar/templates/business/view_business.html:637
+#: appointment_calendar/templates/business/view_business.html:657
+#: appointment_calendar/templates/business/view_business.html:680
+#: appointment_calendar/templates/business/view_business.html:1104
+#: appointment_calendar/templates/business/view_business.html:1211
 #: appointment_calendar/templates/events/event_details.html:364
 #: appointment_calendar/templates/events/event_details.html:399
 #: appointment_calendar/templates/events/event_details.html:417
@@ -556,11 +562,11 @@ msgstr "Añadir"
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: appointment_calendar/templates/business/view_business.html:284
+#: appointment_calendar/templates/business/view_business.html:288
 msgid "Days Closed or Holidays"
 msgstr "Días Cerrados o Festivos"
 
-#: appointment_calendar/templates/business/view_business.html:288
+#: appointment_calendar/templates/business/view_business.html:292
 msgid ""
 "Add special days you are closed. Maybe a bank holiday or something "
 "unexpected happened"
@@ -568,81 +574,94 @@ msgstr ""
 "Añadir días especiales que estás cerrado. Tal vez un día festivo o algo "
 "inesperado sucedió"
 
-#: appointment_calendar/templates/business/view_business.html:331
+#: appointment_calendar/templates/business/view_business.html:335
 msgid "Workers"
 msgstr "Trabajadores"
 
-#: appointment_calendar/templates/business/view_business.html:335
+#: appointment_calendar/templates/business/view_business.html:339
 msgid "Workers added here will be available to be assigned in your events"
 msgstr ""
 "Los trabajadores añadidos aquí estarán disponibles para ser asignados en tus "
 "eventos"
 
-#: appointment_calendar/templates/business/view_business.html:351
+#: appointment_calendar/templates/business/view_business.html:355
 #: appointment_calendar/templates/worker_detail.html:157
 msgid "Remove Worker"
 msgstr "Eliminar Trabajador"
 
-#: appointment_calendar/templates/business/view_business.html:352
+#: appointment_calendar/templates/business/view_business.html:356
 msgid "View Worker"
 msgstr "Ver Trabajador"
 
-#: appointment_calendar/templates/business/view_business.html:359
+#: appointment_calendar/templates/business/view_business.html:363
 #: appointment_calendar/templates/events/event_details.html:624
 msgid "Add Worker"
 msgstr "Añadir Trabajador"
 
-#: appointment_calendar/templates/business/view_business.html:368
+#: appointment_calendar/templates/business/view_business.html:372
 msgid "Business Website"
 msgstr "Pagina Web"
 
-#: appointment_calendar/templates/business/view_business.html:372
+#: appointment_calendar/templates/business/view_business.html:376
 msgid "Manage how your website looks"
 msgstr "Gestiona cómo se ve tu sitio web"
 
-#: appointment_calendar/templates/business/view_business.html:381
+#: appointment_calendar/templates/business/view_business.html:385
 #: appointment_calendar/templates/events/event_details.html:494
 msgid "Is Visible"
 msgstr "Es Visible"
 
-#: appointment_calendar/templates/business/view_business.html:382
+#: appointment_calendar/templates/business/view_business.html:386
 msgid "Toggle to make your business website visible or invisible to customers."
 msgstr ""
 "Cambiar para hacer que tu sitio web sea visible o invisible para los "
 "clientes."
 
-#: appointment_calendar/templates/business/view_business.html:387
+#: appointment_calendar/templates/business/view_business.html:391
 #, fuzzy
 #| msgid "Current language"
 msgid "Default Language"
 msgstr "Idioma actual"
 
-#: appointment_calendar/templates/business/view_business.html:388
+#: appointment_calendar/templates/business/view_business.html:392
 msgid "Select the default language for your business."
 msgstr ""
 
-#: appointment_calendar/templates/business/view_business.html:401
+#: appointment_calendar/templates/business/view_business.html:405
 msgid "Business Description"
 msgstr "Descripción del Negocio"
 
-#: appointment_calendar/templates/business/view_business.html:402
+#: appointment_calendar/templates/business/view_business.html:406
 msgid "Provide a detailed description of your business."
 msgstr "Proporciona una descripción detallada de tu negocio."
 
-#: appointment_calendar/templates/business/view_business.html:405
+#: appointment_calendar/templates/business/view_business.html:409
 msgid "Enter business description here..."
 msgstr "Introduce la descripción del negocio aquí..."
 
-#: appointment_calendar/templates/business/view_business.html:410
+#: appointment_calendar/templates/business/view_business.html:413
+#: appointment_calendar/templates/business/view_business.html:668
+#, fuzzy
+#| msgid "Blog"
+msgid "Add Blog"
+msgstr "Blog"
+
+#: appointment_calendar/templates/business/view_business.html:422
+#, fuzzy
+#| msgid "Confirm"
+msgid "Configure"
+msgstr "Confirmar"
+
+#: appointment_calendar/templates/business/view_business.html:432
 msgid "Set up your website appearance"
 msgstr "Configura la apariencia de tu sitio web"
 
-#: appointment_calendar/templates/business/view_business.html:416
+#: appointment_calendar/templates/business/view_business.html:438
 #: appointment_calendar/templates/events/event_details.html:505
 msgid "View Business Website"
 msgstr "Ver Sitio Web del Negocio"
 
-#: appointment_calendar/templates/business/view_business.html:418
+#: appointment_calendar/templates/business/view_business.html:440
 #: appointment_calendar/templates/events/event_details.html:507
 msgid ""
 "The more info you add to your business and events, the better the website "
@@ -651,59 +670,60 @@ msgstr ""
 "Cuanta más información añadas a tu negocio y eventos, mejor se verá el sitio "
 "web"
 
-#: appointment_calendar/templates/business/view_business.html:426
+#: appointment_calendar/templates/business/view_business.html:448
 msgid "Header Image"
 msgstr "Imagen de Cabecera"
 
-#: appointment_calendar/templates/business/view_business.html:427
+#: appointment_calendar/templates/business/view_business.html:449
 msgid "This image will show on the front header of this business website"
 msgstr ""
 "Esta imagen se mostrará en la cabecera principal de este sitio web de negocio"
 
-#: appointment_calendar/templates/business/view_business.html:447
+#: appointment_calendar/templates/business/view_business.html:469
 msgid "Address Information"
 msgstr "Información de Dirección"
 
-#: appointment_calendar/templates/business/view_business.html:451
+#: appointment_calendar/templates/business/view_business.html:473
 #: appointment_calendar/templates/events/event_details.html:348
 #: appointment_calendar/templates/events/event_details.html:383
 msgid "Enter address"
 msgstr "Introduce la dirección"
 
-#: appointment_calendar/templates/business/view_business.html:454
+#: appointment_calendar/templates/business/view_business.html:476
 msgid "City"
 msgstr "Ciudad"
 
-#: appointment_calendar/templates/business/view_business.html:455
+#: appointment_calendar/templates/business/view_business.html:477
 #: appointment_calendar/templates/events/event_details.html:352
 #: appointment_calendar/templates/events/event_details.html:387
 msgid "Enter city"
 msgstr "Introduce la ciudad"
 
-#: appointment_calendar/templates/business/view_business.html:458
+#: appointment_calendar/templates/business/view_business.html:480
 msgid "Province"
 msgstr "Provincia"
 
-#: appointment_calendar/templates/business/view_business.html:459
+#: appointment_calendar/templates/business/view_business.html:481
 #: appointment_calendar/templates/events/event_details.html:356
 #: appointment_calendar/templates/events/event_details.html:391
 msgid "Enter province"
 msgstr "Introduce la provincia"
 
-#: appointment_calendar/templates/business/view_business.html:462
+#: appointment_calendar/templates/business/view_business.html:484
 msgid "Country"
 msgstr "País"
 
-#: appointment_calendar/templates/business/view_business.html:463
+#: appointment_calendar/templates/business/view_business.html:485
 #: appointment_calendar/templates/events/event_details.html:360
 #: appointment_calendar/templates/events/event_details.html:395
 msgid "Enter country"
 msgstr "Introduce el país"
 
-#: appointment_calendar/templates/business/view_business.html:465
-#: appointment_calendar/templates/business/view_business.html:527
-#: appointment_calendar/templates/business/view_business.html:916
-#: appointment_calendar/templates/business/view_business.html:1023
+#: appointment_calendar/templates/business/view_business.html:487
+#: appointment_calendar/templates/business/view_business.html:549
+#: appointment_calendar/templates/business/view_business.html:681
+#: appointment_calendar/templates/business/view_business.html:1103
+#: appointment_calendar/templates/business/view_business.html:1210
 #: appointment_calendar/templates/events/event_details.html:521
 #: appointment_calendar/templates/events/event_details.html:637
 #: appointment_calendar/templates/events/event_details.html:706
@@ -716,167 +736,186 @@ msgstr "Introduce el país"
 msgid "Save"
 msgstr "Guardar"
 
-#: appointment_calendar/templates/business/view_business.html:477
+#: appointment_calendar/templates/business/view_business.html:499
 msgid "Invite New Worker"
 msgstr "Invitar a Nuevo Trabajador"
 
-#: appointment_calendar/templates/business/view_business.html:483
+#: appointment_calendar/templates/business/view_business.html:505
 msgid "Email address"
 msgstr "Dirección de correo electrónico"
 
-#: appointment_calendar/templates/business/view_business.html:487
+#: appointment_calendar/templates/business/view_business.html:509
 msgid "Recipient Name"
 msgstr "Nombre del Destinatario"
 
-#: appointment_calendar/templates/business/view_business.html:491
+#: appointment_calendar/templates/business/view_business.html:513
 msgid "Notes (optional)"
 msgstr "Notas (opcional)"
 
-#: appointment_calendar/templates/business/view_business.html:494
+#: appointment_calendar/templates/business/view_business.html:516
 msgid "Send Invitation"
 msgstr "Enviar Invitación"
 
-#: appointment_calendar/templates/business/view_business.html:506
+#: appointment_calendar/templates/business/view_business.html:528
 msgid "Edit Business Hour"
 msgstr "Editar Hora del Negocio"
 
-#: appointment_calendar/templates/business/view_business.html:512
+#: appointment_calendar/templates/business/view_business.html:534
 msgid "Weekday"
 msgstr "Día de la Semana"
 
-#: appointment_calendar/templates/business/view_business.html:520
-#: appointment_calendar/templates/business/view_business.html:549
+#: appointment_calendar/templates/business/view_business.html:542
+#: appointment_calendar/templates/business/view_business.html:571
 msgid "From Hour"
 msgstr "Desde la Hora"
 
-#: appointment_calendar/templates/business/view_business.html:524
-#: appointment_calendar/templates/business/view_business.html:553
+#: appointment_calendar/templates/business/view_business.html:546
+#: appointment_calendar/templates/business/view_business.html:575
 msgid "To Hour"
 msgstr "Hasta la Hora"
 
-#: appointment_calendar/templates/business/view_business.html:539
+#: appointment_calendar/templates/business/view_business.html:561
 msgid "Edit Special Day"
 msgstr "Editar Día Especial"
 
-#: appointment_calendar/templates/business/view_business.html:560
+#: appointment_calendar/templates/business/view_business.html:582
 msgid "Save changes"
 msgstr "Guardar cambios"
 
-#: appointment_calendar/templates/business/view_business.html:571
+#: appointment_calendar/templates/business/view_business.html:593
 msgid "Confirm Business Deletion"
 msgstr "Confirmar Eliminación del Negocio"
 
-#: appointment_calendar/templates/business/view_business.html:575
+#: appointment_calendar/templates/business/view_business.html:597
 msgid "Are you sure you want to delete this business?"
 msgstr "¿Estás seguro de que quieres eliminar este negocio?"
 
-#: appointment_calendar/templates/business/view_business.html:655
+# #: appointment_calendar/templates/events/event_details.html:174
+#: appointment_calendar/templates/business/view_business.html:631
+#: appointment_calendar/templates/events/events_list.html:104
+#: appointment_calendar/templates/worker_detail.html:172
+msgid "Share event"
+msgstr "Compartir enlace del evento"
+
+#: appointment_calendar/templates/business/view_business.html:634
+#: appointment_calendar/templates/events/events_list.html:107
+#: appointment_calendar/templates/worker_detail.html:175
+msgid "Share with me as worker"
+msgstr "Compartir y asigname al evento como trabajador"
+
+#: appointment_calendar/templates/business/view_business.html:650
+#, fuzzy
+#| msgid "Confirm Deletion"
+msgid "Confirm Blog Deletion"
+msgstr "Confirmar eliminación"
+
+#: appointment_calendar/templates/business/view_business.html:654
+#, fuzzy
+#| msgid "Are you sure you want to delete this event?"
+msgid "Are you sure you want to delete this blog?"
+msgstr "¿Estás seguro de que quieres eliminar este evento?"
+
+#: appointment_calendar/templates/business/view_business.html:674
+#, fuzzy
+#| msgid "log in"
+msgid "Blog Title"
+msgstr "Indentificate"
+
+#: appointment_calendar/templates/business/view_business.html:813
 msgid "Address information updated successfully!"
 msgstr "¡Información de dirección actualizada con éxito!"
 
-#: appointment_calendar/templates/business/view_business.html:662
+#: appointment_calendar/templates/business/view_business.html:820
 msgid "Failed to update address information."
 msgstr "No se pudo actualizar la información de dirección."
 
-#: appointment_calendar/templates/business/view_business.html:666
+#: appointment_calendar/templates/business/view_business.html:824
 msgid "Error occurred while updating address information."
 msgstr "Ocurrió un error al actualizar la información de dirección."
 
-#: appointment_calendar/templates/business/view_business.html:676
-msgid "Link successfully copied to clipboard"
-msgstr "Enlace copiado exitosamente al portapapeles"
-
-#: appointment_calendar/templates/business/view_business.html:680
-msgid "Link copied!"
-msgstr "¡Enlace copiado!"
-
-#: appointment_calendar/templates/business/view_business.html:691
-msgid "Error copying link to clipboard:"
-msgstr "Error al copiar el enlace al portapapeles:"
-
-#: appointment_calendar/templates/business/view_business.html:758
+#: appointment_calendar/templates/business/view_business.html:945
 msgid "Business UI details updated successfully"
 msgstr "Detalles de la interfaz del negocio actualizados con éxito"
 
-#: appointment_calendar/templates/business/view_business.html:766
+#: appointment_calendar/templates/business/view_business.html:953
 msgid "Error updating business details. Please try again."
 msgstr ""
 "Error al actualizar los detalles del negocio. Por favor, inténtalo de nuevo."
 
-#: appointment_calendar/templates/business/view_business.html:771
+#: appointment_calendar/templates/business/view_business.html:958
 msgid "Error updating business details:"
 msgstr "Error al actualizar los detalles del negocio:"
 
-#: appointment_calendar/templates/business/view_business.html:792
+#: appointment_calendar/templates/business/view_business.html:979
 #: appointment_calendar/templates/events/event_details.html:1146
 msgid "Update successful"
 msgstr "Actualización exitosa"
 
-#: appointment_calendar/templates/business/view_business.html:795
+#: appointment_calendar/templates/business/view_business.html:982
 #: appointment_calendar/templates/events/event_details.html:1125
 #: appointment_calendar/templates/events/event_details.html:1149
 msgid "Error updating event status:"
 msgstr "Error al actualizar el estado del evento:"
 
-#: appointment_calendar/templates/business/view_business.html:808
+#: appointment_calendar/templates/business/view_business.html:995
 msgid "Business deleted successfully!"
 msgstr "¡Negocio eliminado con éxito!"
 
-#: appointment_calendar/templates/business/view_business.html:812
+#: appointment_calendar/templates/business/view_business.html:999
 msgid "Failed to delete the business. Contact system admins or try again later"
 msgstr ""
 "No se pudo eliminar el negocio. Contacta con los administradores del sistema "
 "o intenta de nuevo más tarde"
 
-#: appointment_calendar/templates/business/view_business.html:865
+#: appointment_calendar/templates/business/view_business.html:1052
 msgid "Error updating the business hour."
 msgstr "Error al actualizar la hora del negocio."
 
-#: appointment_calendar/templates/business/view_business.html:932
-#: appointment_calendar/templates/business/view_business.html:1039
+#: appointment_calendar/templates/business/view_business.html:1119
+#: appointment_calendar/templates/business/view_business.html:1226
 msgid "Error saving the new special day."
 msgstr "Error al guardar el nuevo día especial."
 
-#: appointment_calendar/templates/business/view_business.html:947
+#: appointment_calendar/templates/business/view_business.html:1134
 msgid "Are you sure you want to delete this business hour?"
 msgstr "¿Estás seguro de que quieres eliminar esta hora del negocio?"
 
-#: appointment_calendar/templates/business/view_business.html:964
+#: appointment_calendar/templates/business/view_business.html:1151
 msgid "Business hour deleted successfully."
 msgstr "Hora del negocio eliminada con éxito."
 
-#: appointment_calendar/templates/business/view_business.html:967
+#: appointment_calendar/templates/business/view_business.html:1154
 msgid "Error: Could not delete the business hour."
 msgstr "Error: No se pudo eliminar la hora del negocio."
 
-#: appointment_calendar/templates/business/view_business.html:972
-#: appointment_calendar/templates/business/view_business.html:1042
-#: appointment_calendar/templates/business/view_business.html:1095
+#: appointment_calendar/templates/business/view_business.html:1159
+#: appointment_calendar/templates/business/view_business.html:1229
+#: appointment_calendar/templates/business/view_business.html:1282
 msgid "Error communicating with the server."
 msgstr "Error al comunicarse con el servidor."
 
-#: appointment_calendar/templates/business/view_business.html:977
-#: appointment_calendar/templates/business/view_business.html:1100
+#: appointment_calendar/templates/business/view_business.html:1164
+#: appointment_calendar/templates/business/view_business.html:1287
 msgid "Deletion canceled."
 msgstr "Eliminación cancelada."
 
-#: appointment_calendar/templates/business/view_business.html:1071
+#: appointment_calendar/templates/business/view_business.html:1258
 msgid "Are you sure you want to delete this day with special hours?"
 msgstr "¿Estás seguro de que quieres eliminar este día con horas especiales?"
 
-#: appointment_calendar/templates/business/view_business.html:1087
+#: appointment_calendar/templates/business/view_business.html:1274
 msgid "Special day deleted successfully."
 msgstr "Día especial eliminado con éxito."
 
-#: appointment_calendar/templates/business/view_business.html:1090
+#: appointment_calendar/templates/business/view_business.html:1277
 msgid "Error: Could not delete the special day."
 msgstr "Error: No se pudo eliminar el día especial."
 
-#: appointment_calendar/templates/business/view_business.html:1138
+#: appointment_calendar/templates/business/view_business.html:1325
 msgid "Error updating the special day."
 msgstr "Error al actualizar el día especial."
 
-#: appointment_calendar/templates/business/view_business.html:1189
+#: appointment_calendar/templates/business/view_business.html:1376
 msgid "Error sending invitation"
 msgstr "Error al enviar la invitación"
 
@@ -1265,17 +1304,6 @@ msgstr "Error al actualizar los detalles del evento:"
 #: appointment_calendar/templates/events/events_list.html:40
 msgid "All"
 msgstr "Todos"
-
-# #: appointment_calendar/templates/events/event_details.html:174
-#: appointment_calendar/templates/events/events_list.html:104
-#: appointment_calendar/templates/worker_detail.html:172
-msgid "Share event"
-msgstr "Compartir enlace del evento"
-
-#: appointment_calendar/templates/events/events_list.html:107
-#: appointment_calendar/templates/worker_detail.html:175
-msgid "Share with me as worker"
-msgstr "Compartir y asigname al evento como trabajador"
 
 #: appointment_calendar/templates/home/home.html:4
 msgid "Home - ReservaClick"
@@ -1741,6 +1769,12 @@ msgstr ""
 msgid "Send Reset Link"
 msgstr "Mandar enlace para resetear la contraseña"
 
+#: appointment_calendar/templates/registration/password_reset_form.html:58
+#, fuzzy
+#| msgid "Loading..."
+msgid "Sending..."
+msgstr "Cargando..."
+
 #: appointment_calendar/templates/registration/user_registration.html:42
 msgid "Sign up"
 msgstr "Registrarse"
@@ -1925,3 +1959,12 @@ msgstr "Enlace copiado exitosamente"
 #: appointment_calendar/templates/worker_detail.html:246
 msgid "Failed to copy URL."
 msgstr "Error al copiar el enlace"
+
+#~ msgid "Link successfully copied to clipboard"
+#~ msgstr "Enlace copiado exitosamente al portapapeles"
+
+#~ msgid "Link copied!"
+#~ msgstr "¡Enlace copiado!"
+
+#~ msgid "Error copying link to clipboard:"
+#~ msgstr "Error al copiar el enlace al portapapeles:"
