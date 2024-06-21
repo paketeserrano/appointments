@@ -39,6 +39,8 @@ from django.forms.models import model_to_dict
 from collections import defaultdict
 from django.core.paginator import Paginator
 from .tasks import send_email_with_retries
+from django.utils import translation
+from django.utils.translation import gettext as _
 
 def user_owns_resource(function):
     @wraps(function)
@@ -1004,6 +1006,23 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
     client_appointment = False
     base_template = 'appointments/base.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        language = request.session.get(settings.LANGUAGE_COOKIE_NAME)
+        if language:
+            print(f'=========================> language:{language}')
+
+        if self.client_appointment:
+            business_handler = self.kwargs.get('business_handler', None)
+            business = get_object_or_404(Account, handler=business_handler)
+            
+            # Set default language if not set
+            if not request.session.get(settings.LANGUAGE_COOKIE_NAME):
+                print(f'=========================> business.default_language:{business.default_language}')
+                request.session[settings.LANGUAGE_COOKIE_NAME] = business.default_language
+                translation.activate(business.default_language)
+
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, form, **kwargs):    
         print('-------------------- get_context_data')    
         context = super().get_context_data(form=form, **kwargs)
@@ -1075,7 +1094,8 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
                 return InactiveEventForm()
             elif step == 'CustomerInfo':
                 form = CustomerInformationForm(data=data, event=event)
-        elif step == 'DateTime':
+
+        if step == 'DateTime':
             print('IN SELECT DATETIME FORM')
             if 'event_handler' in self.kwargs:
                 event_handler = self.kwargs['event_handler']
@@ -1137,20 +1157,20 @@ class BookingCreateWizardView(AppointmentWizardAccessMixin, SessionWizardView):
         
         if self.steps.current == 'Event':
             self.progress_width = 5
-            self.booking_page_heading = 'Events'
-            self.booking_page_subheading = 'Select the event you want.'
+            self.booking_page_heading = _('Events')
+            self.booking_page_subheading = _('Select the event you want.')
         elif self.steps.current == 'Worker':
             self.progress_width = 25   
-            self.booking_page_heading = 'Staff'
-            self.booking_page_subheading = 'Select one of our staff members.' 
+            self.booking_page_heading = _('Staff')
+            self.booking_page_subheading = _('Select one of our staff members.')
         elif self.steps.current == 'DateTime':
             self.progress_width = 50    
-            self.booking_page_heading = 'Location, Day and Time'
-            self.booking_page_subheading = 'Select the location, day and time of your appointment.'
+            self.booking_page_heading = _('Location, Day and Time')
+            self.booking_page_subheading = _('Select the location, day and time of your appointment.')
         elif self.steps.current == 'CustomerInfo':
             self.progress_width = 75   
-            self.booking_page_heading = 'Customer Info'
-            self.booking_page_subheading = 'Complete this information.'
+            self.booking_page_heading = _('Customer Info')
+            self.booking_page_subheading = _('Complete this information.')
         
         context = self.get_context_data(form=form, **kwargs)    
 
@@ -1503,6 +1523,8 @@ class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
             else:
                 worker.profile_image_url = worker.profile_image
 
+        domain = get_current_site(self.request).domain
+
         context.update({
             'business': business,
             'business_ui': business_ui,
@@ -1513,10 +1535,24 @@ class ViewBusiness(AdminRequiredForBusinessMixin, TemplateView):
             'gm_key': settings.GM_KP,
             'businesses_configuration': businesses_configuration,
             'web_url': web_url,
-            'workers': workers
+            'workers': workers,
+            'domain': domain
         })
 
         return context
+    
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if self.show_web:
+            business_handler = self.kwargs.get('business_handler', None)
+            business = get_object_or_404(Account, handler=business_handler)
+
+            # Set default language if not set
+            if not request.session.get(settings.LANGUAGE_COOKIE_NAME):
+                request.session[settings.LANGUAGE_COOKIE_NAME] = business.default_language
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, business.default_language)
+                translation.activate(business.default_language)
+        return response
 
 @business_admin_required
 def add_business_event(request, business_id = -1):
@@ -1604,6 +1640,12 @@ def update_business_ui(request, business_id):
 
         # Update general business description
         account_ui.description = request.POST.get('description')
+
+        # Update the default language
+        default_language = request.POST.get('default_language')
+        if default_language in dict(settings.LANGUAGES).keys():
+            account.default_language = default_language
+            account.save()
         
         # Save the UI instance
         account_ui.save()
@@ -1661,7 +1703,19 @@ class UserProfileView(UserProfileMixin, View):
         if self.show_web:
             self.template_name = ['web/user_profile.html']
 
-        return render(request, self.template_name, context)
+        response = render(request, self.template_name, context)
+
+        if self.show_web:
+            business_handler = kwargs.get('business_handler')
+            business = get_object_or_404(Account, handler=business_handler)
+
+            # Set default language if not set
+            if not request.session.get(settings.LANGUAGE_COOKIE_NAME):
+                request.session[settings.LANGUAGE_COOKIE_NAME] = business.default_language
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, business.default_language)
+                translation.activate(business.default_language)
+
+        return response
 
     def post(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
@@ -1712,6 +1766,18 @@ class ServiceView(TemplateView):
         })
 
         return context
+    
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        business_handler = self.kwargs.get('business_handler', None)
+        business = get_object_or_404(Account, handler=business_handler)
+
+        # Set default language if not set
+        if not request.session.get(settings.LANGUAGE_COOKIE_NAME):
+            request.session[settings.LANGUAGE_COOKIE_NAME] = business.default_language
+            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, business.default_language)
+            translation.activate(business.default_language)
+        return response
     
 @user_is_event_admin
 def load_more_images(request, event_id):
@@ -1999,6 +2065,10 @@ def confirm_invitation(request, token):
         return render(request, 'generic_error.html', {'message': 'Invalid or expired invitation.'})
     
 def home(request):
+    #translation.activate('es')
+    current_language = translation.get_language()
+    print(f"Current language: {current_language}")    
+    print(f"LOCALE_PATHS: {settings.LOCALE_PATHS}")
     return render(request, 'home/home.html')
 
 @login_required
@@ -2109,3 +2179,19 @@ def invitee_detail_view(request, invitee_id):
         'page_obj': page_obj,
     }
     return render(request, 'invitee/invitee_detail.html', context)
+
+def set_language(request):
+    if request.method == 'POST':
+        lang_code = request.POST.get('language')
+        next_url = request.POST.get('next', '/')
+        response = HttpResponseRedirect(next_url)
+
+        if lang_code and lang_code in dict(settings.LANGUAGES).keys():
+            # Set the language in the session
+            request.session[settings.LANGUAGE_COOKIE_NAME] = lang_code
+            # Set the language in the cookie
+            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code)
+            translation.activate(lang_code)
+
+        return response
+    return redirect('/')

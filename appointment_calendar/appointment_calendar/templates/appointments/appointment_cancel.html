@@ -1,23 +1,25 @@
 {% extends 'appointments/base_cancel_appointment.html' %}
+{% load i18n %}
 {% block side_text %}
     <div class="booking-cta">
-        <h1>{{event.name}}</h1>
-        <p>{{event.presentation}}</p>
+        <h1>{{ event.name }}</h1>
+        <p>{{ event.presentation }}</p>
     </div>
 {% endblock side_text %}
+
 {% block steps %}
 <div class="container">
-    <h1>Cancel Appointment</h1>
-    <p>Are you sure you want to cancel the following appointment?</p>
+    <h1>{% translate "Cancel Appointment" %}</h1>
+    <p>{% translate "Are you sure you want to cancel the following appointment?" %}</p>
     <ul>
-        <li>Date: {{ appointment.date }}</li>
-        <li>Time: {{ appointment.time }}</li>
-        <li>Location: {{ appointment.location }}</li>
-        <li>With: {{ appointment.worker }}</li>
+        <li>{% translate "Date" %}: {{ appointment.date }}</li>
+        <li>{% translate "Time" %}: {{ appointment.time }}</li>
+        <li>{% translate "Location" %}: {{ appointment.location }}</li>
+        <li>{% translate "With" %}: {{ appointment.worker }}</li>
     </ul>
     <form method="post" id="confirmCancellationForm">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+        <button type="submit" class="btn btn-danger">{% translate "Confirm Cancellation" %}</button>
     </form>
 </div>
 <div class="modal" id="spinnerModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -25,7 +27,7 @@
         <div class="modal-content" style="background-color: transparent; border: none; box-shadow: none;">
             <div class="modal-body d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                    <span class="sr-only">Loading...</span>
+                    <span class="sr-only">{% translate "Loading..." %}</span>
                 </div>
             </div>
         </div>
@@ -34,23 +36,22 @@
 {% endblock %}
 
 {% block extra_script %}
-    <script>
-        $(document).ready(function() {
-         
-            $('#confirmCancellationForm').on('submit', function() {
-                showSpinner();
-            });
-        
-            function showSpinner() {
-                $('#spinnerModal').modal({
-                    backdrop: 'static', // Disable clicking on the backdrop to close
-                    keyboard: false // Disable using the keyboard to close
-                }).modal('show');
-            }
-        
-            function hideSpinner() {
-                $('#spinnerModal').modal('hide');
-            }
+<script>
+    $(document).ready(function() {
+        $('#confirmCancellationForm').on('submit', function() {
+            showSpinner();
         });
-    </script>
+
+        function showSpinner() {
+            $('#spinnerModal').modal({
+                backdrop: 'static', // Disable clicking on the backdrop to close
+                keyboard: false // Disable using the keyboard to close
+            }).modal('show');
+        }
+
+        function hideSpinner() {
+            $('#spinnerModal').modal('hide');
+        }
+    });
+</script>
 {% endblock extra_script %}

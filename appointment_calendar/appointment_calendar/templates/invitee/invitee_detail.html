@@ -1,33 +1,33 @@
 {% extends "base2.html" %}
 {% load static %}
-
+{% load i18n %}
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'search_invitees' %}">Manage Clients</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ invitee.name }}</li>
+        <li class="breadcrumb-item"><a href="{% url 'search_invitees' %}">{% translate "Manage Clients" %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ invitee.name }}</li>
     </ol>
-  </nav>
+</nav>
 <div class="container mt-5">
     <h2 class="mb-4">{{ invitee.name }}</h2>
 
     <div class="card mb-4">
         <div class="card-body">
-            <h5 class="card-title">Client Information</h5>
-            <p class="card-text"><strong>Email:</strong> {{ invitee.email }}</p>
-            <p class="card-text"><strong>Phone Number:</strong> {{ invitee.phone_number }}</p>
+            <h5 class="card-title">{% translate "Client Information" %}</h5>
+            <p class="card-text"><strong>{% translate "Email:" %}</strong> {{ invitee.email }}</p>
+            <p class="card-text"><strong>{% translate "Phone Number:" %}</strong> {{ invitee.phone_number }}</p>
         </div>
     </div>
 
-    <h3>Appointment History</h3>
+    <h3>{% translate "Appointment History" %}</h3>
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Event Name</th>
-                    <th>Business Name</th>
+                    <th>{% translate "Date" %}</th>
+                    <th>{% translate "Time" %}</th>
+                    <th>{% translate "Event Name" %}</th>
+                    <th>{% translate "Business Name" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,7 +47,7 @@
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="{% translate "Previous" %}">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
@@ -61,7 +61,7 @@
             {% endfor %}
             {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="{% translate "Next" %}">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>

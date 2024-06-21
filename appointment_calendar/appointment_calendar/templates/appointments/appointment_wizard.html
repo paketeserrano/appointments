@@ -1,5 +1,6 @@
 {% extends base_template %}
 {% load custom_filters %}
+{% load i18n %}
 
 {% block side_text %}
     <div class="booking-cta">
@@ -57,7 +58,7 @@
             <div id="time-list" class="container row g-2">
             {% if not get_available_time %}
                 <div class="alert alert-warning" role="alert">
-                    No available time slots for the selected date. Please choose another date.
+                    {% translate "No available time slots for the selected date. Please choose another date." %}
                 </div>
             {% else %}
                 <!-- Time List START -->                
@@ -144,7 +145,7 @@
                 }
                 else {
                     time_slots_html = '<div class="alert alert-warning" role="alert">' + 
-                                      'No available time slots for the selected date. Please choose another date.' +
+                                      '{% translate "No available time slots for the selected date. Please choose another date." %}' +
                                       '</div>'
                 }
 

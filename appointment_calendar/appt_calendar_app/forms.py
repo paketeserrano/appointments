@@ -122,10 +122,6 @@ class SelectDateTimeForm(ChangeInputsStyle):
         # super creates different id names
         self.fields['date'].widget.attrs.update({'id': 'id_DateTime-date'}) 
         self.fields['time'].widget.attrs.update({'id': 'id_DateTime-time'})
-
-        # Debugging prints after modification
-        print("Fields after modification:", self.fields)
-        print("ID of date field after modification:", self.fields['date'].widget.attrs.get('id'))
     
 class CustomerInformationForm(ChangeInputsStyle):
     user_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'class': 'form-control'}))

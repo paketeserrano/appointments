@@ -1,17 +1,18 @@
 {% extends 'base2.html' %}
+{% load i18n %}
 
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Create Appointment</li>
+      <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% translate "Dashboard" %}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{% translate "Create Appointment" %}</li>
     </ol>
-  </nav>
+</nav>
 
-<h1>Add Appointment</h1>
+<h1>{% translate "Add Appointment" %}</h1>
 
 {% if accounts %}
-    <h3>Select the business wher you want to add the appointment</h3>
+    <h3>{% translate "Select the business where you want to add the appointment" %}</h3>
 
     <div class="mb-3">
         <select class="form-select" id="select_business_dropdown">
@@ -21,10 +22,10 @@
         </select>
     </div>
 
-    <button id="appointmentButton" class="btn btn-primary">Select</button>
+    <button id="appointmentButton" class="btn btn-primary">{% translate "Select" %}</button>
 {% else %}
     <div class="alert alert-info" role="alert">
-        You need to create a business before you can schedule time.
+        {% translate "You need to create a business before you can schedule time." %}
     </div>
 {% endif %}
 

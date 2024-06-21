@@ -7,6 +7,7 @@ from django.utils import timezone
 import uuid
 import os
 from .libs import utils
+from django.conf import settings
 
 
 # Create your models here.
@@ -70,6 +71,7 @@ class Account(models.Model):
     time_slot_duration = models.IntegerField(default=30) 
     address = models.OneToOneField(Address, on_delete=models.CASCADE, related_name='account', null=True)
     handler = models.SlugField(max_length=255, unique=True)
+    default_language = models.CharField(max_length=7, choices=settings.LANGUAGES, default='es')
 
     def save(self, *args, **kwargs):
         if not self.handler:

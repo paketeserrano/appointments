@@ -1,5 +1,5 @@
 {% extends 'base2.html' %}
-
+{% load i18n %}
 {% block extra_css %}
 <style>
     .card {
@@ -76,30 +76,30 @@
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item active" aria-current="page">Manage Clients</li>
+        <li class="breadcrumb-item active" aria-current="page">{% translate "Manage Clients" %}</li>
     </ol>
 </nav>
 
 <div class="rc-card">
-    <h1>Search Clients</h1>
+    <h1>{% translate "Search Clients" %}</h1>
     <form id="searchForm" method="get" style='display:none' action="{% url 'search_invitees' %}">
         <div class="mb-3 col-6">
-            <label for="id_account" class="form-label">Business</label>
+            <label for="id_account" class="form-label">{% translate "Business" %}</label>
             {{ form.account }}
         </div>
         <div class="mb-3 col-6">
-            <label for="id_name" class="form-label">Name</label>
+            <label for="id_name" class="form-label">{% translate "Name" %}</label>
             {{ form.name }}
         </div>
         <div class="mb-3 col-6">
-            <label for="id_email" class="form-label">Email</label>
+            <label for="id_email" class="form-label">{% translate "Email" %}</label>
             {{ form.email }}
         </div>
         <div class="mb-3 col-6">
-            <label for="id_phone_number" class="form-label">Phone Number</label>
+            <label for="id_phone_number" class="form-label">{% translate "Phone Number" %}</label>
             {{ form.phone_number }}
         </div>
-        <button type="submit" class="btn btn-primary" id="searchButton">Search</button>
+        <button type="submit" class="btn btn-primary" id="searchButton">{% translate "Search" %}</button>
     </form>
     {% if error_message %}
         <div class="error-message">{{ error_message }}</div>
@@ -107,22 +107,22 @@
 </div>
 
 <div class="rc-card">
-    <h1>Invitees</h1>
+    <h1>{% translate "Clientes" %}</h1>
     <div class="accordion custom-accordion" id="inviteesList">
         {% if invitees %}
             <div class="alert alert-primary" role="alert">
-                Invitees found.
-                <button type="button" class="btn btn-primary" id="changeSearchLink">Change Search</button>
+                {% translate "Clients found." %}
+                <button type="button" class="btn btn-primary" id="changeSearchLink">{% translate "Change Search" %}</button>
             </div>
             <div class="cards-container">
                 {% for invitee in invitees %}
                     <div class="card">
                         <div>
                             <h5>{{ invitee.name }}</h5>
-                            <p>Email: {{ invitee.email }}</p>
-                            <p>Phone: {{ invitee.phone_number }}</p>
+                            <p>{% translate "Email" %}: {{ invitee.email }}</p>
+                            <p>{% translate "Phone" %}: {{ invitee.phone_number }}</p>
                         </div>
-                        <a href="{% url 'invitee_detail' invitee.id %}" class="btn btn-secondary" <button class="btn btn-secondary" style="background-color:#07367c">View More Info</a>
+                        <a href="{% url 'invitee_detail' invitee.id %}" class="btn btn-secondary" <button class="btn btn-secondary" style="background-color:#07367c">{% translate "View More Info" %}</a>
                     </div>
                 {% endfor %}
             </div>
@@ -130,14 +130,14 @@
                 <ul class="pagination">
                     {% if invitees.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">First</a>
+                            <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{% translate "First" %}</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ invitees.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Previous</a>
+                            <a class="page-link" href="?page={{ invitees.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{% translate "Previous" %}</a>
                         </li>
                     {% else %}
-                        <li class="page-item disabled"><span class="page-link">First</span></li>
-                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                        <li class="page-item disabled"><span class="page-link">{% translate "First" %}</span></li>
+                        <li class="page-item disabled"><span class="page-link">{% translate "Previous" %}</span></li>
                     {% endif %}
 
                     {% for num in invitees.paginator.page_range %}
@@ -150,21 +150,21 @@
 
                     {% if invitees.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ invitees.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Next</a>
+                            <a class="page-link" href="?page={{ invitees.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{% translate "Next" %}</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ invitees.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Last</a>
+                            <a class="page-link" href="?page={{ invitees.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{% translate "Last" %}</a>
                         </li>
                     {% else %}
-                        <li class="page-item disabled"><span class="page-link">Next</span></li>
-                        <li class="page-item disabled"><span class="page-link">Last</span></li>
+                        <li class="page-item disabled"><span class="page-link">{% translate "Next" %}</span></li>
+                        <li class="page-item disabled"><span class="page-link">{% translate "Last" %}</span></li>
                     {% endif %}
                 </ul>
             </div>
         {% else %}
             <div class="alert alert-primary" role="alert">
-                No invitees found.
-                <button type="button" class="btn btn-primary" id="changeSearchLink">Show Search Params</button>
+                {% translate "No clients found." %}
+                <button type="button" class="btn btn-primary" id="changeSearchLink">{% translate "Show Search Params" %}</button>
             </div>
         {% endif %}
     </div>
@@ -192,7 +192,7 @@
 
         function toggleSearchForm() {
             searchForm.style.display = searchForm.style.display === 'none' ? 'block' : 'none';
-            $('#changeSearchLink').text(searchForm.style.display === 'none' ? 'Show Search Params' : 'Hide Search Params')
+            $('#changeSearchLink').text(searchForm.style.display === 'none' ? '{% translate "Show Search Params" %}' : '{% translate "Hide Search Params" %}')
         }
 
         accountInput.addEventListener('input', toggleSearchButton);

@@ -1,25 +1,27 @@
+
 {% extends '../home/home_base.html' %}  
 {% load widget_tweaks %}
+{% load i18n %}
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h2 class="card-title text-center">Login</h2>
+                    <h2 class="card-title text-center">{% translate "Login" %}</h2>
                     {% if form.errors %}
                         <div class="alert alert-danger">
-                            Your username and password didn't match. Please try again.
+                            {% translate "Your username and password didn't match. Please try again." %}
                         </div>
                     {% endif %}
                     {% if next %}
                         {% if user.is_authenticated %}
                             <div class="alert alert-warning">
-                                Your account doesn't have access to this page. To proceed, please login with an account that has access.
+                                {% translate "Your account doesn't have access to this page. To proceed, please login with an account that has access." %}
                             </div>
                         {% else %}
                             <div class="alert alert-info">
-                                Please login to see this page.
+                                {% translate "Please login to see this page." %}
                             </div>
                         {% endif %}
                     {% endif %}
@@ -34,17 +36,17 @@
                             {{ form.password|add_class:"form-control" }}
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-block">Log In</button>
+                            <button type="submit" class="btn btn-primary btn-block">{% translate "Log In" %}</button>
                         </div>
                         <input type="hidden" name="next" value="{{ next }}">
                     </form>
                 </div>
             </div>
             <div class="text-center mt-3">
-                <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+                <p><a href="{% url 'password_reset' %}">{% translate "Lost password?" %}</a></p>
             </div>
             <div class="text-center mt-3">
-                <p>or <a href="{% url 'user_registration' %}">Register</a></p>
+                <p>{% translate "or" %} <a href="{% url 'user_registration' %}">{% translate "Register" %}</a></p>
             </div>
         </div>
     </div>

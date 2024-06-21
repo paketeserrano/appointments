@@ -1,14 +1,14 @@
 {% extends '../home/home_base.html' %}  
-
+{% load i18n %}
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="rc-card p-4 text-center">
-                <h1 class="mb-4">You have been logged out</h1>
-                <p class="mb-4">Thank you for using our system. If you need to log in again, just click the button below.</p>
-                <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Log In Again</a>
-                <p class="mt-5 text-muted">If you encounter any issues, please contact our support team.</p>
+                <h1 class="mb-4">{% translate "You have been logged out" %}</h1>
+                <p class="mb-4">{% translate "Thank you for using our system. If you need to log in again, just click the button below." %}</p>
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg">{% translate "Log In Again" %}</a>
+                <p class="mt-5 text-muted">{% translate "If you encounter any issues, please contact our support team." %}</p>
             </div>
         </div>
     </div>

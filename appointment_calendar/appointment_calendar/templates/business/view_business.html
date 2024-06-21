@@ -1,5 +1,5 @@
 {% extends 'base2.html' %}
-
+{% load i18n %}
 {% block extra_css %}
 <style>
     .table-row {
@@ -98,7 +98,7 @@
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">Businesses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">{% translate "Businesses" %}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ business.name | capfirst }}</li>
     </ol>
 </nav>
@@ -112,7 +112,7 @@
                 <i class="fas fa-cog"></i>
               </button>
               <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteBusinessModal">Delete Business</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteBusinessModal">{% translate "Delete Business" %}</a></li>
               </ul>
           </div>
         </div>
@@ -121,13 +121,13 @@
         <div class="card card-custom">
           <div class="card-body">
             <div class="card-title">
-              <h5>Business Status</h5>
+              <h5>{% translate "Business Status" %}</h5>
               <span class="percentage-label">{{ businesses_configuration.percentage_completed }}%</span>
             </div>
             <div class="progress my-3">
               <div class="progress-bar" role="progressbar" style="width: {{ businesses_configuration.percentage_completed }}%;" aria-valuenow="{{ businesses_configuration.percentage_completed }}" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
-            <a href="#" data-bs-toggle="modal" data-bs-target="#actionsModal">Actions</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#actionsModal">{% translate "Actions" %}</a>
           </div>
         </div>
     </div>
@@ -136,46 +136,46 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="actionsModalLabel">Business Actions</h5>
+          <h5 class="modal-title" id="actionsModalLabel">{% translate "Business Actions" %}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <div class="d-flex align-items-center">
                 {% if businesses_configuration.has_at_least_one_event %} 
                     <i class="fas fa-check-circle fa-sm text-success"></i>
-                    <span class="ms-2 text-muted">Create one event</span>
+                    <span class="ms-2 text-muted">{% translate "Create one event" %}</span>
                 {% else %}
                     <i class="far fa-circle fa-sm text-danger"></i>
-                    <span class="ms-2 text-muted">Create one event</span>
+                    <span class="ms-2 text-muted">{% translate "Create one event" %}</span>
                 {% endif %}
             </div>
             <div class="d-flex align-items-center">
                 {% if businesses_configuration.has_at_least_one_business_hour %} 
                     <i class="fas fa-check-circle fa-sm text-success"></i>
-                    <span class="ms-2 text-muted">Worked on Business Hours</span>
+                    <span class="ms-2 text-muted">{% translate "Business Hours" %}</span>
                     <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
-                        data-bs-placement="right" title="Customers will only be able to book any event on this business during the business hours declared below"></i>
+                        data-bs-placement="right" title="{% translate "Customers will only be able to book any event on this business during the business hours declared below" %}"></i>
                 {% else %}
                     <i class="far fa-circle fa-sm text-danger"></i>
-                    <span class="ms-2 text-muted">Worked on Business Hours</span>
+                    <span class="ms-2 text-muted">{% translate "Business Hours" %}</span>
                 {% endif %}
             </div>
             <div class="d-flex align-items-center">
                 {% if businesses_configuration.has_business_presentation %} 
                     <i class="fas fa-check-circle fa-sm text-success"></i>
-                    <span class="ms-2 text-muted">Filled Business Presentation</span>
+                    <span class="ms-2 text-muted">{% translate "Filled Business Presentation" %}</span>
                 {% else %}
                     <i class="far fa-circle fa-sm text-danger"></i>
-                    <span class="ms-2 text-muted">Filled Business Presentation</span>
+                    <span class="ms-2 text-muted">{% translate "Filled Business Presentation" %}</span>
                 {% endif %}
             </div>
             <div class="d-flex align-items-center">
                 {% if businesses_configuration.has_header_image %} 
                     <i class="fas fa-check-circle fa-sm text-success"></i>
-                    <span class="ms-2 text-muted">Added a Front Image</span>
+                    <span class="ms-2 text-muted">{% translate "Web Header Image" %}</span>
                 {% else %}
                     <i class="far fa-circle fa-sm text-danger"></i>
-                    <span class="ms-2 text-muted">Added a Front Image</span>
+                    <span class="ms-2 text-muted">{% translate "Web Header Image" %}</span>
                 {% endif %}
             </div>
         </div>
@@ -184,7 +184,7 @@
 </div>
 
 <div class="rc-card">
-    <h1>Events</h1>
+    <h1>{% translate "Events" %}</h1>
     <div class="container">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for event in events %}
@@ -192,13 +192,17 @@
                 <div class="card h-100 mx-auto" style="border-radius: .75rem; box-shadow: 0 4px 8px rgba(0, 0, 0, .1);">
                     <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, teal);">
                         <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{ event.name }}</h5>
-                        <p class="card-text" style="color: #718096;">{{ event.duration }} mins</p>
-                        <a href="{% url 'event_detail' event.id %}" class="text-primary" style="color: #3182CE;">View event page</a>
+                        <p class="card-text" style="color: #718096;">{{ event.duration }} {% translate "mins" %}</p>
+                        <a href="{% url 'event_detail' event.id %}" class="text-primary" style="color: #3182CE;">{% translate "View event page" %}</a>
                     </div>
                     <div class="card-footer" style="border-top: 1px solid #E2E8F0; background-color: transparent;">
                         <div class="row align-items-center">
                             <div class="col-5">
-                                <a href="#" class="btn btn-outline-primary w-100 shareButton"  data-share-url="{{ event.event_url }}">Share</a>
+                                <a href="#" class="btn btn-outline-primary w-100 share-btn" data-bs-toggle="tooltip"
+                                    data-appointment-url="{{domain}}{% url 'client_appointment_for_event' event.account.handler event.handler %}" 
+                                    data-appointment-worker-url="{{domain}}{% url 'client_appointment_for_event_worker' event.account.handler event.handler user.customuser.id %}">
+                                    {% translate "Share" %}
+                                </a>
                             </div>
                             <div class="col-7">
                                 <div class="form-check form-switch">
@@ -206,9 +210,9 @@
                                     data-event-id="{{ event.id }}" {% if event.active %}checked{% endif %}>
                                     <label class="form-check-label toggle-label" for="toggleEvent{{ forloop.counter }}" style="color: #4299E1;">
                                         {% if event.active %}
-                                            Turn Off
+                                            {% translate "Turn Off" %}
                                         {% else %}
-                                            Turn On
+                                            {% translate "Turn On" %}
                                         {% endif %}
                                     </label>
                                 </div>
@@ -222,7 +226,7 @@
     </div>
     
     <div class="text-right mt-3">
-        <a href="{% url 'add_business_event' business.id %}" class="btn btn-primary">Add Event</a>
+        <a href="{% url 'add_business_event' business.id %}" class="btn btn-primary">{% translate "Add Event" %}</a>
     </div>
 </div>
 
@@ -233,17 +237,17 @@
             <div class="rc-card">   
                 <div class="row align-items-center"> <!-- Ensure vertical alignment in the middle -->
                     <div class="col-auto"> <!-- Use 'col-auto' to only take necessary width -->
-                        <h2>Business Hours</h2>
+                        <h2>{% translate "Business Hours" %}</h2>
                     </div>
                     <div class="col-auto"> <!-- Use 'col-auto' for the icon to stay close to the text -->
                         <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
-                        data-bs-placement="right" title="Days declared here will be available in your events when customers book them"></i>
+                        data-bs-placement="right" title="{% translate "Days declared here will be available in your events when customers book them" %}"></i>
                     </div>
                 </div>
                 <div class="container mt-5" id="businessHours">
                     {% for hour in business_hours %}
                     <div class="table-row hour-entry" data-hour-id="{{ hour.id }}" data-url="{% url 'business_hour_update' business.id hour.id %}">
-                        <span class="weekday">{{ hour.get_weekday_display }}</span>
+                        <span class="weekday">{% translate hour.get_weekday_display %}</span>
                         <span class="from-hour">{{ hour.from_hour }}</span>
                         <span class="to-hour">{{ hour.to_hour }}</span>
                         <div class="dropdown">
@@ -251,27 +255,27 @@
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item delete-hour" href="#">Delete</a></li>
-                                <li><a class="dropdown-item edit-hour" href="#" data-bs-toggle="modal" data-bs-target="#editBusinessHourModal" data-hour-id="{{ hour.id }}" data-weekday="{{ hour.get_weekday_display }}" data-from-hour="{{ hour.from_hour }}" data-to-hour="{{ hour.to_hour }}">Edit</a></li>
+                                <li><a class="dropdown-item delete-hour" href="#">{% translate "Delete" %}</a></li>
+                                <li><a class="dropdown-item edit-hour" href="#" data-bs-toggle="modal" data-bs-target="#editBusinessHourModal" data-hour-id="{{ hour.id }}" data-weekday="{{ hour.get_weekday_display }}" data-from-hour="{{ hour.from_hour }}" data-to-hour="{{ hour.to_hour }}">{% translate "Edit" %}</a></li>
                             </ul>
                         </div>
                     </div>
                     {% endfor %}
                     <button id="addHourButton" class="btn btn-primary mt-3">
-                        <i class="fas fa-plus"></i> Add New
+                        <i class="fas fa-plus"></i> {% translate "Add New" %}
                     </button>
                     <div id="addHourForm" class="d-none mt-3">
                         <div class="table-row">
                             <select class="form-control" id="newWeekday">
                                 {% for available_day in available_days %}
-                                    <option value="{{available_day.0}}">{{available_day.1}}</option>
+                                    <option value="{{available_day.0}}">{% translate available_day.1 %}</option>
                                 {%endfor%}
                             </select>
                             <input type="time" id="newFromHour" class="form-control">
                             <input type="time" id="newToHour" class="form-control">
                         </div>
-                        <button id="commitNewHour" class="btn btn-success mt-2">Add</button>
-                        <button id="cancelNewHour" class="btn btn-danger mt-2">Cancel</button>
+                        <button id="commitNewHour" class="btn btn-success mt-2">{% translate "Add" %}</button>
+                        <button id="cancelNewHour" class="btn btn-danger mt-2">{% translate "Cancel" %}</button>
                     </div>
                 </div>
             </div>
@@ -281,11 +285,11 @@
             <div class="rc-card">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <h2>Days Closed or Holidays</h2>
+                        <h2>{% translate "Days Closed or Holidays" %}</h2>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
-                        data-bs-placement="right" title="Add special days you are closed. Maybe a bank holiday or something unexpected happened"></i>
+                        data-bs-placement="right" title="{% translate "Add special days you are closed. Maybe a bank holiday or something unexpected happened" %}"></i>
                     </div>
                 </div>
                 <div class="container mt-5" id="specialDays">        
@@ -299,14 +303,14 @@
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
-                                    <li><a class="dropdown-item delete-day" href="#">Delete</a></li>
-                                    <li><a class="dropdown-item edit-day" href="#">Edit</a></li>
+                                    <li><a class="dropdown-item delete-day" href="#">{% translate "Delete" %}</a></li>
+                                    <li><a class="dropdown-item edit-day" href="#">{% translate "Edit" %}</a></li>
                                 </ul>
                             </div>
                         </div>
                     {% endfor %}
                     <button id="addSpecialDayButton" class="btn btn-primary mt-3">
-                        <i class="fas fa-plus"></i> Add New
+                        <i class="fas fa-plus"></i> {% translate "Add New" %}
                     </button>
                     <div id="addSpecialDayForm" class="d-none mt-3">
                         <div class="table-row">
@@ -314,8 +318,8 @@
                             <input type="time" id="newDateFromHour" class="form-control">
                             <input type="time" id="newDateToHour" class="form-control">
                         </div>
-                        <button id="commitNewSpecialDay" class="btn btn-success mt-2">Add</button>
-                        <button id="cancelNewSpecialDay" class="btn btn-danger mt-2">Cancel</button>
+                        <button id="commitNewSpecialDay" class="btn btn-success mt-2">{% translate "Add" %}</button>
+                        <button id="cancelNewSpecialDay" class="btn btn-danger mt-2">{% translate "Cancel" %}</button>
                     </div>
                 </div>
             </div>            
@@ -328,11 +332,11 @@
             <div class="rc-card">
                 <div class="row align-items-center"> <!-- Ensure vertical alignment in the middle -->
                     <div class="col-auto"> <!-- Use 'col-auto' to only take necessary width -->
-                        <h2>Workers</h2>
+                        <h2>{% translate "Workers" %}</h2>
                     </div>
                     <div class="col-auto"> <!-- Use 'col-auto' for the icon to stay close to the text -->
                         <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
-                        data-bs-placement="right" title="Workers added here will be available to be assigned in your events"></i>
+                        data-bs-placement="right" title="{% translate "Workers added here will be available to be assigned in your events" %}"></i>
                     </div>
                 </div>
 
@@ -340,7 +344,7 @@
                     <div class="table-responsive">
                         {% for worker in business.account_workers.all %}
                             <div class="table-row">
-                                <span style="text-align:unset">{{worker.user.first_name}} {{worker.user.last_name}}</span>
+                                <span style="text-align:unset">{{worker.user.first_name|capfirst}} {{worker.user.last_name|capfirst}}</span>
                                 <div class="dropdown">
                                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
@@ -348,15 +352,15 @@
                                         </svg>
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
-                                        <li><a class="dropdown-item" href="{% url 'worker_remove' business.id  worker.id %}">Remove Worker</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'worker_detail' business.id worker.id %}">View Worker</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'worker_remove' business.id  worker.id %}">{% translate "Remove Worker" %}</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'worker_detail' business.id worker.id %}">{% translate "View Worker" %}</a></li>
                                     </ul>
                                 </div>
                             </div>
                         {% endfor %}
                     </div>
                     <div class="d-flex">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inviteWorkerModal">Add Worker</button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inviteWorkerModal">{% translate "Add Worker" %}</button>
                     </div>
                 </div>
             </div>
@@ -365,11 +369,11 @@
             <div class="rc-card card">
                 <div class="row align-items-center"> <!-- Title row with icon -->
                     <div class="col-auto">
-                        <h2>Business Website</h2>
+                        <h2>{% translate "Business Website" %}</h2>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-info-circle ms-2" id="infoIcon" data-bs-toggle="tooltip" 
-                        data-bs-placement="right" title="Manage how your website looks"></i>
+                        data-bs-placement="right" title="{% translate "Manage how your website looks" %}"></i>
                     </div>
                 </div>
                     <div class="row">
@@ -378,77 +382,92 @@
                             <div class="card-body">
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" id="is_visible" {% if business_ui.is_visible %}checked{% endif %}>
-                                    <label class="form-check-label" for="is_visible">Is Visible</label>
-                                    <i class="fas fa-question-circle ms-2" onclick="showTooltip(this);" data-bs-toggle="tooltip" data-bs-placement="right" title="Toggle to make your business website visible or invisible to customers."></i>
+                                    <label class="form-check-label" for="is_visible">{% translate "Is Visible" %}</label>
+                                    <i class="fas fa-question-circle ms-2" onclick="showTooltip(this);" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "Toggle to make your business website visible or invisible to customers." %}"></i>
+                                </div>
+                                <!-- Add Language Selector -->
+                                <div class="mb-3">
+                                    <label for="defaultLanguage" class="form-label">
+                                        {% translate "Default Language" %}
+                                        <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="{% translate "Select the default language for your business." %}"></i>
+                                    </label>
+                                    <select class="form-control" id="defaultLanguage">
+                                        {% for code, name in LANGUAGES %}
+                                            <option value="{{ code }}" {% if business.default_language == code %}selected{% endif %}>
+                                                {{ name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                                 <!-- Business Description -->
                                 <div class="mb-3">
                                     <label for="businessDescription" class="form-label">
-                                        Business Description
-                                        <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="Provide a detailed description of your business."></i>
+                                        {% translate "Business Description" %}
+                                        <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="{% translate "Provide a detailed description of your business." %}"></i>
                                     </label>
-                                    <textarea class="form-control" id="businessDescription" rows="3" maxlength="500" placeholder="Enter business description here...">{{business_ui.description}}</textarea>
+                                    <textarea class="form-control" id="businessDescription" rows="6
+                                    " maxlength="500" placeholder="{% translate "Enter business description here..." %}">{{business_ui.description}}</textarea>
                                 </div>
                                 <div class="mb-3">
                                     <div class="form-label">
-                                        <a href="{% url 'business_appearance' business_id=business.id %}">Website Appearance</a>
-                                        <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="Set up your website aooearance"></i>
+                                        <a href="{% url 'business_appearance' business_id=business.id %}">{% translate "Website Appearance" %}</a>
+                                        <i class="fas fa-question-circle" data-bs-toggle="tooltip" title="{% translate "Set up your website appearance" %}"></i>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <div class="event-link">
                                         <a href="{{web_url}}" class="info-link" id="businessWebsite" aria-disabled="false" target="_blank">
-                                          View Business Website           
+                                          {% translate "View Business Website" %}           
                                         </a>
-                                        <i class="fas fa-info-circle ms-2" id="infoIcon"  data-bs-toggle="tooltip" data-bs-placement="right" title="The more info you add to your business and events, the better the website will look"></i>
+                                        <i class="fas fa-info-circle ms-2" id="infoIcon"  data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "The more info you add to your business and events, the better the website will look" %}"></i>
                                       </div>
                                 </div>
                             </div>
                         </div>
                         <!-- Right column for business header image settings -->
                         <div class="col-md-6 d-flex flex-column align-items-center">
-                            <div class="w-100 d-flex justify-content-center align-items-center">
-                                <h4 class="mb-2">Business Header Image</h4>
-                                <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="This image will show on the front header of this business website"></i>
+                            <div class="w-100 d-flex justify-content-center align-items-center text-center">
+                                <h4 class="mb-2">{% translate "Header Image" %}</h4>
+                                <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "This image will show on the front header of this business website" %}"></i>
                             </div>
                             <img src="{{ business_ui.header_image_url }}" id="headerImagePreview" class="img-fluid mb-2" style="max-height: 200px;">
                             <!-- Button to open file picker -->
-                            <button id="changeImageButton" class="btn btn-primary" style="width:50%;">Change</button>
+                            <button id="changeImageButton" class="btn btn-primary" style="width:50%;">{% translate "Change" %}</button>
                             <!-- Hidden File Input -->
                             <input type="file" id="businessHeaderImage" accept="image/png, image/jpeg" style="display:none;">
                         </div>
                     </div>
                     <!-- Row for Save and Cancel Buttons -->
                     <div class="row mt-4">
-                        <div class="col-12 text-end">
-                            <button type="button" class="btn btn-primary" id="saveSettings">Save Changes</button>
-                            <button type="button" class="btn btn-secondary" id="cancelSettings">Cancel</button>
+                        <div class="col-12 text-center">
+                            <button type="button" class="btn btn-primary" id="saveSettings">{% translate "Save Changes" %}</button>
+                            <button type="button" class="btn btn-secondary" id="cancelSettings">{% translate "Cancel" %}</button>
                         </div>
                     </div>
             </div>
         </div>
         <div class="col-md-6">            
             <div class="rc-card">
-                <h2>Address Information</h2>
+                <h2>{% translate "Address Information" %}</h2>
                 <div class="container form-container" id="addressForm">   
                     <div class="form-group mb-3">
-                        <label for="address">Address:</label>
-                        <input type="text" class="form-control" id="address" value="{{business.address.address}}" name="address" placeholder="Enter address">
+                        <label for="address">{% translate "Address" %}:</label>
+                        <input type="text" class="form-control" id="address" value="{{business.address.address}}" name="address" placeholder="{% translate "Enter address" %}">
                     </div>
                     <div class="form-group mb-3">
-                        <label for="city">City:</label>
-                        <input type="text" class="form-control" id="city" value="{{business.address.city}}" name="city" placeholder="Enter city">
+                        <label for="city">{% translate "City" %}:</label>
+                        <input type="text" class="form-control" id="city" value="{{business.address.city}}" name="city" placeholder="{% translate "Enter city" %}">
                     </div>
                     <div class="form-group mb-3">
-                        <label for="province">Province:</label>
-                        <input type="text" class="form-control" id="province" value="{{business.address.province}}" name="province" placeholder="Enter province">
+                        <label for="province">{% translate "Province" %}:</label>
+                        <input type="text" class="form-control" id="province" value="{{business.address.province}}" name="province" placeholder="{% translate "Enter province" %}">
                     </div>
                     <div class="form-group mb-3">
-                        <label for="country">Country:</label>
-                        <input type="text" class="form-control" id="country" value="{{business.address.country}}" name="country" placeholder="Enter country">
+                        <label for="country">{% translate "Country" %}:</label>
+                        <input type="text" class="form-control" id="country" value="{{business.address.country}}" name="country" placeholder="{% translate "Enter country" %}">
                     </div>
-                    <button type="button" class="btn btn-primary" id="saveAddressButton">Save</button>
-                    <button type="button" class="btn btn-secondary" id="cancelAddressButton">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveAddressButton">{% translate "Save" %}</button>
+                    <button type="button" class="btn btn-secondary" id="cancelAddressButton">{% translate "Cancel" %}</button>
                 </div>
             </div>
         </div>
@@ -459,24 +478,24 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="inviteWorkerModalLabel">Invite New Worker</h5>
+                <h5 class="modal-title" id="inviteWorkerModalLabel">{% translate "Invite New Worker" %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="inviteWorkerForm">
                     <div class="mb-3">
-                        <label for="recipientEmail" class="form-label">Email address</label>
+                        <label for="recipientEmail" class="form-label">{% translate "Email address" %}</label>
                         <input type="email" class="form-control" id="recipientEmail" required>
                     </div>
                     <div class="mb-3">
-                        <label for="recipientName" class="form-label">Recipient Name</label>
+                        <label for="recipientName" class="form-label">{% translate "Recipient Name" %}</label>
                         <input type="text" class="form-control" id="recipientName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="invitationNotes" class="form-label">Notes (optional)</label>
+                        <label for="invitationNotes" class="form-label">{% translate "Notes (optional)" %}</label>
                         <textarea class="form-control" id="invitationNotes"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Send Invitation</button>
+                    <button type="submit" class="btn btn-primary">{% translate "Send Invitation" %}</button>
                 </form>
             </div>
         </div>
@@ -488,13 +507,13 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editBusinessHourModalLabel">Edit Business Hour</h5>
+                <h5 class="modal-title" id="editBusinessHourModalLabel">{% translate "Edit Business Hour" %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editBusinessHourForm">
                     <div class="mb-3">
-                        <label for="editWeekday" class="form-label">Weekday</label>
+                        <label for="editWeekday" class="form-label">{% translate "Weekday" %}</label>
                         <select class="form-control" id="editWeekday">
                             {% for available_day in available_days %}
                                 <option value="{{available_day.0}}">{{available_day.1}}</option>
@@ -502,15 +521,15 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="editFromHour" class="form-label">From Hour</label>
+                        <label for="editFromHour" class="form-label">{% translate "From Hour" %}</label>
                         <input type="time" id="editFromHour" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label for="editToHour" class="form-label">To Hour</label>
+                        <label for="editToHour" class="form-label">{% translate "To Hour" %}</label>
                         <input type="time" id="editToHour" class="form-control">
                     </div>
-                    <button type="button" class="btn btn-primary" id="saveEditHour">Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveEditHour">{% translate "Save" %}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
                 </form>
             </div>
         </div>
@@ -521,28 +540,28 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editSpecialDayModalLabel">Edit Special Day</h5>
+                <h5 class="modal-title" id="editSpecialDayModalLabel">{% translate "Edit Special Day" %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editSpecialDayForm">
                     <div class="mb-3">
-                        <label for="editSpecialDayDate" class="form-label">Date</label>
+                        <label for="editSpecialDayDate" class="form-label">{% translate "Date" %}</label>
                         <input type="date" id="editSpecialDayDate" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label for="editSpecialDayFromHour" class="form-label">From Hour</label>
+                        <label for="editSpecialDayFromHour" class="form-label">{% translate "From Hour" %}</label>
                         <input type="time" id="editSpecialDayFromHour" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label for="editSpecialDayToHour" class="form-label">To Hour</label>
+                        <label for="editSpecialDayToHour" class="form-label">{% translate "To Hour" %}</label>
                         <input type="time" id="editSpecialDayToHour" class="form-control">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveEditSpecialDay">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                <button type="button" class="btn btn-primary" id="saveEditSpecialDay">{% translate "Save changes" %}</button>
             </div>
         </div>
     </div>
@@ -553,15 +572,15 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="deleteBusinessModalLabel">Confirm Business Deletion</h5>
+          <h5 class="modal-title" id="deleteBusinessModalLabel">{% translate "Confirm Business Deletion" %}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          Are you sure you want to delete this business?
+          {% translate "Are you sure you want to delete this business?" %}
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" id="confirmDeleteBusiness">Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBusiness">{% translate "Delete" %}</button>
         </div>
       </div>
     </div>
@@ -572,12 +591,40 @@
         <div class="modal-content" style="background-color: transparent; border: none; box-shadow: none;">
             <div class="modal-body d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                    <span class="sr-only">Loading...</span>
+                    <span class="sr-only">{% translate "Loading..." %}</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareEventName" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="shareEventName"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <tbody>
+              <tr class="share-option clickable-row" style="text-align: center;" data-option="share-event">
+                <td>{% translate "Share event" %}</td>
+              </tr>
+              <tr class="share-option clickable-row" style="text-align: center;" data-option="share-as-worker">
+                <td>{% translate "Share with me as worker" %}</td>
+              </tr>
+              <tr class="share-option clickable-row" style="text-align: center;" data-option="cancel">
+                <td>{% translate "Cancel" %}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+</div>
+
 
 {% endblock %}
 
@@ -603,9 +650,6 @@
         $('.progress-bar').css('width', percentage + '%').attr('aria-valuenow', percentage).text(percentage + '%');
         $('.percentage-label').text(percentage + '%');
     }
-
-
-
 $(document).ready(function() {    
 
     // Delete hour endpoint base url. We need this when we remove an hour that was just added
@@ -620,66 +664,93 @@ $(document).ready(function() {
         city: '{{business.address.city}}',
         province: '{{business.address.province}}',
         country: '{{business.address.country}}'
-      };
+    };
 
     $('#cancelAddressButton').click(function() {
         // Restore form values to the last saved state
         $('#addressForm input').each(function() {
-          $(this).val(originalAddressData[this.name]);
+            $(this).val(originalAddressData[this.name]);
         });
-      });
+    });
 
     $('#saveAddressButton').click(function() {
         var formData = {
-          address: $('#address').val(),
-          city: $('#city').val(),
-          province: $('#province').val(),
-          country: $('#country').val(),
-          csrfmiddlewaretoken: '{{ csrf_token }}'
+            address: $('#address').val(),
+            city: $('#city').val(),
+            province: $('#province').val(),
+            country: $('#country').val(),
+            csrfmiddlewaretoken: '{{ csrf_token }}'
         };
 
         $.post("{% url 'update_business_address' business.id %}", formData, function(response) {
-          if (response.success) {
-            alert('Address information updated successfully!');
-            // Update originalData to the newly saved state
-            originalAddressData = formData;
-          } else {
-            if (response.message){
-                alert(response.message);
+            if (response.success) {
+                alert('{% translate "Address information updated successfully!" %}');
+                // Update originalData to the newly saved state
+                originalAddressData = formData;
+            } else {
+                if (response.message) {
+                    alert(response.message);
+                } else {
+                    alert('{% translate "Failed to update address information." %}');
+                }
             }
-            else{
-                alert('Failed to update address information.');
-            }
-            
-          }
         }).fail(function() {
-          alert('Error occurred while updating address information.');
+            alert('{% translate "Error occurred while updating address information." %}');
         });
-      });
+    });
 
-    $('.shareButton').click(function(e) {
-        e.preventDefault(); // Prevent the default anchor behavior
-        var shareUrl = $(this).data('share-url'); // Get the URL to be copied
+    // Click event for 'Share' button
+    $('.share-btn').click(function() {
+        var appointmentUrl = $(this).data('appointment-url');
+        var appointmentWorkerUrl = $(this).data('appointment-worker-url');
+        var eventName = $(this).closest('.event-card').find('.card-title').text();
+        $('#shareEventName').text(eventName);  // Set the event name in the modal
+        $('#shareModal')
+            .data('appointment-url', appointmentUrl)
+            .data('appointment-worker-url', appointmentWorkerUrl)
+            .modal('show');  // Store event ID and business ID and show the modal
+    });
 
-        navigator.clipboard.writeText(shareUrl).then(function() {
-            // On successful copying to clipboard
-            console.log('Link successfully copied to clipboard');
+    // Click events for modal options
+    $('.share-option').click(function() {
+        var option = $(this).data('option');
+        var appointmentUrl = $('#shareModal').data('appointment-url');
+        var appointmentWorkerUrl = $('#shareModal').data('appointment-worker-url');
+        var button = $(this).closest('.modal-content').find('.share-btn'); 
 
-            // Show tooltip
-            $(e.target).tooltip({
-                title: "Link copied!",
-                placement: "top",
-                trigger: "manual"
-            }).tooltip('show');
+        // Handle each option click
+        var fullUrl = '';
+        if(option === 'share-event') {
+            fullUrl = appointmentUrl;
+        } else if(option === 'share-as-worker') {
+            fullUrl = appointmentWorkerUrl;
+        } else if(option === 'cancel') {
+            $('#shareModal').modal('hide');
+        }
 
-            // Hide tooltip after 1 second
-            setTimeout(function() {
-                $(e.target).tooltip('hide');
-            }, 1000);
-        }).catch(function(error) {
-            // On failure to copy
-            console.error('Error copying link to clipboard: ', error);
-        });
+        if (fullUrl) {
+            // Copy the URL to clipboard
+            navigator.clipboard.writeText(fullUrl).then(function() {
+                button.attr('title', 'URL copied to clipboard!').tooltip('show');
+
+                // Set timeout to hide tooltip after 2 seconds
+                setTimeout(function() {
+                    button.tooltip('hide');
+                }, 4000);
+
+            }).catch(function(err) {
+                button.attr('title', 'Failed to copy URL.').tooltip('show');
+
+                // Set timeout to hide tooltip after 4 seconds
+                setTimeout(function() {
+                    button.tooltip('hide');
+                }, 4000);
+                console.error('Could not copy text: ', err);
+            });
+        }        
+
+        // Close the modal after selection
+        $('#shareModal').modal('hide');
     });
 
     // Ensure tooltips are initialized
@@ -687,8 +758,8 @@ $(document).ready(function() {
 
     $('#businessHeaderImage').change(function(e) {
         if (e.target.files[0].size > 512000) { // 0.5Mb
-                alert('File size exceeds 0.5MB. Please upload a smaller file.');
-                return;
+            alert('{% translate "File size exceeds 0.5MB. Please upload a smaller file." %}');
+            return;
         }
 
         if (e.target.files && e.target.files[0]) {
@@ -725,7 +796,7 @@ $(document).ready(function() {
         $('#is_visible').prop('checked', originalVisibility);
 
         // Clear the file input
-        $('#businessHeaderImage').val(null); 
+        $('#businessHeaderImage').val(null);
     });
 
     function saveBusinessUI() {
@@ -733,8 +804,9 @@ $(document).ready(function() {
         var formData = new FormData();
         formData.append('description', $('#businessDescription').val());
         formData.append('is_visible', $('#is_visible').is(':checked'));
-        formData.append('business_header_image', $('#businessHeaderImage')[0].files[0]); 
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}'); 
+        formData.append('business_header_image', $('#businessHeaderImage')[0].files[0]);
+        formData.append('default_language', $('#defaultLanguage').val());
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
         $.ajax({
             url: '{% url "update_business_ui" business.id %}',
@@ -744,21 +816,20 @@ $(document).ready(function() {
             contentType: false,  // Important: tells jQuery not to set contentType
             success: function(response) {
                 if (response.success) {
-                    console.log('Business UI details updated successfully');
+                    console.log('{% translate "Business UI details updated successfully" %}');
                     // Keep the last saved values
                     originalImage = $('#headerImagePreview').attr('src');
                     originalVisibility = $('#is_visible').is(':checked');
-                }
-                else {
+                } else {
                     if (response.message) {
                         alert(response.message); // Display server-side error message
                     } else {
-                        alert('Error updating business details. Please try again.');
+                        alert('{% translate "Error updating business details. Please try again." %}');
                     }
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Error updating business details:', error);
+                console.error('{% translate "Error updating business details:" %}', error);
             }
         });
     }
@@ -767,7 +838,7 @@ $(document).ready(function() {
         var checked = $(this).is(':checked');
         var eventId = $(this).data('event-id');  // Assuming you add a data-event-id attribute to your inputs
         var label = $(this).next('.toggle-label');
-        label.text(checked ? 'Turn Off' : 'Turn On');
+        label.text(checked ? '{% translate "Turn Off" %}' : '{% translate "Turn On" %}');
 
         // Post the change to the server
         $.ajax({
@@ -779,33 +850,33 @@ $(document).ready(function() {
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function(response) {
-                console.log('Update successful');
+                console.log('{% translate "Update successful" %}');
             },
             error: function(xhr, status, error) {
-                console.error('Error updating event status:', error);
+                console.error('{% translate "Error updating event status:" %}', error);
             }
         });
     });
 
     $('#confirmDeleteBusiness').click(function() {
-      $.ajax({
-        url: '{% url "delete_business" business.id %}',
-        type: 'DELETE',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        success: function() {
-          alert('Business deleted successfully!');
-          window.location.href = '{% url "dashboard" %}'; 
-        },
-        error: function(xhr) {
-          var errorMessage = 'Failed to delete the business. Contact system admins or try again later';
-            if (xhr.responseJSON && xhr.responseJSON.error) {
-                errorMessage = xhr.responseJSON.error;
+        $.ajax({
+            url: '{% url "delete_business" business.id %}',
+            type: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function() {
+                alert('{% translate "Business deleted successfully!" %}');
+                window.location.href = '{% url "dashboard" %}';
+            },
+            error: function(xhr) {
+                var errorMessage = '{% translate "Failed to delete the business. Contact system admins or try again later" %}';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                alert(errorMessage);
             }
-            alert(errorMessage); 
-        }
-      });
+        });
     });
 
     // Open edit modal and populate with current data
@@ -836,7 +907,7 @@ $(document).ready(function() {
             account_id: {{business.id}},
             csrfmiddlewaretoken: '{{ csrf_token }}',
         }, function(response) {
-            if(response.success) {
+            if (response.success) {
                 // Update the display
                 var $row = $(`.hour-entry[data-hour-id="${hourId}"]`);
                 var weekday_label = weekday;
@@ -852,7 +923,7 @@ $(document).ready(function() {
                 // Close the modal
                 $('#editBusinessHourModal').modal('hide');
             } else {
-                alert("Error updating the business hour.");
+                alert('{% translate "Error updating the business hour." %}');
             }
         });
     });
@@ -886,7 +957,7 @@ $(document).ready(function() {
             csrfmiddlewaretoken: '{{ csrf_token }}',
             // Add any other required data
         }, function(response) {
-            if(response.success) {
+            if (response.success) {
                 var weekdayText = $("#newWeekday option:selected").text();
                 var newHourHtml = `
                 <div class="table-row hour-entry" data-hour-id="${response.hour_id}" data-url="/${deleteHourBaseUrl}{{business.id}}/${response['hour_id']}">
@@ -898,13 +969,13 @@ $(document).ready(function() {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item delete-hour" href="#">Delete</a></li>
-                            <li><a class="dropdown-item edit-hour" href="#">Edit</a></li>
+                            <li><a class="dropdown-item delete-hour" href="#">{% translate "Delete" %}</a></li>
+                            <li><a class="dropdown-item edit-hour" href="#">{% translate "Edit" %}</a></li>
                         </ul>
                     </div>
                     <div class="edit-actions d-none">
-                        <button class="btn btn-success commit-hour-edit">Save</button>
-                        <button class="btn btn-danger cancel-hour-edit">Cancel</button>
+                        <button class="btn btn-success commit-hour-edit">{% translate "Save" %}</button>
+                        <button class="btn btn-danger cancel-hour-edit">{% translate "Cancel" %}</button>
                     </div>
                 </div>`;
                 
@@ -919,7 +990,7 @@ $(document).ready(function() {
                 $("#newToHour").val('');
             } else {
                 // Handle errors, such as displaying a message to the user
-                alert("Error saving the new special day.");
+                alert('{% translate "Error saving the new special day." %}');
             }
         });
     });
@@ -934,7 +1005,7 @@ $(document).ready(function() {
         console.log('hourId: ' + hourId)
 
         // Show confirmation dialog
-        var confirmDelete = confirm("Are you sure you want to delete this business hour?");
+        var confirmDelete = confirm('{% translate "Are you sure you want to delete this business hour?" %}');
         if (confirmDelete) {
             // User confirmed deletion
             $.ajax({
@@ -951,21 +1022,20 @@ $(document).ready(function() {
                     if (response.success) {
                         // Successfully deleted on the server, now remove the row
                         $row.remove();
-                        alert("Business hour deleted successfully.");
+                        alert('{% translate "Business hour deleted successfully." %}');
                     } else {
                         // Handle failure
-                        alert("Error: Could not delete the business hour.");
+                        alert('{% translate "Error: Could not delete the business hour." %}');
                     }
                 },
                 error: function() {
                     // Handle AJAX failure
-                    alert("Error communicating with the server.");
+                    alert('{% translate "Error communicating with the server." %}');
                 }
             });
-        } 
-        else {
+        } else {
             // User canceled deletion
-            console.log("Deletion canceled.");
+            console.log("{% translate "Deletion canceled." %}");
         }
     });
 
@@ -994,8 +1064,8 @@ $(document).ready(function() {
             from_hour: newDateFromHour,
             to_hour: newDateToHour,
             csrfmiddlewaretoken: '{{ csrf_token }}'
-        }, function(response)  {
-            if(response.success) {
+        }, function(response) {
+            if (response.success) {
                 // Dynamically create and insert the new special day entry above the "Add New" button
                 var newSpecialDayHtml = `<div class="table-row special-day-entry" data-day-id="${response.id}">
                     <span class="date">${newDate}</span>
@@ -1006,13 +1076,13 @@ $(document).ready(function() {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item delete-day" href="#">Delete</a></li>
-                            <li><a class="dropdown-item edit-day" href="#">Edit</a></li>
+                            <li><a class="dropdown-item delete-day" href="#">{% translate "Delete" %}</a></li>
+                            <li><a class="dropdown-item edit-day" href="#">{% translate "Edit" %}</a></li>
                         </ul>
                     </div>
                     <div class="edit-actions d-none">
-                        <button class="btn btn-success commit-edit">Save</button>
-                        <button class="btn btn-danger cancel-edit">Cancel</button>
+                        <button class="btn btn-success commit-edit">{% translate "Save" %}</button>
+                        <button class="btn btn-danger cancel-edit">{% translate "Cancel" %}</button>
                     </div>
                 </div>`;
 
@@ -1027,10 +1097,10 @@ $(document).ready(function() {
                 $("#newDateToHour").val('');
             } else {
                 // Handle errors, such as displaying a message to the user
-                alert("Error saving the new special day.");
+                alert('{% translate "Error saving the new special day." %}');
             }
         }).fail(function() {
-            alert("Error communicating with the server.");
+            alert('{% translate "Error communicating with the server." %}');
         })
     });
 
@@ -1059,7 +1129,7 @@ $(document).ready(function() {
         var url = $row.data('url');
 
         // Show confirmation dialog
-        var confirmDelete = confirm("Are you sure you want to delete this day with special hours?");
+        var confirmDelete = confirm('{% translate "Are you sure you want to delete this day with special hours?" %}');
         if (confirmDelete) {
             // User confirmed deletion
             $.ajax({
@@ -1075,21 +1145,20 @@ $(document).ready(function() {
                     if (response.success) {
                         // Successfully deleted on the server, now remove the row
                         $row.remove();
-                        alert("Business hour deleted successfully.");
+                        alert('{% translate "Special day deleted successfully." %}');
                     } else {
                         // Handle failure
-                        alert("Error: Could not delete the business hour.");
+                        alert('{% translate "Error: Could not delete the special day." %}');
                     }
                 },
                 error: function() {
                     // Handle AJAX failure
-                    alert("Error communicating with the server.");
+                    alert('{% translate "Error communicating with the server." %}');
                 }
             });
-        } 
-        else {
+        } else {
             // User canceled deletion
-            console.log("Deletion canceled.");
+            console.log("{% translate "Deletion canceled." %}");
         }
     });
 
@@ -1127,7 +1196,7 @@ $(document).ready(function() {
                 $row.find('.to-hour').text(toHour);
                 $('#editSpecialDayModal').modal('hide');
             } else {
-                alert("Error updating the special day.");
+                alert('{% translate "Error updating the special day." %}');
             }
         });
     });
@@ -1178,7 +1247,7 @@ $(document).ready(function() {
             error: function() {
                 // Handle any error
                 hideSpinner();
-                alert('Error sending invitation');
+                alert('{% translate "Error sending invitation" %}');
             },
             complete: function() {
                 hideSpinner();  
@@ -1190,3 +1259,5 @@ $(document).ready(function() {
 </script>
 
 {% endblock extra_script %}
+
+

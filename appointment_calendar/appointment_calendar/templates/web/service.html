@@ -1,7 +1,7 @@
 {% extends './web_base.html' %}
 
 {% load static %}
-
+{% load i18n %}
 {% block extra_css %} 
 <style>
   @media (min-width: 768px) {
@@ -53,7 +53,7 @@
   <div class="product-container">
     <img id="product-img"
       src="{{ event.ui.image_url }}"
-      alt="Product Image"
+      alt="{% translate "Product Image" %}"
       class="w-full rounded-lg mb-4 md:mb-0"
     />
     
@@ -63,7 +63,7 @@
         <button class="btn btn-primary w-50" 
                 onclick="window.open('{% url 'client_appointment_for_event' event.account.handler event.handler %}', '_blank')"
                 {% if not event.active %}disabled{% endif %}>
-            Book me
+            {% translate "Book me" %}
         </button>
         <p class="text-muted">
             {{event.ui.description|linebreaksbr}}
@@ -74,7 +74,7 @@
     <section class="section-home">
         <div class="container">
             <div class="section-header text-center section-header-font-color ">
-                <h2>Our Work</h2>
+                <h2>{% translate "Our Work" %}</h2>
             </div>
             <div class="row photo-row">
             {% for image in event.photos.all|slice:":9" %}
@@ -91,7 +91,7 @@
         <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header section-header-font-color ">
-            <h5 class="modal-title" id="imageModalLabel">Full Screen Image</h5>
+            <h5 class="modal-title" id="imageModalLabel">{% translate "Full Screen Image" %}</h5>
             </div>
             <div class="modal-body text-center">
             <img id="modal-image" src="" class="img-fluid">
@@ -101,8 +101,8 @@
     </div>
 
     <div class="section-header section-header-font-color text-center">
-        <h2>More Information</h2>
-        <p>Additional details about the product go here.</p>
+        <h2>{% translate "More Information" %}</h2>
+        <p>{% translate "Additional details about the product go here." %}</p>
     </div>
 </div>
 {% endblock content %}

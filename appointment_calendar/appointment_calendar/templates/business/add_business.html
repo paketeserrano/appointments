@@ -1,30 +1,31 @@
 {% extends 'base2.html' %}
+{% load i18n %}
 
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">Businesses</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Add Business</li>
+      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">{% translate "Businesses" %}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{% translate "Add Business" %}</li>
     </ol>
 </nav>
 <div class="rc-card">
     <div class="container mt-4">
-        <h1>Add Your Business</h1>
+        <h1>{% translate "Add Your Business" %}</h1>
         <div class="row">
             <div class="col-md-8">
                 <form action="/add_business/" method="post" class="form">
                     {% csrf_token %}
                     <div class="form-group mb-3">
-                        <label for="id_name">Business Name:</label>
+                        <label for="id_name">{% translate "Name:" %}</label>
                         {{ form.name }}
                     </div>
                     <div class="form-group mb-3">
-                        <label for="id_description">Presentation:</label>
+                        <label for="id_description">{% translate "Presentation:" %}</label>
                         {{ form.presentation }}
                     </div>
-                    <h2>Address Information</h2>
+                    <h2>{% translate "Address" %}</h2>
                     {{ address_form.as_p }}
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
                 </form>
             </div>
         </div>

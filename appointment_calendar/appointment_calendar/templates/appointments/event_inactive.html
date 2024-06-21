@@ -1,16 +1,17 @@
 {% extends 'appointments/base_client_appointment.html' %}
+{% load i18n %}
 {% block progress_bar %}
 {% endblock %}
 {% block side_text %}
     <div class="booking-cta">
-        <h1>{{title}}</h1>
-        <p>{{description}}</p>
+        <h1>{{ title }}</h1>
+        <p>{{ description }}</p>
     </div>
 {% endblock side_text %}
 {% block steps %}
 <div class="alert alert-warning">
-    <h4>Event Not Available</h4>
-    <p>The event you are trying to book is currently not available.</p>
+    <h4>{% translate "Event Not Available" %}</h4>
+    <p>{% translate "The event you are trying to book is currently not available." %}</p>
 </div>
 {% endblock %}
 

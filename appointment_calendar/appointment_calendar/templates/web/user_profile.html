@@ -1,7 +1,7 @@
 {% extends './web_base.html' %}
 
 {% load static %}
-
+{% load i18n %}
 {% block extra_css %} 
 <style>
     .profile-image-container {
@@ -49,7 +49,7 @@
         <div class="col-md-3 p-1 round-corners"> <!-- Half width on medium screens and above -->
             <div class="bg-white shadow-lg rounded-lg p-2 text-center">
                 <div class="profile-image-container">
-                    <img src="{{ custom_user.profile_image_url }}" alt="Profile Picture" class="profile-image">            
+                    <img src="{{ custom_user.profile_image_url }}" alt="{% translate "Profile Picture" %}" class="profile-image">            
                 </div>
             </div>
         </div>
@@ -81,22 +81,22 @@
 
     <div class="row justify-content-center p-2 round-corners">
         <div class="bg-white shadow-lg rounded-lg p-4 section-header section-header-font-color round-corners">
-            <h2 class="text-lg font-bold text-center">Experience</h2>
+            <h2 class="text-lg font-bold text-center">{% translate "Experience" %}</h2>
             <p class="text-zinc-700">{{custom_user.experience|linebreaksbr}}</p>
         </div>
     </div>
 
     <div class="row justify-content-center p-2 round-corners">
         <div class="bg-white shadow-lg rounded-lg p-4 section-header section-header-font-color round-corners">
-            <h2 class="text-lg font-bold text-center">My Work</h2>
+            <h2 class="text-lg font-bold text-center">{% translate "My Work" %}</h2>
             <div class="row photo-row"> 
                 {% for image in custom_user.photos.all|slice:":6" %}
                     <div class="col-12 col-md-4 mb-3">
-                        <img src="{{ image.image.url|default:'/media/user_profiles/placeholder.jpg' }}" alt="Work 1" class="img-fluid rounded mx-auto d-block m-2 photo-thumbnail">
+                        <img src="{{ image.image.url|default:'/media/user_profiles/placeholder.jpg' }}" alt="{% translate "Foto" %}" class="img-fluid rounded mx-auto d-block m-2 photo-thumbnail">
                     </div>
                 {% endfor %}
             </div>
-            <button class="btn btn-primary" id="load-more">Load More</button>
+            <button class="btn btn-primary" id="load-more">{% translate "Load More" %}</button>
         </div>
     </div>
 </div>
@@ -141,7 +141,7 @@
             }
           },
           error: function() {
-            alert('Server error, please try again later.');
+            alert('{% translate "Server error, please try again later." %}');
           }
         });
       });

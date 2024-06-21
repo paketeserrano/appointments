@@ -1,4 +1,5 @@
 {% extends 'base2.html' %}
+{% load i18n %}
 
 {% block extra_css %}
 <style>
@@ -26,17 +27,17 @@
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item active" aria-current="page">Events</li>
+      <li class="breadcrumb-item active" aria-current="page">{% translate "Events" %}</li>
     </ol>
 </nav>
 <div class="rc-card">
-    <h1>Events</h1>
+    <h1>{% translate "Events" %}</h1>
     <div class="container">
         <div class="row justify-content-center mb-4">
             <div class="col-md-6">
                 <select id="business-filter" class="form-select" style="height: 50px; font-size: 1.25rem;">
                     {% if businesses|length > 1 %}
-                        <option value="All">All</option>
+                        <option value="All">{% translate "All" %}</option>
                     {% endif %}
                     {% for business in businesses %}
                         <option value="{{ business.id }}">{{ business.name }}</option>
@@ -51,9 +52,9 @@
                     <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, teal);">
                         <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{ event.name }}</h5>
                         <p class="card-text mb-2" style="color: #718096;">{{ event.account.name }}</p>
-                        <p class="card-text mb-2" style="color: #718096;">{{ event.duration }} mins</p>
+                        <p class="card-text mb-2" style="color: #718096;">{{ event.duration }} {% translate "mins" %}</p>
                         {% if user.customuser in event.account.admins.all %}
-                            <a href="{% url 'event_detail' event.id %}" class="mb-4 text-primary" style="color: #3182CE;">View event page</a>
+                            <a href="{% url 'event_detail' event.id %}" class="mb-4 text-primary" style="color: #3182CE;">{% translate "View event page" %}</a>
                         {% endif %}
                     </div>
                     <div class="card-footer" style="border-top: 1px solid #E2E8F0; background-color: transparent;">
@@ -62,7 +63,7 @@
                                 <a href="#" class="btn btn-outline-primary w-100 share-btn" data-bs-toggle="tooltip"
                                     data-appointment-url="{{domain}}{% url 'client_appointment_for_event' event.account.handler event.handler %}" 
                                     data-appointment-worker-url="{{domain}}{% url 'client_appointment_for_event_worker' event.account.handler event.handler current_user.id %}">
-                                    Share
+                                    {% translate "Share" %}
                                 </a>
                             </div>
                             <div class="col-7">
@@ -72,9 +73,9 @@
                                     <label class="form-check-label toggle-label" for="toggleEvent{{ forloop.counter }}" style="color: #4299E1;"
                                             {% if user.customuser not in event.account.admins.all %}style="opacity: 0.5;"{% endif %}>
                                         {% if not event.active %}
-                                            Turn On
+                                            {% translate "Turn On" %}
                                         {% else %}
-                                            Turn Off
+                                            {% translate "Turn Off" %}
                                         {% endif %}
                                     </label>
                                 </div>
@@ -100,13 +101,13 @@
           <table class="table">
             <tbody>
               <tr class="share-option clickable-row" style="text-align: center;" data-option="share-event">
-                <td>Share event</td>
+                <td>{% translate "Share event" %}</td>
               </tr>
               <tr class="share-option clickable-row" style="text-align: center;" data-option="share-as-worker">
-                <td>Share with me as worker</td>
+                <td>{% translate "Share with me as worker" %}</td>
               </tr>
               <tr class="share-option clickable-row" style="text-align: center;" data-option="cancel">
-                <td>Cancel</td>
+                <td>{% translate "Cancel" %}</td>
               </tr>
             </tbody>
           </table>
@@ -195,9 +196,9 @@ $(document).ready(function(){
     $('.form-check-input').change(function() {
         var label = $(this).next('label');
         if ($(this).is(':checked')) {
-            label.text('Turn Off'); // If the checkbox is checked, set label to "Turn Off"
+            label.text('{% translate "Turn Off" %}'); // If the checkbox is checked, set label to "Turn Off"
         } else {
-            label.text('Turn On'); // If the checkbox is not checked, set label to "Turn On"
+            label.text('{% translate "Turn On" %}'); // If the checkbox is not checked, set label to "Turn On"
         }
 
         var checkbox = $(this);
@@ -212,7 +213,7 @@ $(document).ready(function(){
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function(response) {
-                checkbox.next('label').text(response.event_active ? 'Turn Off' : 'Turn On');
+                checkbox.next('label').text(response.event_active ? '{% translate "Turn Off" %}' : '{% translate "Turn On" %}');
                 console.log('Event status updated successfully.');
             },
             error: function(xhr, errmsg, err) {

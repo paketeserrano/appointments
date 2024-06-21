@@ -1,5 +1,6 @@
 {% extends 'base2.html' %}
-
+{% load static %}
+{% load i18n %}
 {% block extra_css %}
 <style>
     .card {
@@ -44,26 +45,26 @@
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item active" aria-current="page">Manage Appointments</li>
+        <li class="breadcrumb-item active" aria-current="page">{% translate "Manage Appointments" %}</li>
     </ol>
 </nav>
 
 <div class="rc-card">
-    <h1>Search Appointments</h1>
+    <h1>{% translate "Search Appointments" %}</h1>
     <form id="searchForm" method="get" style='display:none' action="{% url 'user_appointments' %}">
         <div class="mb-3 col-6">
-            <label for="id_start_date" class="form-label">Start Date</label>
+            <label for="id_start_date" class="form-label">{% translate "Start Date" %}</label>
             {{ form.start_date }}
         </div>
         <div class="mb-3 col-6">
-            <label for="id_end_date" class="form-label">End Date</label>
+            <label for="id_end_date" class="form-label">{% translate "End Date" %}</label>
             {{ form.end_date }}
         </div>
         <div class="mb-3 col-6">
-            <label for="id_user" class="form-label">User</label>
+            <label for="id_user" class="form-label">{% translate "User" %}</label>
             {{ form.user }}
         </div>
-        <button type="submit" class="btn btn-primary" id="searchButton" disabled>Search</button>
+        <button type="submit" class="btn btn-primary" id="searchButton" disabled>{% translate "Search" %}</button>
     </form>
     {% if error_message %}
         <div class="error-message">{{ error_message }}</div>
@@ -71,12 +72,12 @@
 </div>
 
 <div class="rc-card">
-    <h1>Appointments</h1>
+    <h1>{% translate "Appointments" %}</h1>
     <div class="accordion custom-accordion" id="userAppointments">
         {% if appointments %}
             <div class="alert alert-primary" role="alert">
-                Appointments found from {{ form.start_date.value }} to {{ form.end_date.value }} for user {{ form.user.value }}. 
-                <button type="button" class="btn btn-primary" id="changeSearchLink">Change Search</button>
+                {% translate "Appointments found for" %} {{ form.start_date.value }} {% translate "to" %} {{ form.end_date.value }} {% translate "for user" %} {{ form.user.value }}.
+                <button type="button" class="btn btn-primary" id="changeSearchLink">{% translate "Change Search" %}</button>
             </div>
             {% for date, appt_list in appointments.items %}
                 <div class="accordion-item">
@@ -99,8 +100,8 @@
                                             </svg>
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
-                                            <li><a class="dropdown-item" href="{% url 'appointment_cancel' appt.id %}">Cancel Appointment</a></li>
-                                            <li><a class="dropdown-item" href="{% url 'appointment_detail' appt.id %}">View Details</a></li>
+                                            <li><a class="dropdown-item" href="{% url 'appointment_cancel' appt.id %}">{% translate "Cancel Appointment" %}</a></li>
+                                            <li><a class="dropdown-item" href="{% url 'appointment_detail' appt.id %}">{% translate "View Details" %}</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -111,10 +112,10 @@
             {% endfor %}
         {% else %}
             <div class="alert alert-primary" role="alert">
-                Search made from {{ form.start_date.value }} to {{ form.end_date.value }} for user {{ form.user.value }}. 
-                <button type="button" class="btn btn-primary" id="changeSearchLink">Change Search</button>
+                {% translate "Search made for" %} {{ form.start_date.value }} {% translate "to" %} {{ form.end_date.value }} {% translate "for user" %} {{ form.user.value }}.
+                <button type="button" class="btn btn-primary" id="changeSearchLink">{% translate "Change Search" %}</button>
             </div>
-            <p>No appointments found</p>
+            <p>{% translate "No appointments found" %}</p>
         {% endif %}
     </div>
 </div>
@@ -153,7 +154,7 @@
         });
 
         searchForm.addEventListener('submit', function() {
-            alertMessage.innerHTML = `Appointments found from ${startDateInput.value} to ${endDateInput.value} for user ${userInput.options[userInput.selectedIndex].text}. <button type="button" class="btn btn-primary" id="changeSearchLink">Change Search</button>`;
+            alertMessage.innerHTML = `{% translate "Appointments found from" %} ${startDateInput.value} {% translate "to" %} ${endDateInput.value} {% translate "for user" %} ${userInput.options[userInput.selectedIndex].text}. <button type="button" class="btn btn-primary" id="changeSearchLink">{% translate "Change Search" %}</button>`;
             toggleSearchForm();
         });
 

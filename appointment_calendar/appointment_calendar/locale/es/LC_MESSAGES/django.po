@@ -1,0 +1,1927 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-06-20 11:35+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: appointment_calendar/templates/appointments/appointment_cancel.html:12
+#: appointment_calendar/templates/appointments/appointment_detail.html:105
+#: appointment_calendar/templates/appointments/appointment_detail.html:112
+#: appointment_calendar/templates/users/appointments.html:103
+#: appointment_calendar/templates/users/dashboard.html:49
+#: appointment_calendar/templates/worker_detail.html:143
+msgid "Cancel Appointment"
+msgstr "Cancela Reserva"
+
+#: appointment_calendar/templates/appointments/appointment_cancel.html:13
+msgid "Are you sure you want to cancel the following appointment?"
+msgstr "¿Estás seguro de que quieres eliminar esta reserva?"
+
+#: appointment_calendar/templates/appointments/appointment_cancel.html:15
+#: appointment_calendar/templates/appointments/appointment_detail.html:51
+#: appointment_calendar/templates/business/view_business.html:545
+#: appointment_calendar/templates/invitee/invitee_detail.html:27
+msgid "Date"
+msgstr "Fecha"
+
+#: appointment_calendar/templates/appointments/appointment_cancel.html:16
+#: appointment_calendar/templates/appointments/appointment_detail.html:55
+#: appointment_calendar/templates/invitee/invitee_detail.html:28
+msgid "Time"
+msgstr "Hora"
+
+#: appointment_calendar/templates/appointments/appointment_cancel.html:17
+#: appointment_calendar/templates/appointments/appointment_detail.html:59
+msgid "Location"
+msgstr "Ubicaciones"
+
+#: appointment_calendar/templates/appointments/appointment_cancel.html:18
+msgid "With"
+msgstr "Con"
+
+#: appointment_calendar/templates/appointments/appointment_cancel.html:22
+msgid "Confirm Cancellation"
+msgstr "Confirmar Cancelacion"
+
+#: appointment_calendar/templates/appointments/appointment_cancel.html:30
+#: appointment_calendar/templates/appointments/appointment_detail.html:134
+#: appointment_calendar/templates/appointments/base.html:65
+#: appointment_calendar/templates/appointments/base_client_appointment.html:85
+#: appointment_calendar/templates/business/view_business.html:590
+msgid "Loading..."
+msgstr "Cargando..."
+
+#: appointment_calendar/templates/appointments/appointment_content.html:27
+#: appointment_calendar/templates/appointments/base.html:44
+#: appointment_calendar/templates/appointments/base_client_appointment.html:63
+msgid "Previous step"
+msgstr "Paso Previo"
+
+#: appointment_calendar/templates/appointments/appointment_content.html:29
+#: appointment_calendar/templates/appointments/base.html:49
+#: appointment_calendar/templates/appointments/base_client_appointment.html:68
+msgid "Next step"
+msgstr "Siguiente"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:39
+#: appointment_calendar/templates/base2.html:159
+#: appointment_calendar/templates/users/appointments.html:75
+#: appointment_calendar/templates/worker_detail.html:114
+#: appointment_calendar/templates/worker_detail.html:118
+msgid "Appointments"
+msgstr "Reservas"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:46
+#: appointment_calendar/templates/appointments/appointment_done.html:19
+msgid "Appointment Details"
+msgstr "Detalles de la Reserva"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:63
+msgid "Status"
+msgstr "Estado"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:67
+msgid "Worker"
+msgstr "Trabajadores"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:71
+msgid "Event"
+msgstr "Eventos"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:75
+msgid "Invitees"
+msgstr "Invitados"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:117
+msgid "Reason for cancellation:"
+msgstr "Razon de Cancelacion"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:121
+#: appointment_calendar/templates/events/event_details.html:457
+msgid "Close"
+msgstr "Cerrar"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:122
+msgid "Confirm Cancel"
+msgstr "Confirmar Cancelacion"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:180
+msgid "Please provide a reason for cancellation."
+msgstr "Pro favor, danos la razon por la que cancelas"
+
+#: appointment_calendar/templates/appointments/appointment_detail.html:195
+msgid "CANCELLED"
+msgstr "CANCELADA"
+
+#: appointment_calendar/templates/appointments/appointment_done.html:18
+msgid "Your Appointment is Confirmed!"
+msgstr "Tu Reserva esta confirmada"
+
+#: appointment_calendar/templates/appointments/appointment_done.html:21
+msgid "Your appointment"
+msgstr "Tus Reserva"
+
+#: appointment_calendar/templates/appointments/appointment_done.html:21
+#: appointment_calendar/templates/appointments/appointment_done.html:23
+msgid "at"
+msgstr "en"
+
+#: appointment_calendar/templates/appointments/appointment_done.html:21
+msgid "with"
+msgstr "con"
+
+#: appointment_calendar/templates/appointments/appointment_done.html:23
+msgid "is on"
+msgstr "es el"
+
+#: appointment_calendar/templates/appointments/appointment_done.html:25
+msgid "You will receive a confirmation email at"
+msgstr "Recibiras un email con la confirmacion en"
+
+#: appointment_calendar/templates/appointments/appointment_done.html:28
+msgid "Booking ID:"
+msgstr "Identificador de Reserva:"
+
+#: appointment_calendar/templates/appointments/appointment_wizard.html:61
+#: appointment_calendar/templates/appointments/appointment_wizard.html:148
+msgid ""
+"No available time slots for the selected date. Please choose another date."
+msgstr "No hay horas disponibles en la fecha seleccionada. Elija otra fecha"
+
+#: appointment_calendar/templates/appointments/base.html:47
+#: appointment_calendar/templates/appointments/base_client_appointment.html:66
+msgid "Book"
+msgstr "Reserva"
+
+#: appointment_calendar/templates/appointments/base_client_appointment.html:13
+msgid "Booking"
+msgstr "Reserva"
+
+#: appointment_calendar/templates/appointments/event_inactive.html:13
+msgid "Event Not Available"
+msgstr "Evento no Disponible"
+
+#: appointment_calendar/templates/appointments/event_inactive.html:14
+msgid "The event you are trying to book is currently not available."
+msgstr "El evento que esta intentado reservar no esta disponible "
+
+#: appointment_calendar/templates/base2.html:8
+msgid "Your Site Title"
+msgstr "El título de tu sitio"
+
+#: appointment_calendar/templates/base2.html:143
+#: appointment_calendar/templates/home/home_base.html:8
+msgid "ReservaClick"
+msgstr "ReservaClick"
+
+#: appointment_calendar/templates/base2.html:150
+#: appointment_calendar/templates/business/business_list_for_appointment.html:7
+#: appointment_calendar/templates/users/dashboard.html:19
+msgid "Dashboard"
+msgstr "Inicio"
+
+#: appointment_calendar/templates/base2.html:153
+#: appointment_calendar/templates/business/add_business.html:7
+#: appointment_calendar/templates/business/business_appearance.html:44
+#: appointment_calendar/templates/business/business_list.html:9
+#: appointment_calendar/templates/business/business_list.html:13
+#: appointment_calendar/templates/business/view_business.html:101
+#: appointment_calendar/templates/events/event_details.html:162
+#: appointment_calendar/templates/worker_detail.html:42
+msgid "Businesses"
+msgstr "Negocios"
+
+#: appointment_calendar/templates/base2.html:156
+#: appointment_calendar/templates/business/view_business.html:187
+#: appointment_calendar/templates/events/events_list.html:30
+#: appointment_calendar/templates/events/events_list.html:34
+#: appointment_calendar/templates/worker_detail.html:62
+#: appointment_calendar/templates/worker_detail.html:66
+msgid "Events"
+msgstr "Eventos"
+
+#: appointment_calendar/templates/base2.html:162
+msgid "Clients"
+msgstr "Clientes"
+
+#: appointment_calendar/templates/base2.html:182
+#: appointment_calendar/templates/users/dashboard.html:25
+msgid "Schedule Time"
+msgstr "Crea Reserva"
+
+#: appointment_calendar/templates/base2.html:189
+#: appointment_calendar/templates/users/user_profile.html:39
+msgid "Profile"
+msgstr "Perfil"
+
+#: appointment_calendar/templates/base2.html:191
+msgid "Logout"
+msgstr "Cerrar sesión"
+
+#: appointment_calendar/templates/business/add_business.html:8
+#: appointment_calendar/templates/business/business_list.html:33
+#: appointment_calendar/templates/users/dashboard.html:92
+msgid "Add Business"
+msgstr "Añade Negocio"
+
+#: appointment_calendar/templates/business/add_business.html:13
+msgid "Add Your Business"
+msgstr "Añade Negocio"
+
+#: appointment_calendar/templates/business/add_business.html:19
+msgid "Name:"
+msgstr "Nombre"
+
+#: appointment_calendar/templates/business/add_business.html:23
+msgid "Presentation:"
+msgstr "Presentacion"
+
+#: appointment_calendar/templates/business/add_business.html:26
+#: appointment_calendar/templates/business/view_business.html:450
+msgid "Address"
+msgstr "Direccion"
+
+#: appointment_calendar/templates/business/add_business.html:28
+msgid "Submit"
+msgstr "Enviar"
+
+#: appointment_calendar/templates/business/business_appearance.html:46
+#: appointment_calendar/templates/business/view_business.html:409
+msgid "Website Appearance"
+msgstr "Apariencia del Sitio Web"
+
+#: appointment_calendar/templates/business/business_appearance.html:54
+msgid "Customize Appearance"
+msgstr "Personalizar Apariencia"
+
+#: appointment_calendar/templates/business/business_appearance.html:57
+msgid "Header Bar"
+msgstr "Barra de Encabezado"
+
+#: appointment_calendar/templates/business/business_appearance.html:70
+msgid "General"
+msgstr "General"
+
+#: appointment_calendar/templates/business/business_appearance.html:83
+msgid "Sections"
+msgstr "Secciones"
+
+#: appointment_calendar/templates/business/business_appearance.html:104
+msgid "Main Menu"
+msgstr "Menú Principal"
+
+#: appointment_calendar/templates/business/business_appearance.html:129
+msgid "Booking Page"
+msgstr "Página de Reservas"
+
+#: appointment_calendar/templates/business/business_appearance.html:133
+#, fuzzy
+#| msgid "Appointment Page Background Image"
+msgid "Appointment Background Image"
+msgstr "Imagen de Fondo de la Pagina de Reserva"
+
+#: appointment_calendar/templates/business/business_appearance.html:134
+msgid "This image will show on the Booking Page background"
+msgstr "Esta imagen se mostrará en el fondo de la página de reservas"
+
+#: appointment_calendar/templates/business/business_appearance.html:139
+#: appointment_calendar/templates/business/view_business.html:431
+#: appointment_calendar/templates/events/event_details.html:518
+#: appointment_calendar/templates/users/user_profile.html:54
+msgid "Change"
+msgstr "Cambiar"
+
+#: appointment_calendar/templates/business/business_appearance.html:140
+#: appointment_calendar/templates/events/event_details.html:329
+#: appointment_calendar/templates/events/event_details.html:947
+msgid "Remove"
+msgstr "Eliminar"
+
+#: appointment_calendar/templates/business/business_appearance.html:156
+#: appointment_calendar/templates/business/view_business.html:439
+#: appointment_calendar/templates/events/event_details.html:400
+msgid "Save Changes"
+msgstr "Guardar Cambios"
+
+#: appointment_calendar/templates/business/business_appearance.html:185
+#: appointment_calendar/templates/business/view_business.html:700
+#: appointment_calendar/templates/events/event_details.html:1090
+#: appointment_calendar/templates/events/event_details.html:1339
+#: appointment_calendar/templates/users/user_profile.html:185
+msgid "File size exceeds 0.5MB. Please upload a smaller file."
+msgstr ""
+"El tamaño del archivo excede los 0.5MB. Por favor, sube un archivo más "
+"pequeño"
+
+#: appointment_calendar/templates/business/business_list.html:21
+#: appointment_calendar/templates/users/dashboard.html:81
+msgid "View"
+msgstr "Ver"
+
+#: appointment_calendar/templates/business/business_list.html:27
+#: appointment_calendar/templates/users/dashboard.html:87
+msgid "You don't have any business, create a new one."
+msgstr "No tienes ningun negocio creado, crea uno ahora!"
+
+#: appointment_calendar/templates/business/business_list.html:29
+msgid "Create Business"
+msgstr "Añade Negocio"
+
+#: appointment_calendar/templates/business/business_list.html:40
+msgid "first"
+msgstr "Primero"
+
+#: appointment_calendar/templates/business/business_list.html:41
+msgid "previous"
+msgstr "Previo"
+
+#: appointment_calendar/templates/business/business_list.html:45
+msgid "Page"
+msgstr "Pagina"
+
+#: appointment_calendar/templates/business/business_list.html:45
+msgid "of"
+msgstr "de"
+
+#: appointment_calendar/templates/business/business_list.html:49
+msgid "next"
+msgstr "siguiente"
+
+#: appointment_calendar/templates/business/business_list.html:50
+msgid "last"
+msgstr "ultimo"
+
+#: appointment_calendar/templates/business/business_list_for_appointment.html:8
+msgid "Create Appointment"
+msgstr "Crea Reserva"
+
+#: appointment_calendar/templates/business/business_list_for_appointment.html:12
+msgid "Add Appointment"
+msgstr "Añade Reserva"
+
+#: appointment_calendar/templates/business/business_list_for_appointment.html:15
+msgid "Select the business where you want to add the appointment"
+msgstr "Selecciona el negocio donde quieres reservar"
+
+#: appointment_calendar/templates/business/business_list_for_appointment.html:25
+msgid "Select"
+msgstr "Selecciona"
+
+#: appointment_calendar/templates/business/business_list_for_appointment.html:28
+msgid "You need to create a business before you can schedule time."
+msgstr "Necesitas crear un negocio antes de poder crear una reserva"
+
+#: appointment_calendar/templates/business/view_business.html:115
+msgid "Delete Business"
+msgstr "Eliminar Negocio"
+
+#: appointment_calendar/templates/business/view_business.html:124
+msgid "Business Status"
+msgstr "Estado del Negocio"
+
+#: appointment_calendar/templates/business/view_business.html:130
+#: appointment_calendar/templates/events/event_details.html:210
+msgid "Actions"
+msgstr "Acciones"
+
+#: appointment_calendar/templates/business/view_business.html:139
+msgid "Business Actions"
+msgstr "Acciones del Negocio"
+
+#: appointment_calendar/templates/business/view_business.html:146
+#: appointment_calendar/templates/business/view_business.html:149
+msgid "Create one event"
+msgstr "Crear un Evento"
+
+#: appointment_calendar/templates/business/view_business.html:155
+#: appointment_calendar/templates/business/view_business.html:160
+#: appointment_calendar/templates/business/view_business.html:236
+msgid "Business Hours"
+msgstr "Horas de Apertura"
+
+#: appointment_calendar/templates/business/view_business.html:157
+msgid ""
+"Customers will only be able to book any event on this business during the "
+"business hours declared below"
+msgstr ""
+"Los clientes solo podrán reservar cualquier evento de este negocio durante "
+"las horas de trabajo declaradas a continuación"
+
+#: appointment_calendar/templates/business/view_business.html:166
+#: appointment_calendar/templates/business/view_business.html:169
+msgid "Filled Business Presentation"
+msgstr "Presentación del Negocio Completada"
+
+#: appointment_calendar/templates/business/view_business.html:175
+#: appointment_calendar/templates/business/view_business.html:178
+msgid "Web Header Image"
+msgstr "Imagen de Cabecera"
+
+#: appointment_calendar/templates/business/view_business.html:195
+#: appointment_calendar/templates/events/events_list.html:55
+#: appointment_calendar/templates/worker_detail.html:78
+msgid "mins"
+msgstr "minutos"
+
+#: appointment_calendar/templates/business/view_business.html:196
+#: appointment_calendar/templates/events/events_list.html:57
+#: appointment_calendar/templates/worker_detail.html:79
+msgid "View event page"
+msgstr "Ver página del evento"
+
+#: appointment_calendar/templates/business/view_business.html:201
+#: appointment_calendar/templates/events/events_list.html:66
+#: appointment_calendar/templates/worker_detail.html:87
+msgid "Share"
+msgstr "Compartir"
+
+#: appointment_calendar/templates/business/view_business.html:209
+#: appointment_calendar/templates/business/view_business.html:780
+#: appointment_calendar/templates/events/event_details.html:183
+#: appointment_calendar/templates/events/event_details.html:1134
+#: appointment_calendar/templates/events/events_list.html:78
+#: appointment_calendar/templates/events/events_list.html:199
+#: appointment_calendar/templates/events/events_list.html:216
+#: appointment_calendar/templates/worker_detail.html:97
+#: appointment_calendar/templates/worker_detail.html:278
+#: appointment_calendar/templates/worker_detail.html:295
+msgid "Turn Off"
+msgstr "Apagar"
+
+#: appointment_calendar/templates/business/view_business.html:211
+#: appointment_calendar/templates/business/view_business.html:780
+#: appointment_calendar/templates/events/event_details.html:183
+#: appointment_calendar/templates/events/event_details.html:1134
+#: appointment_calendar/templates/events/events_list.html:76
+#: appointment_calendar/templates/events/events_list.html:201
+#: appointment_calendar/templates/events/events_list.html:216
+#: appointment_calendar/templates/worker_detail.html:95
+#: appointment_calendar/templates/worker_detail.html:280
+#: appointment_calendar/templates/worker_detail.html:295
+msgid "Turn On"
+msgstr "Encender"
+
+#: appointment_calendar/templates/business/view_business.html:225
+msgid "Add Event"
+msgstr "Añadir Evento"
+
+#: appointment_calendar/templates/business/view_business.html:240
+msgid ""
+"Days declared here will be available in your events when customers book them"
+msgstr ""
+"Los días declarados aquí estarán disponibles en tus eventos cuando los "
+"clientes los reserven"
+
+#: appointment_calendar/templates/business/view_business.html:254
+#: appointment_calendar/templates/business/view_business.html:302
+#: appointment_calendar/templates/business/view_business.html:579
+#: appointment_calendar/templates/business/view_business.html:911
+#: appointment_calendar/templates/business/view_business.html:1018
+#: appointment_calendar/templates/events/event_details.html:296
+#: appointment_calendar/templates/events/event_details.html:418
+#: appointment_calendar/templates/events/event_details.html:476
+#: appointment_calendar/templates/events/event_details.html:687
+msgid "Delete"
+msgstr "Eliminar"
+
+#: appointment_calendar/templates/business/view_business.html:255
+#: appointment_calendar/templates/business/view_business.html:303
+#: appointment_calendar/templates/business/view_business.html:912
+#: appointment_calendar/templates/business/view_business.html:1019
+#: appointment_calendar/templates/events/event_details.html:228
+#: appointment_calendar/templates/events/event_details.html:236
+#: appointment_calendar/templates/events/event_details.html:244
+#: appointment_calendar/templates/events/event_details.html:252
+#: appointment_calendar/templates/events/event_details.html:260
+#: appointment_calendar/templates/events/event_details.html:295
+#: appointment_calendar/templates/events/event_details.html:313
+#: appointment_calendar/templates/events/event_details.html:328
+#: appointment_calendar/templates/events/event_details.html:946
+msgid "Edit"
+msgstr "Editar"
+
+#: appointment_calendar/templates/business/view_business.html:261
+#: appointment_calendar/templates/business/view_business.html:309
+#: appointment_calendar/templates/events/event_details.html:282
+msgid "Add New"
+msgstr "Añadir Nuevo"
+
+#: appointment_calendar/templates/business/view_business.html:273
+#: appointment_calendar/templates/business/view_business.html:317
+#: appointment_calendar/templates/events/event_details.html:533
+#: appointment_calendar/templates/users/user_profile.html:118
+msgid "Add"
+msgstr "Añadir"
+
+#: appointment_calendar/templates/business/view_business.html:274
+#: appointment_calendar/templates/business/view_business.html:318
+#: appointment_calendar/templates/business/view_business.html:440
+#: appointment_calendar/templates/business/view_business.html:466
+#: appointment_calendar/templates/business/view_business.html:528
+#: appointment_calendar/templates/business/view_business.html:559
+#: appointment_calendar/templates/business/view_business.html:578
+#: appointment_calendar/templates/business/view_business.html:917
+#: appointment_calendar/templates/business/view_business.html:1024
+#: appointment_calendar/templates/events/event_details.html:364
+#: appointment_calendar/templates/events/event_details.html:399
+#: appointment_calendar/templates/events/event_details.html:417
+#: appointment_calendar/templates/events/event_details.html:475
+#: appointment_calendar/templates/events/event_details.html:522
+#: appointment_calendar/templates/events/event_details.html:636
+#: appointment_calendar/templates/events/event_details.html:654
+#: appointment_calendar/templates/events/event_details.html:686
+#: appointment_calendar/templates/events/event_details.html:705
+#: appointment_calendar/templates/events/event_details.html:724
+#: appointment_calendar/templates/events/event_details.html:743
+#: appointment_calendar/templates/events/event_details.html:762
+#: appointment_calendar/templates/events/event_details.html:781
+#: appointment_calendar/templates/events/event_details.html:800
+#: appointment_calendar/templates/events/events_list.html:110
+#: appointment_calendar/templates/users/user_profile.html:110
+#: appointment_calendar/templates/users/user_profile.html:145
+#: appointment_calendar/templates/worker_detail.html:178
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: appointment_calendar/templates/business/view_business.html:284
+msgid "Days Closed or Holidays"
+msgstr "Días Cerrados o Festivos"
+
+#: appointment_calendar/templates/business/view_business.html:288
+msgid ""
+"Add special days you are closed. Maybe a bank holiday or something "
+"unexpected happened"
+msgstr ""
+"Añadir días especiales que estás cerrado. Tal vez un día festivo o algo "
+"inesperado sucedió"
+
+#: appointment_calendar/templates/business/view_business.html:331
+msgid "Workers"
+msgstr "Trabajadores"
+
+#: appointment_calendar/templates/business/view_business.html:335
+msgid "Workers added here will be available to be assigned in your events"
+msgstr ""
+"Los trabajadores añadidos aquí estarán disponibles para ser asignados en tus "
+"eventos"
+
+#: appointment_calendar/templates/business/view_business.html:351
+#: appointment_calendar/templates/worker_detail.html:157
+msgid "Remove Worker"
+msgstr "Eliminar Trabajador"
+
+#: appointment_calendar/templates/business/view_business.html:352
+msgid "View Worker"
+msgstr "Ver Trabajador"
+
+#: appointment_calendar/templates/business/view_business.html:359
+#: appointment_calendar/templates/events/event_details.html:624
+msgid "Add Worker"
+msgstr "Añadir Trabajador"
+
+#: appointment_calendar/templates/business/view_business.html:368
+msgid "Business Website"
+msgstr "Pagina Web"
+
+#: appointment_calendar/templates/business/view_business.html:372
+msgid "Manage how your website looks"
+msgstr "Gestiona cómo se ve tu sitio web"
+
+#: appointment_calendar/templates/business/view_business.html:381
+#: appointment_calendar/templates/events/event_details.html:494
+msgid "Is Visible"
+msgstr "Es Visible"
+
+#: appointment_calendar/templates/business/view_business.html:382
+msgid "Toggle to make your business website visible or invisible to customers."
+msgstr ""
+"Cambiar para hacer que tu sitio web sea visible o invisible para los "
+"clientes."
+
+#: appointment_calendar/templates/business/view_business.html:387
+#, fuzzy
+#| msgid "Current language"
+msgid "Default Language"
+msgstr "Idioma actual"
+
+#: appointment_calendar/templates/business/view_business.html:388
+msgid "Select the default language for your business."
+msgstr ""
+
+#: appointment_calendar/templates/business/view_business.html:401
+msgid "Business Description"
+msgstr "Descripción del Negocio"
+
+#: appointment_calendar/templates/business/view_business.html:402
+msgid "Provide a detailed description of your business."
+msgstr "Proporciona una descripción detallada de tu negocio."
+
+#: appointment_calendar/templates/business/view_business.html:405
+msgid "Enter business description here..."
+msgstr "Introduce la descripción del negocio aquí..."
+
+#: appointment_calendar/templates/business/view_business.html:410
+msgid "Set up your website appearance"
+msgstr "Configura la apariencia de tu sitio web"
+
+#: appointment_calendar/templates/business/view_business.html:416
+#: appointment_calendar/templates/events/event_details.html:505
+msgid "View Business Website"
+msgstr "Ver Sitio Web del Negocio"
+
+#: appointment_calendar/templates/business/view_business.html:418
+#: appointment_calendar/templates/events/event_details.html:507
+msgid ""
+"The more info you add to your business and events, the better the website "
+"will look"
+msgstr ""
+"Cuanta más información añadas a tu negocio y eventos, mejor se verá el sitio "
+"web"
+
+#: appointment_calendar/templates/business/view_business.html:426
+msgid "Header Image"
+msgstr "Imagen de Cabecera"
+
+#: appointment_calendar/templates/business/view_business.html:427
+msgid "This image will show on the front header of this business website"
+msgstr ""
+"Esta imagen se mostrará en la cabecera principal de este sitio web de negocio"
+
+#: appointment_calendar/templates/business/view_business.html:447
+msgid "Address Information"
+msgstr "Información de Dirección"
+
+#: appointment_calendar/templates/business/view_business.html:451
+#: appointment_calendar/templates/events/event_details.html:348
+#: appointment_calendar/templates/events/event_details.html:383
+msgid "Enter address"
+msgstr "Introduce la dirección"
+
+#: appointment_calendar/templates/business/view_business.html:454
+msgid "City"
+msgstr "Ciudad"
+
+#: appointment_calendar/templates/business/view_business.html:455
+#: appointment_calendar/templates/events/event_details.html:352
+#: appointment_calendar/templates/events/event_details.html:387
+msgid "Enter city"
+msgstr "Introduce la ciudad"
+
+#: appointment_calendar/templates/business/view_business.html:458
+msgid "Province"
+msgstr "Provincia"
+
+#: appointment_calendar/templates/business/view_business.html:459
+#: appointment_calendar/templates/events/event_details.html:356
+#: appointment_calendar/templates/events/event_details.html:391
+msgid "Enter province"
+msgstr "Introduce la provincia"
+
+#: appointment_calendar/templates/business/view_business.html:462
+msgid "Country"
+msgstr "País"
+
+#: appointment_calendar/templates/business/view_business.html:463
+#: appointment_calendar/templates/events/event_details.html:360
+#: appointment_calendar/templates/events/event_details.html:395
+msgid "Enter country"
+msgstr "Introduce el país"
+
+#: appointment_calendar/templates/business/view_business.html:465
+#: appointment_calendar/templates/business/view_business.html:527
+#: appointment_calendar/templates/business/view_business.html:916
+#: appointment_calendar/templates/business/view_business.html:1023
+#: appointment_calendar/templates/events/event_details.html:521
+#: appointment_calendar/templates/events/event_details.html:637
+#: appointment_calendar/templates/events/event_details.html:706
+#: appointment_calendar/templates/events/event_details.html:725
+#: appointment_calendar/templates/events/event_details.html:744
+#: appointment_calendar/templates/events/event_details.html:763
+#: appointment_calendar/templates/events/event_details.html:782
+#: appointment_calendar/templates/events/event_details.html:801
+#: appointment_calendar/templates/users/user_profile.html:107
+msgid "Save"
+msgstr "Guardar"
+
+#: appointment_calendar/templates/business/view_business.html:477
+msgid "Invite New Worker"
+msgstr "Invitar a Nuevo Trabajador"
+
+#: appointment_calendar/templates/business/view_business.html:483
+msgid "Email address"
+msgstr "Dirección de correo electrónico"
+
+#: appointment_calendar/templates/business/view_business.html:487
+msgid "Recipient Name"
+msgstr "Nombre del Destinatario"
+
+#: appointment_calendar/templates/business/view_business.html:491
+msgid "Notes (optional)"
+msgstr "Notas (opcional)"
+
+#: appointment_calendar/templates/business/view_business.html:494
+msgid "Send Invitation"
+msgstr "Enviar Invitación"
+
+#: appointment_calendar/templates/business/view_business.html:506
+msgid "Edit Business Hour"
+msgstr "Editar Hora del Negocio"
+
+#: appointment_calendar/templates/business/view_business.html:512
+msgid "Weekday"
+msgstr "Día de la Semana"
+
+#: appointment_calendar/templates/business/view_business.html:520
+#: appointment_calendar/templates/business/view_business.html:549
+msgid "From Hour"
+msgstr "Desde la Hora"
+
+#: appointment_calendar/templates/business/view_business.html:524
+#: appointment_calendar/templates/business/view_business.html:553
+msgid "To Hour"
+msgstr "Hasta la Hora"
+
+#: appointment_calendar/templates/business/view_business.html:539
+msgid "Edit Special Day"
+msgstr "Editar Día Especial"
+
+#: appointment_calendar/templates/business/view_business.html:560
+msgid "Save changes"
+msgstr "Guardar cambios"
+
+#: appointment_calendar/templates/business/view_business.html:571
+msgid "Confirm Business Deletion"
+msgstr "Confirmar Eliminación del Negocio"
+
+#: appointment_calendar/templates/business/view_business.html:575
+msgid "Are you sure you want to delete this business?"
+msgstr "¿Estás seguro de que quieres eliminar este negocio?"
+
+#: appointment_calendar/templates/business/view_business.html:655
+msgid "Address information updated successfully!"
+msgstr "¡Información de dirección actualizada con éxito!"
+
+#: appointment_calendar/templates/business/view_business.html:662
+msgid "Failed to update address information."
+msgstr "No se pudo actualizar la información de dirección."
+
+#: appointment_calendar/templates/business/view_business.html:666
+msgid "Error occurred while updating address information."
+msgstr "Ocurrió un error al actualizar la información de dirección."
+
+#: appointment_calendar/templates/business/view_business.html:676
+msgid "Link successfully copied to clipboard"
+msgstr "Enlace copiado exitosamente al portapapeles"
+
+#: appointment_calendar/templates/business/view_business.html:680
+msgid "Link copied!"
+msgstr "¡Enlace copiado!"
+
+#: appointment_calendar/templates/business/view_business.html:691
+msgid "Error copying link to clipboard:"
+msgstr "Error al copiar el enlace al portapapeles:"
+
+#: appointment_calendar/templates/business/view_business.html:758
+msgid "Business UI details updated successfully"
+msgstr "Detalles de la interfaz del negocio actualizados con éxito"
+
+#: appointment_calendar/templates/business/view_business.html:766
+msgid "Error updating business details. Please try again."
+msgstr ""
+"Error al actualizar los detalles del negocio. Por favor, inténtalo de nuevo."
+
+#: appointment_calendar/templates/business/view_business.html:771
+msgid "Error updating business details:"
+msgstr "Error al actualizar los detalles del negocio:"
+
+#: appointment_calendar/templates/business/view_business.html:792
+#: appointment_calendar/templates/events/event_details.html:1146
+msgid "Update successful"
+msgstr "Actualización exitosa"
+
+#: appointment_calendar/templates/business/view_business.html:795
+#: appointment_calendar/templates/events/event_details.html:1125
+#: appointment_calendar/templates/events/event_details.html:1149
+msgid "Error updating event status:"
+msgstr "Error al actualizar el estado del evento:"
+
+#: appointment_calendar/templates/business/view_business.html:808
+msgid "Business deleted successfully!"
+msgstr "¡Negocio eliminado con éxito!"
+
+#: appointment_calendar/templates/business/view_business.html:812
+msgid "Failed to delete the business. Contact system admins or try again later"
+msgstr ""
+"No se pudo eliminar el negocio. Contacta con los administradores del sistema "
+"o intenta de nuevo más tarde"
+
+#: appointment_calendar/templates/business/view_business.html:865
+msgid "Error updating the business hour."
+msgstr "Error al actualizar la hora del negocio."
+
+#: appointment_calendar/templates/business/view_business.html:932
+#: appointment_calendar/templates/business/view_business.html:1039
+msgid "Error saving the new special day."
+msgstr "Error al guardar el nuevo día especial."
+
+#: appointment_calendar/templates/business/view_business.html:947
+msgid "Are you sure you want to delete this business hour?"
+msgstr "¿Estás seguro de que quieres eliminar esta hora del negocio?"
+
+#: appointment_calendar/templates/business/view_business.html:964
+msgid "Business hour deleted successfully."
+msgstr "Hora del negocio eliminada con éxito."
+
+#: appointment_calendar/templates/business/view_business.html:967
+msgid "Error: Could not delete the business hour."
+msgstr "Error: No se pudo eliminar la hora del negocio."
+
+#: appointment_calendar/templates/business/view_business.html:972
+#: appointment_calendar/templates/business/view_business.html:1042
+#: appointment_calendar/templates/business/view_business.html:1095
+msgid "Error communicating with the server."
+msgstr "Error al comunicarse con el servidor."
+
+#: appointment_calendar/templates/business/view_business.html:977
+#: appointment_calendar/templates/business/view_business.html:1100
+msgid "Deletion canceled."
+msgstr "Eliminación cancelada."
+
+#: appointment_calendar/templates/business/view_business.html:1071
+msgid "Are you sure you want to delete this day with special hours?"
+msgstr "¿Estás seguro de que quieres eliminar este día con horas especiales?"
+
+#: appointment_calendar/templates/business/view_business.html:1087
+msgid "Special day deleted successfully."
+msgstr "Día especial eliminado con éxito."
+
+#: appointment_calendar/templates/business/view_business.html:1090
+msgid "Error: Could not delete the special day."
+msgstr "Error: No se pudo eliminar el día especial."
+
+#: appointment_calendar/templates/business/view_business.html:1138
+msgid "Error updating the special day."
+msgstr "Error al actualizar el día especial."
+
+#: appointment_calendar/templates/business/view_business.html:1189
+msgid "Error sending invitation"
+msgstr "Error al enviar la invitación"
+
+# #: appointment_calendar/templates/events/event_details.html:174
+#: appointment_calendar/templates/events/event_details.html:175
+msgid "Share Event Link"
+msgstr "Compartir enlace del evento"
+
+#: appointment_calendar/templates/events/event_details.html:176
+msgid "Copy link to clipboard."
+msgstr "Copiar enlace al portapapeles."
+
+#: appointment_calendar/templates/events/event_details.html:193
+msgid "Delete Event"
+msgstr "Eliminar evento"
+
+#: appointment_calendar/templates/events/event_details.html:204
+msgid "Event Status"
+msgstr "Estado del evento"
+
+#: appointment_calendar/templates/events/event_details.html:221
+msgid "Booking Page Details"
+msgstr "Detalles de la página de reservas"
+
+#: appointment_calendar/templates/events/event_details.html:225
+#: appointment_calendar/templates/invitee/search_invitees.html:91
+msgid "Name"
+msgstr "Nombre"
+
+#: appointment_calendar/templates/events/event_details.html:233
+#: appointment_calendar/templates/users/user_profile.html:96
+msgid "Presentation"
+msgstr "Presentación"
+
+#: appointment_calendar/templates/events/event_details.html:241
+msgid "Notes"
+msgstr "Notas"
+
+#: appointment_calendar/templates/events/event_details.html:249
+msgid "Duration (mins)"
+msgstr "Duración (minutos)"
+
+#: appointment_calendar/templates/events/event_details.html:257
+msgid "Calendar time slots (mins)"
+msgstr "Intervalos de tiempo del calendario (minutos)"
+
+#: appointment_calendar/templates/events/event_details.html:264
+msgid "Event Workers"
+msgstr "Trabajadores del evento"
+
+#: appointment_calendar/templates/events/event_details.html:275
+#: appointment_calendar/templates/events/event_details.html:1254
+msgid "View User"
+msgstr "Ver usuario"
+
+#: appointment_calendar/templates/events/event_details.html:276
+#: appointment_calendar/templates/events/event_details.html:1255
+msgid "Remove worker"
+msgstr "Eliminar trabajador"
+
+#: appointment_calendar/templates/events/event_details.html:284
+msgid "Questions"
+msgstr "Preguntas"
+
+#: appointment_calendar/templates/events/event_details.html:303
+#: appointment_calendar/templates/events/event_details.html:430
+msgid "Add New Question"
+msgstr "Añadir nueva pregunta"
+
+#: appointment_calendar/templates/events/event_details.html:307
+msgid "Locations"
+msgstr "Ubicaciones"
+
+#: appointment_calendar/templates/events/event_details.html:309
+msgid "Video Conference"
+msgstr "Videoconferencia"
+
+#: appointment_calendar/templates/events/event_details.html:310
+msgid ""
+"Leave empty if video conference is not an option. Otherwise, add your "
+"favourite online meeting conference link"
+msgstr ""
+"Dejar en blanco si la videoconferencia no es una opción. De lo contrario, "
+"añade tu enlace de reunión en línea favorito"
+
+#: appointment_calendar/templates/events/event_details.html:316
+msgid "Physical Locations"
+msgstr "Ubicaciones físicas"
+
+#: appointment_calendar/templates/events/event_details.html:317
+msgid ""
+"We will use your business address on the booking page unless you define here "
+"other available locations"
+msgstr ""
+"Usaremos la dirección de tu negocio en la página de reservas a menos que "
+"definas aquí otras ubicaciones disponibles"
+
+#: appointment_calendar/templates/events/event_details.html:336
+#: appointment_calendar/templates/events/event_details.html:342
+msgid "Add New Location"
+msgstr "Añadir nueva ubicación"
+
+#: appointment_calendar/templates/events/event_details.html:347
+#: appointment_calendar/templates/events/event_details.html:382
+msgid "Address:"
+msgstr "Dirección:"
+
+#: appointment_calendar/templates/events/event_details.html:351
+#: appointment_calendar/templates/events/event_details.html:386
+msgid "City:"
+msgstr "Ciudad:"
+
+#: appointment_calendar/templates/events/event_details.html:355
+#: appointment_calendar/templates/events/event_details.html:390
+msgid "Province:"
+msgstr "Provincia:"
+
+#: appointment_calendar/templates/events/event_details.html:359
+#: appointment_calendar/templates/events/event_details.html:394
+msgid "Country:"
+msgstr "País:"
+
+#: appointment_calendar/templates/events/event_details.html:365
+msgid "Add Location"
+msgstr "Añadir ubicación"
+
+#: appointment_calendar/templates/events/event_details.html:376
+msgid "Edit Location"
+msgstr "Editar ubicación"
+
+#: appointment_calendar/templates/events/event_details.html:411
+#: appointment_calendar/templates/events/event_details.html:469
+#: appointment_calendar/templates/events/event_details.html:648
+#: appointment_calendar/templates/users/user_profile.html:139
+msgid "Confirm Deletion"
+msgstr "Confirmar eliminación"
+
+#: appointment_calendar/templates/events/event_details.html:414
+msgid "Are you sure you want to delete this location:"
+msgstr "¿Estás seguro de que quieres eliminar esta ubicación?"
+
+#: appointment_calendar/templates/events/event_details.html:450
+msgid "Options"
+msgstr "Opciones"
+
+#: appointment_calendar/templates/events/event_details.html:453
+msgid "Add another option"
+msgstr "Añadir otra opción"
+
+#: appointment_calendar/templates/events/event_details.html:458
+msgid "Save Question"
+msgstr "Guardar pregunta"
+
+#: appointment_calendar/templates/events/event_details.html:472
+msgid "Are you sure you want to delete this question:"
+msgstr "¿Estás seguro de que quieres eliminar esta pregunta?"
+
+#: appointment_calendar/templates/events/event_details.html:488
+msgid "Website Settings"
+msgstr "Configuración del sitio web"
+
+#: appointment_calendar/templates/events/event_details.html:498
+msgid "Event Description"
+msgstr "Descripción del evento"
+
+#: appointment_calendar/templates/events/event_details.html:499
+msgid ""
+"Provide a detailed description of your event. This will show on your event "
+"page on the website"
+msgstr ""
+"Proporciona una descripción detallada de tu evento. Esto se mostrará en la "
+"página del evento en el sitio web"
+
+#: appointment_calendar/templates/events/event_details.html:501
+msgid "Enter event description here..."
+msgstr "Introduce la descripción del evento aquí..."
+
+#: appointment_calendar/templates/events/event_details.html:512
+msgid "Event Header Image"
+msgstr "Imagen de cabecera del evento"
+
+#: appointment_calendar/templates/events/event_details.html:513
+msgid "This image will show on the Event Page of this business website"
+msgstr ""
+"Esta imagen se mostrará en la página del evento de este sitio web de negocio"
+
+#: appointment_calendar/templates/events/event_details.html:531
+#: appointment_calendar/templates/users/user_profile.html:117
+msgid "Show Your Work"
+msgstr "Muestra tu trabajo"
+
+#: appointment_calendar/templates/events/event_details.html:535
+#: appointment_calendar/templates/users/user_profile.html:120
+msgid "Delete Selected"
+msgstr "Eliminar seleccionados"
+
+#: appointment_calendar/templates/events/event_details.html:546
+#: appointment_calendar/templates/users/user_profile.html:131
+#: appointment_calendar/templates/web/user_profile.html:99
+msgid "Load More"
+msgstr "Cargar más"
+
+#: appointment_calendar/templates/events/event_details.html:556
+msgid "Event Actions"
+msgstr "Acciones del evento"
+
+#: appointment_calendar/templates/events/event_details.html:563
+#: appointment_calendar/templates/events/event_details.html:566
+#: appointment_calendar/templates/events/event_details.html:1543
+msgid "Add presentation info"
+msgstr "Añadir información de la presentación"
+
+#: appointment_calendar/templates/events/event_details.html:572
+#: appointment_calendar/templates/events/event_details.html:575
+#: appointment_calendar/templates/events/event_details.html:1544
+msgid "Add description info"
+msgstr "Añadir información de la descripción"
+
+#: appointment_calendar/templates/events/event_details.html:581
+#: appointment_calendar/templates/events/event_details.html:584
+#: appointment_calendar/templates/events/event_details.html:1545
+msgid "Duration must be greater than 0"
+msgstr "La duración debe ser mayor que 0"
+
+#: appointment_calendar/templates/events/event_details.html:590
+#: appointment_calendar/templates/events/event_details.html:593
+#: appointment_calendar/templates/events/event_details.html:1546
+msgid "Has workers assigned"
+msgstr "Tiene trabajadores asignados"
+
+#: appointment_calendar/templates/events/event_details.html:599
+#: appointment_calendar/templates/events/event_details.html:602
+#: appointment_calendar/templates/events/event_details.html:1547
+msgid "Price must be greater than 0"
+msgstr "El precio debe ser mayor que 0"
+
+#: appointment_calendar/templates/events/event_details.html:608
+#: appointment_calendar/templates/events/event_details.html:611
+#: appointment_calendar/templates/events/event_details.html:1548
+msgid "Front image added"
+msgstr "Imagen frontal añadida"
+
+#: appointment_calendar/templates/events/event_details.html:629
+msgid "Select Worker"
+msgstr "Seleccionar trabajador"
+
+#: appointment_calendar/templates/events/event_details.html:651
+#: appointment_calendar/templates/users/user_profile.html:142
+msgid "Delete selected?"
+msgstr "¿Eliminar seleccionados?"
+
+#: appointment_calendar/templates/events/event_details.html:655
+#: appointment_calendar/templates/users/user_profile.html:146
+msgid "Confirm"
+msgstr "Confirmar"
+
+#: appointment_calendar/templates/events/event_details.html:666
+#: appointment_calendar/templates/users/user_profile.html:157
+#: appointment_calendar/templates/web/home.html:159
+#: appointment_calendar/templates/web/service.html:94
+msgid "Full Screen Image"
+msgstr "Imagen a pantalla completa"
+
+#: appointment_calendar/templates/events/event_details.html:679
+msgid "Confirm Event Deletion"
+msgstr "Confirmar eliminación del evento"
+
+#: appointment_calendar/templates/events/event_details.html:683
+msgid "Are you sure you want to delete this event?"
+msgstr "¿Estás seguro de que quieres eliminar este evento?"
+
+#: appointment_calendar/templates/events/event_details.html:698
+msgid "Edit Name"
+msgstr "Editar nombre"
+
+#: appointment_calendar/templates/events/event_details.html:717
+msgid "Edit Video Conference"
+msgstr "Editar videoconferencia"
+
+#: appointment_calendar/templates/events/event_details.html:736
+msgid "Edit Presentation"
+msgstr "Editar presentación"
+
+#: appointment_calendar/templates/events/event_details.html:755
+msgid "Edit Notes"
+msgstr "Editar notas"
+
+#: appointment_calendar/templates/events/event_details.html:774
+msgid "Edit Duration"
+msgstr "Editar duración"
+
+#: appointment_calendar/templates/events/event_details.html:793
+msgid "Edit Calendar Time Slots"
+msgstr "Editar intervalos de tiempo del calendario"
+
+#: appointment_calendar/templates/events/event_details.html:956
+msgid "Error adding location. Please try again."
+msgstr "Error al añadir la ubicación. Por favor, inténtalo de nuevo."
+
+#: appointment_calendar/templates/events/event_details.html:960
+#: appointment_calendar/templates/events/event_details.html:1211
+#: appointment_calendar/templates/events/event_details.html:1327
+#: appointment_calendar/templates/events/event_details.html:1371
+#: appointment_calendar/templates/users/user_profile.html:215
+#: appointment_calendar/templates/users/user_profile.html:263
+#: appointment_calendar/templates/users/user_profile.html:292
+#: appointment_calendar/templates/web/user_profile.html:144
+msgid "Server error, please try again later."
+msgstr "Error del servidor, por favor inténtalo de nuevo más tarde."
+
+#: appointment_calendar/templates/events/event_details.html:965
+msgid "Please fill out all fields."
+msgstr "Por favor, rellena todos los campos."
+
+#: appointment_calendar/templates/events/event_details.html:993
+msgid "Failed to fetch location details."
+msgstr "No se pudieron obtener los detalles de la ubicación."
+
+#: appointment_calendar/templates/events/event_details.html:1025
+msgid "Failed to update location."
+msgstr "No se pudo actualizar la ubicación."
+
+#: appointment_calendar/templates/events/event_details.html:1053
+msgid "Failed to delete location."
+msgstr "No se pudo eliminar la ubicación."
+
+#: appointment_calendar/templates/events/event_details.html:1071
+#: appointment_calendar/templates/events/event_details.html:1082
+msgid "Text successfully copied to clipboard"
+msgstr "Texto copiado exitosamente al portapapeles"
+
+#: appointment_calendar/templates/events/event_details.html:1073
+#: appointment_calendar/templates/events/event_details.html:1084
+msgid "Failed to copy text: "
+msgstr "Error al copiar el texto:"
+
+#: appointment_calendar/templates/events/event_details.html:1207
+msgid "Error deleting images."
+msgstr "Error al eliminar las imágenes."
+
+#: appointment_calendar/templates/events/event_details.html:1225
+msgid "Event deleted successfully!"
+msgstr "¡Evento eliminado con éxito!"
+
+#: appointment_calendar/templates/events/event_details.html:1229
+msgid "Failed to delete the event. Contact system admins or try again later"
+msgstr ""
+"No se pudo eliminar el evento. Contacta con los administradores del sistema "
+"o inténtalo de nuevo más tarde."
+
+#: appointment_calendar/templates/events/event_details.html:1272
+msgid "Please select a worker."
+msgstr "Por favor, selecciona un trabajador."
+
+#: appointment_calendar/templates/events/event_details.html:1361
+msgid "Image uploaded successfully!"
+msgstr "¡Imagen subida con éxito!"
+
+#: appointment_calendar/templates/events/event_details.html:1366
+#: appointment_calendar/templates/users/user_profile.html:210
+msgid "Upload failed. Please try again."
+msgstr "Error al subir la imagen. Por favor, inténtalo de nuevo."
+
+#: appointment_calendar/templates/events/event_details.html:1410
+msgid "Enter option"
+msgstr "Introduce la opción"
+
+#: appointment_calendar/templates/events/event_details.html:1467
+#: appointment_calendar/templates/events/event_details.html:1503
+msgid "There was an error: "
+msgstr "Hubo un error:"
+
+#: appointment_calendar/templates/events/event_details.html:1471
+msgid "An error occurred: "
+msgstr "Ocurrió un error:"
+
+#: appointment_calendar/templates/events/event_details.html:1606
+msgid "Error updating event details. Please try again."
+msgstr ""
+"Error al actualizar los detalles del evento. Por favor, inténtalo de nuevo."
+
+#: appointment_calendar/templates/events/event_details.html:1611
+msgid "Error updating event details:"
+msgstr "Error al actualizar los detalles del evento:"
+
+#: appointment_calendar/templates/events/events_list.html:40
+msgid "All"
+msgstr "Todos"
+
+# #: appointment_calendar/templates/events/event_details.html:174
+#: appointment_calendar/templates/events/events_list.html:104
+#: appointment_calendar/templates/worker_detail.html:172
+msgid "Share event"
+msgstr "Compartir enlace del evento"
+
+#: appointment_calendar/templates/events/events_list.html:107
+#: appointment_calendar/templates/worker_detail.html:175
+msgid "Share with me as worker"
+msgstr "Compartir y asigname al evento como trabajador"
+
+#: appointment_calendar/templates/home/home.html:4
+msgid "Home - ReservaClick"
+msgstr "Inicio - ReservaClick"
+
+#: appointment_calendar/templates/home/home.html:9
+msgid "Your Website and Online Booking in Less than 15 Minutes"
+msgstr "Tu sitio web y reservas online en menos de 15 minutos"
+
+#: appointment_calendar/templates/home/home.html:10
+msgid ""
+"Transform your business with a professional online presence and an efficient "
+"booking system designed for autonomos in Spain."
+msgstr ""
+"Transforma tu negocio con una presencia en línea profesional y un sistema de "
+"reservas eficiente diseñado para autónomos en España."
+
+#: appointment_calendar/templates/home/home.html:11
+msgid "Get Started for Free"
+msgstr "Empieza gratis"
+
+#: appointment_calendar/templates/home/home.html:15
+msgid "Why Choose ReservaClick?"
+msgstr "¿Por qué elegir ReservaClick?"
+
+#: appointment_calendar/templates/home/home.html:18
+msgid "Simple and Quick Setup"
+msgstr "Configuración simple y rápida"
+
+#: appointment_calendar/templates/home/home.html:19
+msgid "Get your website and booking calendar ready in under 15 minutes."
+msgstr ""
+"Ten tu sitio web y calendario de reservas listo en menos de 15 minutos."
+
+#: appointment_calendar/templates/home/home.html:22
+msgid "Cost-Effective"
+msgstr "Económico"
+
+#: appointment_calendar/templates/home/home.html:23
+msgid "Start with our free tier and upgrade as your business grows."
+msgstr ""
+"Empieza con nuestro nivel gratuito y actualiza a medida que tu negocio crece."
+
+#: appointment_calendar/templates/home/home.html:26
+msgid "Tailored for You"
+msgstr "Hecho a tu medida"
+
+#: appointment_calendar/templates/home/home.html:27
+msgid "Fully customizable websites to match your branding."
+msgstr "Sitios web totalmente personalizables para que coincidan con tu marca."
+
+#: appointment_calendar/templates/home/home.html:30
+msgid "Payment Processing"
+msgstr "Procesamiento de pagos"
+
+#: appointment_calendar/templates/home/home.html:31
+msgid "Secure and easy payment solutions for your clients."
+msgstr "Soluciones de pago seguras y fáciles para tus clientes."
+
+#: appointment_calendar/templates/home/home.html:34
+msgid "Client Management"
+msgstr "Gestión de clientes"
+
+#: appointment_calendar/templates/home/home.html:35
+msgid "Keep track of appointments and client details effortlessly."
+msgstr ""
+"Lleva un control de las reservas y detalles de los clientes sin esfuerzo."
+
+#: appointment_calendar/templates/home/home.html:38
+msgid "Reminders & Notifications"
+msgstr "Recordatorios y notificaciones"
+
+#: appointment_calendar/templates/home/home.html:39
+msgid ""
+"Automated reminders to reduce no-shows and keep your schedule organized."
+msgstr ""
+"Recordatorios automáticos para reducir las ausencias y mantener tu agenda "
+"organizada."
+
+#: appointment_calendar/templates/home/home.html:45
+#, fuzzy
+#| msgid ""
+#| "Autonomo, sabemos que no tienes tiempo. Por eso te damos tu calendario de "
+#| "reservas online y pagina web en menos de 15 minutos"
+msgid ""
+"Autonomo, sabemos que no tienes tiempo. Por eso te damos tu calendario de "
+"citas online y pagina web en menos de 15 minutos"
+msgstr ""
+"Autónomo, sabemos que no tienes tiempo. Por eso te damos tu calendario de "
+"reservas online y página web en menos de 15 minutos."
+
+#: appointment_calendar/templates/home/home.html:49
+msgid "How It Works"
+msgstr "Cómo funciona"
+
+#: appointment_calendar/templates/home/home.html:52
+msgid "Sign Up for Free"
+msgstr "Regístrate gratis"
+
+#: appointment_calendar/templates/home/home.html:53
+msgid ""
+"Create your account and access our free tier to start setting up your "
+"services."
+msgstr ""
+"Crea tu cuenta y accede a nuestro nivel gratuito para comenzar a configurar "
+"tus servicios."
+
+#: appointment_calendar/templates/home/home.html:56
+msgid "Customize Your Website"
+msgstr "Personaliza tu sitio web"
+
+#: appointment_calendar/templates/home/home.html:57
+msgid ""
+"Use our simple tools to add your branding, services, and booking preferences."
+msgstr ""
+"Usa nuestras herramientas simples para añadir tu marca, servicios y "
+"preferencias de reservas."
+
+#: appointment_calendar/templates/home/home.html:60
+msgid "Set Up Your Booking Calendar"
+msgstr "Configura tu calendario de reservas"
+
+#: appointment_calendar/templates/home/home.html:61
+msgid "Define your availability and let clients book appointments seamlessly."
+msgstr ""
+"Define tu disponibilidad y permite que los clientes reserven sin problemas."
+
+#: appointment_calendar/templates/home/home.html:64
+msgid "Start Booking Clients"
+msgstr "Empieza a reservar clientes"
+
+#: appointment_calendar/templates/home/home.html:65
+msgid "Go live and start accepting appointments online."
+msgstr "Ponte en línea y comienza a aceptar reservas desde internet."
+
+#: appointment_calendar/templates/home/home.html:71
+msgid "Testimonials"
+msgstr "Testimonios"
+
+#: appointment_calendar/templates/home/home.html:74
+#: appointment_calendar/templates/home/home.html:77
+msgid "\\"
+msgstr ""
+
+#: appointment_calendar/templates/home/home.html:83
+msgid "FAQs"
+msgstr "Preguntas frecuentes"
+
+#: appointment_calendar/templates/home/home.html:86
+msgid "Q: How long does it take to set up my website and booking calendar?"
+msgstr ""
+"P: ¿Cuánto tiempo se tarda en configurar mi sitio web y calendario de "
+"reservas?"
+
+#: appointment_calendar/templates/home/home.html:87
+msgid ""
+"A: With ReservaClick, you can have everything up and running in less than 15 "
+"minutes."
+msgstr ""
+"R: Con ReservaClick, puedes tener todo funcionando en menos de 15 minutos."
+
+#: appointment_calendar/templates/home/home.html:90
+msgid "Q: Is there a free tier available?"
+msgstr "P: ¿Hay un nivel gratuito disponible?"
+
+#: appointment_calendar/templates/home/home.html:91
+msgid ""
+"A: Yes, we offer a free tier so you can start using our services without any "
+"initial cost."
+msgstr ""
+"R: Sí, ofrecemos un nivel gratuito para que puedas empezar a usar nuestros "
+"servicios sin ningún costo inicial."
+
+#: appointment_calendar/templates/home/home.html:94
+msgid "Q: Can I accept payments through my website?"
+msgstr "P: ¿Puedo aceptar pagos a través de mi sitio web?"
+
+#: appointment_calendar/templates/home/home.html:95
+msgid "A: Yes, we provide secure payment processing for your clients."
+msgstr "R: Sí, ofrecemos procesamiento de pagos seguro para tus clientes."
+
+#: appointment_calendar/templates/home/home.html:98
+msgid "Q: How customizable are the websites?"
+msgstr "P: ¿Qué tan personalizables son los sitios web?"
+
+#: appointment_calendar/templates/home/home.html:99
+msgid ""
+"A: Our websites are fully customizable to match your branding and "
+"preferences."
+msgstr ""
+"R: Nuestros sitios web son totalmente personalizables para que coincidan con "
+"tu marca y preferencias."
+
+#: appointment_calendar/templates/home/home_base.html:17
+msgid "ReservaClick Logo"
+msgstr "Logotipo de ReservaClick"
+
+#: appointment_calendar/templates/home/home_base.html:18
+#: appointment_calendar/templates/web/web_base.html:111
+msgid "Home"
+msgstr "Inicio"
+
+#: appointment_calendar/templates/home/home_base.html:19
+msgid "Features"
+msgstr "Características"
+
+#: appointment_calendar/templates/home/home_base.html:20
+msgid "Pricing"
+msgstr "Precios"
+
+#: appointment_calendar/templates/home/home_base.html:21
+msgid "Contact"
+msgstr "Contacto"
+
+#: appointment_calendar/templates/home/home_base.html:22
+msgid "Sign In"
+msgstr "Iniciar Sesión"
+
+#: appointment_calendar/templates/home/home_base.html:23
+#: appointment_calendar/templates/registration/user_registration.html:10
+msgid "Sign Up"
+msgstr "Registrarse"
+
+#: appointment_calendar/templates/home/home_base.html:45
+msgid "© 2024 ReservaClick. All rights reserved."
+msgstr "© 2024 ReservaClick. Todos los derechos reservados."
+
+#: appointment_calendar/templates/home/home_base.html:46
+msgid "Privacy Policy"
+msgstr "Política de Privacidad"
+
+#: appointment_calendar/templates/home/home_base.html:46
+msgid "Terms of Service"
+msgstr "Términos del Servicio"
+
+#: appointment_calendar/templates/invitee/invitee_detail.html:7
+#: appointment_calendar/templates/invitee/search_invitees.html:79
+msgid "Manage Clients"
+msgstr "Clientes"
+
+#: appointment_calendar/templates/invitee/invitee_detail.html:16
+msgid "Client Information"
+msgstr "Información de Cliente"
+
+#: appointment_calendar/templates/invitee/invitee_detail.html:17
+msgid "Email:"
+msgstr "Correo"
+
+#: appointment_calendar/templates/invitee/invitee_detail.html:18
+msgid "Phone Number:"
+msgstr "Telefono"
+
+#: appointment_calendar/templates/invitee/invitee_detail.html:22
+msgid "Appointment History"
+msgstr "Historial de Reservas"
+
+#: appointment_calendar/templates/invitee/invitee_detail.html:29
+msgid "Event Name"
+msgstr "Nombre Evento"
+
+#: appointment_calendar/templates/invitee/invitee_detail.html:30
+msgid "Business Name"
+msgstr "Nombre Negocio"
+
+#: appointment_calendar/templates/invitee/invitee_detail.html:50
+#: appointment_calendar/templates/invitee/search_invitees.html:136
+#: appointment_calendar/templates/invitee/search_invitees.html:140
+msgid "Previous"
+msgstr "Previo"
+
+#: appointment_calendar/templates/invitee/invitee_detail.html:64
+#: appointment_calendar/templates/invitee/search_invitees.html:153
+#: appointment_calendar/templates/invitee/search_invitees.html:159
+msgid "Next"
+msgstr "Siguiente"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:84
+msgid "Search Clients"
+msgstr "Busca Clientes"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:87
+msgid "Business"
+msgstr "Negocio"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:95
+#: appointment_calendar/templates/invitee/search_invitees.html:122
+msgid "Email"
+msgstr "Correo"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:99
+msgid "Phone Number"
+msgstr "Telefono"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:102
+#: appointment_calendar/templates/users/appointments.html:67
+msgid "Search"
+msgstr "Buscar"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:110
+msgid "Clientes"
+msgstr "Clientes"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:114
+msgid "Clients found."
+msgstr "Clientes encontrados."
+
+#: appointment_calendar/templates/invitee/search_invitees.html:115
+#: appointment_calendar/templates/users/appointments.html:80
+#: appointment_calendar/templates/users/appointments.html:116
+#: appointment_calendar/templates/users/appointments.html:157
+msgid "Change Search"
+msgstr "Cambiar Busqueda"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:123
+msgid "Phone"
+msgstr "Telefono"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:125
+msgid "View More Info"
+msgstr "Ver Mas"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:133
+#: appointment_calendar/templates/invitee/search_invitees.html:139
+msgid "First"
+msgstr "Primero"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:156
+#: appointment_calendar/templates/invitee/search_invitees.html:160
+msgid "Last"
+msgstr "Ultimo"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:166
+msgid "No clients found."
+msgstr "No se han encontrado clientes"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:167
+#: appointment_calendar/templates/invitee/search_invitees.html:195
+msgid "Show Search Params"
+msgstr "Enseña Parametros de Busqueda"
+
+#: appointment_calendar/templates/invitee/search_invitees.html:195
+msgid "Hide Search Params"
+msgstr "Esconce Parametros de Busqueda"
+
+#: appointment_calendar/templates/registration/logged_out.html:8
+msgid "You have been logged out"
+msgstr "La session se ha cerrado"
+
+#: appointment_calendar/templates/registration/logged_out.html:9
+msgid ""
+"Thank you for using our system. If you need to log in again, just click the "
+"button below."
+msgstr ""
+"Gracias por usar nuestro sistema. Si necesita iniciar una sesion de nuevo, "
+"clicke el boton de abajo."
+
+#: appointment_calendar/templates/registration/logged_out.html:10
+msgid "Log In Again"
+msgstr "Iniciar sesión"
+
+#: appointment_calendar/templates/registration/logged_out.html:11
+msgid "If you encounter any issues, please contact our support team."
+msgstr ""
+"Si encuentras algun problema , por favor contacte nuestro equipo de soporte."
+
+#: appointment_calendar/templates/registration/login.html:11
+msgid "Login"
+msgstr "Iniciar sesión"
+
+#: appointment_calendar/templates/registration/login.html:14
+msgid "Your username and password didn't match. Please try again."
+msgstr ""
+"Tu nombre de usuario y contraseña no coinciden. Por favor, inténtalo de "
+"nuevo."
+
+#: appointment_calendar/templates/registration/login.html:20
+msgid ""
+"Your account doesn't have access to this page. To proceed, please login with "
+"an account that has access."
+msgstr ""
+"Tu cuenta no tiene acceso a esta página. Para continuar, por favor inicia "
+"sesión con una cuenta que tenga acceso."
+
+#: appointment_calendar/templates/registration/login.html:24
+msgid "Please login to see this page."
+msgstr "Por favor, inicia sesión para ver esta página."
+
+#: appointment_calendar/templates/registration/login.html:39
+msgid "Log In"
+msgstr "Iniciar sesión"
+
+#: appointment_calendar/templates/registration/login.html:46
+msgid "Lost password?"
+msgstr "¿Olvidaste tu contraseña?"
+
+#: appointment_calendar/templates/registration/login.html:49
+msgid "or"
+msgstr "o"
+
+#: appointment_calendar/templates/registration/login.html:49
+msgid "Register"
+msgstr "Registrarse"
+
+#: appointment_calendar/templates/registration/password_reset_complete.html:10
+msgid "Password Reset Complete"
+msgstr "La contraseña se ha reseteado"
+
+#: appointment_calendar/templates/registration/password_reset_complete.html:12
+msgid "Your password has been set successfully. You can now proceed to"
+msgstr "Tu contraseña se ha guardado. Puedes seguir a"
+
+#: appointment_calendar/templates/registration/password_reset_complete.html:12
+msgid "log in"
+msgstr "Indentificate"
+
+#: appointment_calendar/templates/registration/password_reset_complete.html:12
+msgid "with your new password."
+msgstr "con tu nueva contraseña."
+
+#: appointment_calendar/templates/registration/password_reset_confirm.html:10
+#: appointment_calendar/templates/registration/password_reset_confirm.html:24
+msgid "Set New Password"
+msgstr "Crea tu nueva contraseña."
+
+#: appointment_calendar/templates/registration/password_reset_confirm.html:21
+msgid "Enter the same password as before, for verification."
+msgstr "Escribe la misma contraseña, por verificacion."
+
+#: appointment_calendar/templates/registration/password_reset_confirm.html:28
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used. Please request a new password reset."
+msgstr ""
+"El link de reseteo de la contraseña es invalido, posiblemente porque ya se "
+"uso. Por favor, intenta resetear de nuevo la contraseña."
+
+#: appointment_calendar/templates/registration/password_reset_done.html:10
+msgid "Reset Password Email Sent"
+msgstr "Enviado correo para resetear la clave"
+
+#: appointment_calendar/templates/registration/password_reset_done.html:12
+msgid ""
+"An email has been sent to the provided address with further instructions on "
+"how to reset your password."
+msgstr ""
+"Un correo se ha enviado a la direccion solicitada con instrucciones para "
+"resetear la clave."
+
+#: appointment_calendar/templates/registration/password_reset_form.html:10
+msgid "Reset Password"
+msgstr "Resetea Contraseña."
+
+#: appointment_calendar/templates/registration/password_reset_form.html:11
+msgid ""
+"Enter your email address below and we'll send you a link to reset your "
+"password."
+msgstr ""
+"Escribe tu direccion de correo abajo y te mandaremos un enlace con "
+"instrucciones para resetear tu contraseña."
+
+# #: appointment_calendar/templates/events/event_details.html:174
+#: appointment_calendar/templates/registration/password_reset_form.html:19
+msgid "Send Reset Link"
+msgstr "Mandar enlace para resetear la contraseña"
+
+#: appointment_calendar/templates/registration/user_registration.html:42
+msgid "Sign up"
+msgstr "Registrarse"
+
+#: appointment_calendar/templates/users/appointments.html:48
+msgid "Manage Appointments"
+msgstr "Gestiona Reservas"
+
+#: appointment_calendar/templates/users/appointments.html:53
+#: appointment_calendar/templates/users/dashboard.html:68
+msgid "Search Appointments"
+msgstr "Busca Reservas"
+
+#: appointment_calendar/templates/users/appointments.html:56
+msgid "Start Date"
+msgstr "Fecha Comienzo"
+
+#: appointment_calendar/templates/users/appointments.html:60
+msgid "End Date"
+msgstr "Fecha Final"
+
+#: appointment_calendar/templates/users/appointments.html:64
+msgid "User"
+msgstr "Usuario"
+
+#: appointment_calendar/templates/users/appointments.html:79
+msgid "Appointments found for"
+msgstr "Reservas encontradas con"
+
+#: appointment_calendar/templates/users/appointments.html:79
+#: appointment_calendar/templates/users/appointments.html:115
+#: appointment_calendar/templates/users/appointments.html:157
+msgid "to"
+msgstr "a"
+
+#: appointment_calendar/templates/users/appointments.html:79
+#: appointment_calendar/templates/users/appointments.html:115
+#: appointment_calendar/templates/users/appointments.html:157
+msgid "for user"
+msgstr "para usuario"
+
+#: appointment_calendar/templates/users/appointments.html:104
+#: appointment_calendar/templates/users/dashboard.html:50
+#: appointment_calendar/templates/worker_detail.html:144
+msgid "View Details"
+msgstr "Ver Detalles"
+
+#: appointment_calendar/templates/users/appointments.html:115
+msgid "Search made for"
+msgstr "Busqueda hecha con"
+
+#: appointment_calendar/templates/users/appointments.html:118
+msgid "No appointments found"
+msgstr "No se han encontrado clientes"
+
+#: appointment_calendar/templates/users/appointments.html:157
+#, fuzzy
+#| msgid "Appointments found for"
+msgid "Appointments found from"
+msgstr "Reservas encontradas con"
+
+#: appointment_calendar/templates/users/dashboard.html:23
+msgid "Your Appointments"
+msgstr "Tus Reservas"
+
+#: appointment_calendar/templates/users/dashboard.html:63
+msgid "You don't have any appointments scheduled in the next 30 days."
+msgstr "No tienes ninguna reserva en los proximos 30 dias."
+
+#: appointment_calendar/templates/users/dashboard.html:72
+msgid "Your Businesses"
+msgstr "Tus Negocios"
+
+#: appointment_calendar/templates/users/dashboard.html:97
+msgid "Working For"
+msgstr "Trabajando Para"
+
+#: appointment_calendar/templates/users/user_profile.html:51
+#: appointment_calendar/templates/web/user_profile.html:52
+msgid "Profile Picture"
+msgstr "Foto de Perfil"
+
+#: appointment_calendar/templates/users/user_profile.html:60
+msgid "First Name"
+msgstr "Nombre"
+
+#: appointment_calendar/templates/users/user_profile.html:64
+msgid "Last Name"
+msgstr "Apellidos"
+
+#: appointment_calendar/templates/users/user_profile.html:101
+#: appointment_calendar/templates/web/user_profile.html:84
+msgid "Experience"
+msgstr "Experiencia"
+
+#: appointment_calendar/templates/users/user_profile.html:257
+msgid "Photos deleted successfully."
+msgstr "Fotos eliminadas con éxito"
+
+#: appointment_calendar/templates/users/user_profile.html:259
+msgid "Error deleting photos."
+msgstr "Error al eliminar las imágenes."
+
+#: appointment_calendar/templates/users/user_profile.html:338
+msgid "Profile details updated successfully"
+msgstr "Perfil guardado con exito"
+
+#: appointment_calendar/templates/users/user_profile.html:341
+msgid "Error updating profile details:"
+msgstr "Error al actualizar los detalles del perfil:"
+
+#: appointment_calendar/templates/web/home.html:52
+msgid "Who We Are"
+msgstr "Quienes Somos"
+
+#: appointment_calendar/templates/web/home.html:63
+msgid "Services"
+msgstr "Servicios"
+
+#: appointment_calendar/templates/web/home.html:80
+#: appointment_calendar/templates/web/home.html:127
+msgid "Learn More"
+msgstr "Ver más"
+
+#: appointment_calendar/templates/web/home.html:97
+msgid "Our Location"
+msgstr "Ubicaciones"
+
+#: appointment_calendar/templates/web/home.html:111
+msgid "Our Personnel"
+msgstr "Nuestro Personal"
+
+#: appointment_calendar/templates/web/home.html:142
+#: appointment_calendar/templates/web/service.html:77
+msgid "Our Work"
+msgstr "Nuestro Trabajo"
+
+#: appointment_calendar/templates/web/service.html:56
+msgid "Product Image"
+msgstr "Imagen de Producto"
+
+#: appointment_calendar/templates/web/service.html:66
+msgid "Book me"
+msgstr "Reserva"
+
+#: appointment_calendar/templates/web/service.html:104
+msgid "More Information"
+msgstr "Mas Información"
+
+#: appointment_calendar/templates/web/service.html:105
+msgid "Additional details about the product go here."
+msgstr "Detalles adicionales sobre el producto aqui"
+
+#: appointment_calendar/templates/web/user_profile.html:91
+msgid "My Work"
+msgstr "Mi Trabajo"
+
+#: appointment_calendar/templates/web/user_profile.html:95
+msgid "Foto"
+msgstr "Foto"
+
+#: appointment_calendar/templates/web/web_base.html:112
+msgid "Blog"
+msgstr "Blog"
+
+#: appointment_calendar/templates/web/web_base.html:142
+msgid "Opening Hours"
+msgstr "Horario Apertura"
+
+#: appointment_calendar/templates/worker_detail.html:66
+msgid "is assigned to work at"
+msgstr "esta asignado para trabajar en"
+
+#: appointment_calendar/templates/worker_detail.html:118
+msgid "has in the next 30 days at"
+msgstr "tiene en los proximos 30 dias en"
+
+#: appointment_calendar/templates/worker_detail.html:238
+msgid "URL copied to clipboard!"
+msgstr "Enlace copiado exitosamente"
+
+#: appointment_calendar/templates/worker_detail.html:246
+msgid "Failed to copy URL."
+msgstr "Error al copiar el enlace"

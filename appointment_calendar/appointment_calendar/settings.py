@@ -34,6 +34,19 @@ ALLOWED_HOSTS = []
 
 LOGOUT_REDIRECT_URL= 'logged_out'
 
+LANGUAGE_CODE = 'en'
+
+LANGUAGES = [
+    ('en', 'English'),
+    ('es', 'Spanish'),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'appointment_calendar' / 'locale',
+]
+
+USE_I18N = True
+USE_L10N = False
 
 # Application definition
 
@@ -52,11 +65,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',    
 ]
 
 ROOT_URLCONF = 'appointment_calendar.urls'
@@ -167,11 +181,12 @@ Q_CLUSTER = {
     'name': 'DjangORM',
     'workers': 8,
     'recycle': 500,
-    'timeout': 10,
+    'timeout': 60,
     'queue_limit': 50,
     'bulk': 10,
     'orm': 'default',  # Use the Django ORM for task storage and broker
-    'retry': 12,  
+    'retry': 70,  
     'max_attempts': 3,
     'ack_failures': False, 
 }
+

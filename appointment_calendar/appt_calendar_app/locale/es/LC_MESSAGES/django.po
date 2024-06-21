@@ -1,0 +1,51 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-06-20 11:35+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: appt_calendar_app/views.py:1159
+msgid "Events"
+msgstr "Eventos"
+
+#: appt_calendar_app/views.py:1160
+msgid "Select the event you want."
+msgstr "Seleccione el evento que desea"
+
+#: appt_calendar_app/views.py:1163
+msgid "Staff"
+msgstr "Personal"
+
+#: appt_calendar_app/views.py:1164
+msgid "Select one of our staff members."
+msgstr "Seleccione un miembro de nuestro personal"
+
+#: appt_calendar_app/views.py:1167
+msgid "Location, Day and Time"
+msgstr "Ubicacion, Dia y Hora"
+
+#: appt_calendar_app/views.py:1168
+msgid "Select the location, day and time of your appointment."
+msgstr "Seleccione la ubicacion, dia y hora de su cita"
+
+#: appt_calendar_app/views.py:1171
+msgid "Customer Info"
+msgstr "Informacion del cliente"
+
+#: appt_calendar_app/views.py:1172
+msgid "Complete this information."
+msgstr "Complete esta informacion"

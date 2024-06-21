@@ -27,3 +27,7 @@ RUN pip install -r requirements.txt
 
 # Copy project
 COPY . /code/
+
+ENV PYTHONPATH=/code
+
+RUN apt install -y gettext

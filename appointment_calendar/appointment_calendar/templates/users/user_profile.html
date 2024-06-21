@@ -1,5 +1,5 @@
 {% extends 'base2.html' %}
-
+{% load i18n %}
 {% block extra_css %}
 <style>
     .photo-thumbnail {
@@ -36,7 +36,7 @@
 {% block content %}
     <nav aria-label="breadcrumb" class="mobile-margin-top">
         <ol class="breadcrumb">
-        <li class="breadcrumb-item active" aria-current="page">Profile</li>
+            <li class="breadcrumb-item active" aria-current="page">{% translate "Profile" %}</li>
         </ol>
     </nav>
     <div class="rc-card">
@@ -48,20 +48,20 @@
             <div class="row align-items-center mb-3">
                 <div class="col-12 col-md-4 centered-profile-image">
                     <div class="rounded-circle overflow-hidden" style="width: 200px; height: 200px;">
-                        <img src="{{ custom_user.profile_image_url }}" id="profilePicture" class="img-fluid" alt="Profile Picture">
+                        <img src="{{ custom_user.profile_image_url }}" id="profilePicture" class="img-fluid" alt="{% translate 'Profile Picture' %}">
                     </div>
                     <label for="profileImageInput" class="btn btn-primary w-100 mt-3">
-                        Change
+                        {% translate "Change" %}
                         <input type="file" id="profileImageInput" class="d-none" accept="image/jpeg, image/png">
                     </label>
                 </div>
                 <div class="col-12 col-md-8 d-flex flex-column align-items-center mt-3">
                     <div class="mb-3 half-width">
-                        <label for="firstNameInput" class="form-label">First Name</label>
+                        <label for="firstNameInput" class="form-label">{% translate "First Name" %}</label>
                         <input type="text" class="form-control" id="firstNameInput" value="{{ custom_user.user.first_name }}">
                     </div>
                     <div class="mb-3 half-width">
-                        <label for="lastNameInput" class="form-label">Last Name</label>
+                        <label for="lastNameInput" class="form-label">{% translate "Last Name" %}</label>
                         <input type="text" class="form-control" id="lastNameInput" value="{{ custom_user.user.last_name }}">
                     </div>
                     <!-- Social Media Inputs -->
@@ -93,31 +93,31 @@
             </div>
             <!-- Presentation Textarea -->
             <div class="mb-3">
-                <label for="presentationTextarea" class="form-label">Presentation</label>
+                <label for="presentationTextarea" class="form-label">{% translate "Presentation" %}</label>
                 <textarea class="form-control" id="presentationTextarea" rows="3" maxlength="150">{{ custom_user.presentation }}</textarea>
             </div>
             <!-- Experience Textarea -->
             <div class="mb-3">
-                <label for="experienceTextarea" class="form-label">Experience</label>
+                <label for="experienceTextarea" class="form-label">{% translate "Experience" %}</label>
                 <textarea class="form-control" id="experienceTextarea" rows="10" maxlength="2000">{{ custom_user.experience }}</textarea>
             </div>
             <!-- Save and Cancel Buttons -->
             <div class="row">
                 <div class="col-md-6 mb-2">
-                    <button type="button" id="saveButton" class="btn btn-primary w-100">Save</button>
+                    <button type="button" id="saveButton" class="btn btn-primary w-100">{% translate "Save" %}</button>
                 </div>
                 <div class="col-md-6">
-                    <button type="button" id="cancelButton" class="btn btn-secondary w-100">Cancel</button>
+                    <button type="button" id="cancelButton" class="btn btn-secondary w-100">{% translate "Cancel" %}</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="container mt-5">
-        <h2>Show Your Work</h2>
-        <button id="add-photo" class="btn btn-success">Add</button>
+        <h2>{% translate "Show Your Work" %}</h2>
+        <button id="add-photo" class="btn btn-success">{% translate "Add" %}</button>
         <input type="file" id="photo-upload" accept=".jpg, .jpeg, .png" style="display: none;">
-        <button id="delete-photo" class="btn btn-danger" disabled>Delete Selected</button>
+        <button id="delete-photo" class="btn btn-danger" disabled>{% translate "Delete Selected" %}</button>
         <div class="row photo-row">
             {% for image in custom_user.photos.all|slice:":9" %}
             <div class="col-md-4 mt-4">
@@ -128,7 +128,7 @@
             </div>
             {% endfor %}
         </div>
-        <button class="btn btn-primary" id="load-more">Load More</button>
+        <button class="btn btn-primary" id="load-more">{% translate "Load More" %}</button>
     </div>
 
     <!-- Bootstrap Modal for Confirmation of photo deletion -->
@@ -136,14 +136,14 @@
         <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+            <h5 class="modal-title" id="confirmDeleteModalLabel">{% translate "Confirm Deletion" %}</h5>
             </div>
             <div class="modal-body">
-            Delete selected?
+            {% translate "Delete selected?" %}
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="cancel-delete" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-danger" id="confirm-delete">Confirm</button>
+            <button type="button" class="btn btn-secondary" id="cancel-delete" data-dismiss="modal">{% translate "Cancel" %}</button>
+            <button type="button" class="btn btn-danger" id="confirm-delete">{% translate "Confirm" %}</button>
             </div>
         </div>
         </div>
@@ -154,7 +154,7 @@
         <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="imageModalLabel">Full Screen Image</h5>
+            <h5 class="modal-title" id="imageModalLabel">{% translate "Full Screen Image" %}</h5>
             </div>
             <div class="modal-body text-center">
             <img id="modal-image" src="" class="img-fluid">
@@ -182,7 +182,7 @@
         $('#photo-upload').change(function(event) {
             var file = event.target.files[0];
             if (file.size > 512000) { // 0.5Mb
-                alert('File size exceeds 0.5MB. Please upload a smaller file.');
+                alert('{% translate "File size exceeds 0.5MB. Please upload a smaller file." %}');
                 return;
             }
             var formData = new FormData();
@@ -207,12 +207,12 @@
                         if (response.message) {
                             alert(response.message); // Display server-side error message
                         } else {
-                            alert('Upload failed. Please try again.');
+                            alert('{% translate "Upload failed. Please try again." %}');
                         }
                     }
                 },
                 error: function() {
-                    alert('Server error, please try again later.');
+                    alert('{% translate "Server error, please try again later." %}');
                 }
             });
         });
@@ -254,13 +254,13 @@
                         $('.photo-select:checked').each(function() {
                             $(this).closest('.col-md-4').fadeOut();
                         });
-                        alert('Photos deleted successfully.');
+                        alert('{% translate "Photos deleted successfully." %}');
                     } else {
-                        alert('Error deleting photos.');
+                        alert('{% translate "Error deleting photos." %}');
                     }
                 },
                 error: function() {
-                    alert('Server error, please try again later.');
+                    alert('{% translate "Server error, please try again later." %}');
                 }
             });
         });
@@ -289,7 +289,7 @@
                     }
                 },
                 error: function() {
-                    alert('Server error, please try again later.');
+                    alert('{% translate "Server error, please try again later." %}');
                 }
             });
         });
@@ -335,10 +335,10 @@
                 contentType: false,  // Important: tells jQuery not to set contentType
                 success: function(response) {
                     $('#userFullName').text($('#firstNameInput').val() + ' ' + $('#lastNameInput').val());
-                    console.log('Business UI details updated successfully');
+                    console.log('{% translate "Profile details updated successfully" %}');
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error updating profile details:', error);
+                    console.error('{% translate "Error updating profile details:" %}', error);
                 }
             });
         });

@@ -1,5 +1,5 @@
 {% extends 'base2.html' %}
-
+{% load i18n %}
 {% block extra_css %}
 <style>
     .booking-card {
@@ -33,12 +33,13 @@
         height: auto;
       }
     }
-  </style>
+</style>
 {% endblock extra_css %}
+
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">Businesses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'business-list' %}">{% translate "Businesses" %}</a></li>
       <li class="breadcrumb-item"><a href="{% url 'view_business' account.id %}">{{account.name}}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{worker.user.first_name | capfirst}} {{worker.user.last_name | capfirst}}</li>
     </ol>
@@ -55,106 +56,106 @@
         </div>
     </div>
 </div>
-    <div class="rc-card">
-        <div class="row">
-            <div class="col-auto">
-                <h2>Events</h2>
-            </div>
-            <div class="col-2">
-                <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" 
-                        title="Events {{worker.user.first_name | capfirst}} {{worker.user.last_name | capfirst}} is assigned to work at {{account.name}}">
-                </i>
-            </div>
+<div class="rc-card">
+    <div class="row">
+        <div class="col-auto">
+            <h2>{% translate "Events" %}</h2>
         </div>
-        <div class="container">
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="events-container">
-                {% for event in events %}
-                <div class="col event-card" data-business-id="{{ event.account.id }}" data-event-id="{{ event.id }}">
-                    <div class="card h-100 mx-auto" style="border-radius: .75rem; box-shadow: 0 4px 8px rgba(0, 0, 0, .1);">
-                        <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, teal);">
-                            <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{ event.name }}</h5>
-                            <p class="card-text mb-2" style="color: #718096;">{{ event.account.name }}</p>
-                            <p class="card-text mb-2" style="color: #718096;">{{ event.duration }} mins</p>
-                            <a href="{% url 'event_detail' event.id %}" class="mb-4 text-primary" style="color: #3182CE;">View event page</a>
-                        </div>
-                        <div class="card-footer" style="border-top: 1px solid #E2E8F0; background-color: transparent;">
-                            <div class="row align-items-center">
-                                <div class="col-5">
-                                    <a href="#" class="btn btn-outline-primary w-100 share-btn" data-bs-toggle="tooltip"
-                                        data-appointment-url="{{domain}}{% url 'client_appointment_for_event' event.account.handler event.handler %}" 
-                                        data-appointment-worker-url="{{domain}}{% url 'client_appointment_for_event_worker' event.account.handler event.handler current_user.id %}">
-                                        Share
-                                    </a>
-                                </div>
-                                <div class="col-7">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="toggleEvent{{ forloop.counter }}" {% if event.active %}checked{% endif %}>
-                                        <label class="form-check-label toggle-label" for="toggleEvent{{ forloop.counter }}" style="color: #4299E1;">
-                                            {% if not event.active %}
-                                                Turn On
-                                            {% else %}
-                                                Turn Off
-                                            {% endif %}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+        <div class="col-2">
+            <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" 
+                    title="{% translate 'Events' %} {{worker.user.first_name | capfirst}} {{worker.user.last_name | capfirst}} {% translate 'is assigned to work at' %} {{account.name}}">
+            </i>
         </div>
     </div>
-    <br>
-    <div class="rc-card">
-        <div class="row">
-            <div class="col-auto">
-                <h2>Appointments</h2>
-            </div>
-            <div class="col-2">
-                <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" 
-                        title="Appointments {{worker.user.first_name | capfirst}} {{worker.user.last_name | capfirst}} has in the next 30 days at {{account.name}}">
-                </i>
-            </div>
-        </div>        
-        <div class="accordion custom-accordion" id="userAppointments">
-            {% for date, appt_list in appointments.items %}
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#{{ date|date:'d-m-y' }}-{{ forloop.counter }}" aria-expanded="true" aria-controls="{{ date|date:'d-m-y' }}-{{ forloop.counter }}">
-                        {{ date }}
-                    </button>
-                </h2>
-                <div id="{{ date|date:'d-m-y' }}-{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.counter == 1 %} show {% endif %}" data-bs-parent="#userAppointments">
-                    <div class="accordion-body">
-                        {% for appt in appt_list %}
-                            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 pt-2">
-                                <span class="badge bg-secondary">{{ appt.time }}</span><span>{{ appt.event.name }}</span>
-                                <span class="badge bg-secondary">{{appt.event.account.name}}</span>
-                                <div class="dropdown">
-                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
-                                            <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
-                                        </svg>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
-                                        <li><a class="dropdown-item" href="{% url 'appointment_cancel' appt.id %}">Cancel Appointment</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'appointment_detail' appt.id %}">View Details</a></li>
-                                    </ul>
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="events-container">
+            {% for event in events %}
+            <div class="col event-card" data-business-id="{{ event.account.id }}" data-event-id="{{ event.id }}">
+                <div class="card h-100 mx-auto" style="border-radius: .75rem; box-shadow: 0 4px 8px rgba(0, 0, 0, .1);">
+                    <div class="card-body" style="padding: 1.5rem; background: linear-gradient(to bottom right, #81E6D9, teal);">
+                        <h5 class="card-title mb-2" style="font-size: 1.25rem; font-weight: 600; color: #4A5568;">{{ event.name }}</h5>
+                        <p class="card-text mb-2" style="color: #718096;">{{ event.account.name }}</p>
+                        <p class="card-text mb-2" style="color: #718096;">{{ event.duration }} {% translate "mins" %}</p>
+                        <a href="{% url 'event_detail' event.id %}" class="mb-4 text-primary" style="color: #3182CE;">{% translate "View event page" %}</a>
+                    </div>
+                    <div class="card-footer" style="border-top: 1px solid #E2E8F0; background-color: transparent;">
+                        <div class="row align-items-center">
+                            <div class="col-5">
+                                <a href="#" class="btn btn-outline-primary w-100 share-btn" data-bs-toggle="tooltip"
+                                    data-appointment-url="{{domain}}{% url 'client_appointment_for_event' event.account.handler event.handler %}" 
+                                    data-appointment-worker-url="{{domain}}{% url 'client_appointment_for_event_worker' event.account.handler event.handler current_user.id %}">
+                                    {% translate "Share" %}
+                                </a>
+                            </div>
+                            <div class="col-7">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="toggleEvent{{ forloop.counter }}" {% if event.active %}checked{% endif %}>
+                                    <label class="form-check-label toggle-label" for="toggleEvent{{ forloop.counter }}" style="color: #4299E1;">
+                                        {% if not event.active %}
+                                            {% translate "Turn On" %}
+                                        {% else %}
+                                            {% translate "Turn Off" %}
+                                        {% endif %}
+                                    </label>
                                 </div>
                             </div>
-                        {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
+</div>
+<br>
+<div class="rc-card">
+    <div class="row">
+        <div class="col-auto">
+            <h2>{% translate "Appointments" %}</h2>
+        </div>
+        <div class="col-2">
+            <i class="fas fa-info-circle ms-2" data-bs-toggle="tooltip" data-bs-placement="right" 
+                    title="{% translate 'Appointments' %} {{worker.user.first_name | capfirst}} {{worker.user.last_name | capfirst}} {% translate 'has in the next 30 days at' %} {{account.name}}">
+            </i>
+        </div>
+    </div>        
+    <div class="accordion custom-accordion" id="userAppointments">
+        {% for date, appt_list in appointments.items %}
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#{{ date|date:'d-m-y' }}-{{ forloop.counter }}" aria-expanded="true" aria-controls="{{ date|date:'d-m-y' }}-{{ forloop.counter }}">
+                    {{ date }}
+                </button>
+            </h2>
+            <div id="{{ date|date:'d-m-y' }}-{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.counter == 1 %} show {% endif %}" data-bs-parent="#userAppointments">
+                <div class="accordion-body">
+                    {% for appt in appt_list %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 pt-2">
+                            <span class="badge bg-secondary">{{ appt.time }}</span><span>{{ appt.event.name }}</span>
+                            <span class="badge bg-secondary">{{appt.event.account.name}}</span>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                        <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"></path>
+                                    </svg>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
+                                    <li><a class="dropdown-item" href="{% url 'appointment_cancel' appt.id %}">{% translate "Cancel Appointment" %}</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'appointment_detail' appt.id %}">{% translate "View Details" %}</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 
-    {% if show_remove_button %}
-        <button id="removeButton" class="btn btn-danger mt-3" >Remove Worker</button>
-    {% endif %}
+{% if show_remove_button %}
+    <button id="removeButton" class="btn btn-danger mt-3">{% translate "Remove Worker" %}</button>
+{% endif %}
 
 <!-- Share Modal -->
 <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareEventName" aria-hidden="true">
@@ -168,25 +169,24 @@
           <table class="table">
             <tbody>
               <tr class="share-option clickable-row" style="text-align: center;" data-option="share-event">
-                <td>Share event</td>
+                <td>{% translate "Share event" %}</td>
               </tr>
               <tr class="share-option clickable-row" style="text-align: center;" data-option="share-as-worker">
-                <td>Share with me as worker</td>
+                <td>{% translate "Share with me as worker" %}</td>
               </tr>
               <tr class="share-option clickable-row" style="text-align: center;" data-option="cancel">
-                <td>Cancel</td>
+                <td>{% translate "Cancel" %}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
-  </div>
+</div>
 
 {% endblock %}
 
 {% block extra_script %}
-
 <script>
     $(document).ready(function() {
         $('#removeButton').click(function() {
@@ -235,7 +235,7 @@
             if (fullUrl) {
                 // Copy the URL to clipboard
                 navigator.clipboard.writeText(fullUrl).then(function() {
-                    button.attr('title', 'URL copied to clipboard!').tooltip('show');
+                    button.attr('title', '{% translate "URL copied to clipboard!" %}').tooltip('show');
 
                     // Set timeout to hide tooltip after 2 seconds
                     setTimeout(function() {
@@ -243,7 +243,7 @@
                     }, 4000);
 
                 }).catch(function(err) {
-                    button.attr('title', 'Failed to copy URL.').tooltip('show');
+                    button.attr('title', '{% translate "Failed to copy URL." %}').tooltip('show');
 
                     // Set timeout to hide tooltip after 4 seconds
                     setTimeout(function() {
@@ -275,9 +275,9 @@
         $('.form-check-input').change(function() {
             var label = $(this).next('label');
             if ($(this).is(':checked')) {
-                label.text('Turn Off'); // If the checkbox is checked, set label to "Turn Off"
+                label.text('{% translate "Turn Off" %}'); // If the checkbox is checked, set label to "Turn Off"
             } else {
-                label.text('Turn On'); // If the checkbox is not checked, set label to "Turn On"
+                label.text('{% translate "Turn On" %}'); // If the checkbox is not checked, set label to "Turn On"
             }
 
             var checkbox = $(this);
@@ -292,7 +292,7 @@
                     'csrfmiddlewaretoken': '{{ csrf_token }}'
                 },
                 success: function(response) {
-                    checkbox.next('label').text(response.event_active ? 'Turn Off' : 'Turn On');
+                    checkbox.next('label').text(response.event_active ? '{% translate "Turn Off" %}' : '{% translate "Turn On" %}');
                     console.log('Event status updated successfully.');
                 },
                 error: function(xhr, errmsg, err) {

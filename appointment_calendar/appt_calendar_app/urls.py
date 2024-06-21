@@ -8,7 +8,9 @@ conditions_skip_event = {'Event': False}
 conditions_skip_event_worker = {'Event': False,
                                 'Worker': False}
 
-urlpatterns = [    
+urlpatterns = [   
+    path('set_language/', views.set_language, name='set_language'),
+
     # Paths to set up an appointment within the admin page
     path('appointment_wizard/<str:business_handler>', views.BookingCreateWizardView.as_view(client_appointment=False), name='appointment_wizard'),
     path('appointment_wizard/<str:business_handler>/<str:event_handler>', views.BookingCreateWizardView.as_view(client_appointment=False, condition_dict = conditions_skip_event), name='appointment_for_event'),

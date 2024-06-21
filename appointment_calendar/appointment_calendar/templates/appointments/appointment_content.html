@@ -1,4 +1,4 @@
-<div id="booking" class="section"
+<div id="booking" class="section">
     <div class="section-center">
         <div class="container">
             <div class="row">
@@ -19,15 +19,14 @@
                             <div class="tab-content" id="pills-tabContent">
                                 {% block steps %}
                                 {% endblock steps %}
-                            
+                            </div>
                             <!-- tabs END -->
                             {% block buttons %}
                                 <div class="form-btn d-flex mt-4">
                                     {% if wizard.steps.prev %}
-                                        <button class="btn btn-outline-secondary" name="wizard_goto_step" formnovalidate="formnovalidate" type="submit" value="{{ wizard.steps.prev }}">previous step</button>
+                                        <button class="btn btn-outline-secondary" name="wizard_goto_step" formnovalidate="formnovalidate" type="submit" value="{{ wizard.steps.prev }}">{% translate "Previous step" %}</button>
                                     {% endif %}
-                                    <input type="submit" class="btn btn-primary border-0 text-uppercase ml-auto" value="Next step"/>
-
+                                    <input type="submit" class="btn btn-primary border-0 text-uppercase ml-auto" value="{% translate "Next step" %}"/>
                                 </div>
                             {% endblock buttons %}
                         </form>

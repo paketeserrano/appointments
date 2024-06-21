@@ -1,7 +1,7 @@
 {% extends './web_base.html' %}
 
 {% load static %}
-
+{% load i18n %}
 {% block extra_css %}    
     <link rel="stylesheet" href="{% static 'css/web_home.css' %}">
     <style>
@@ -49,7 +49,7 @@
     <section class="who-we-are">
         <div class="container">
             <div class="section-header section-header-font-color ">
-                <h2>Who We Are</h2>
+                <h2>{% translate "Who We Are" %}</h2>
             </div>
             <p>{{ business_ui.description|linebreaksbr|safe }}</p>
         </div>
@@ -60,7 +60,7 @@
     <section class="section-home">
         <div class="container">
             <div class="section-header section-header-font-color ">
-                <h2>Services</h2>
+                <h2>{% translate "Services" %}</h2>
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 {% for event in events %}
@@ -77,7 +77,7 @@
                                         </p>
                                         <a  href="{% url 'service_view' business.handler event.handler%}"
                                             class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">
-                                            Learn More
+                                            {% translate "Learn More" %}
                                         </a>                                        
                                     </div>
                                 </div>
@@ -94,7 +94,7 @@
     <section class="section-home">
         <div class="container">
             <div class="section-header section-header-font-color ">
-                <h2>Our Location</h2>
+                <h2>{% translate "Our Location" %}</h2>
             </div>
             <div class="row">
             <div class="col-12 text-center">
@@ -108,7 +108,7 @@
     <section class="section-home">
         <div class="container">
             <div class="section-header section-header-font-color ">
-                <h2>Our Personnel</h2>
+                <h2>{% translate "Our Personnel" %}</h2>
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 {% for worker in workers %}
@@ -124,7 +124,7 @@
                                     </p>
                                     <a  href="{% url 'web_user_profile' business.handler worker.user.id %}"
                                         class="text-center block bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded">
-                                        Learn More
+                                        {% translate "Learn More" %}
                                     </a>                                        
                                 </div>
                             </div>
@@ -139,7 +139,7 @@
     <section class="section-home">
         <div class="container">
             <div class="section-header section-header-font-color ">
-                <h2>Our Work</h2>
+                <h2>{% translate "Our Work" %}</h2>
             </div>
             <div class="row photo-row">
             {% for image in business.photos.all|slice:":9" %}
@@ -156,7 +156,7 @@
         <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="imageModalLabel">Full Screen Image</h5>
+            <h5 class="modal-title" id="imageModalLabel">{% translate "Full Screen Image" %}</h5>
             </div>
             <div class="modal-body text-center">
             <img id="modal-image" src="" class="img-fluid">

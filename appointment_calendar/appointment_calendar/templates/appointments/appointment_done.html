@@ -1,5 +1,6 @@
 {% extends base_template %}
 {% load static %}
+{% load i18n %}
 
 {% block side_text %}
     <div class="booking-cta">
@@ -13,20 +14,20 @@
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">
-                    <div class="card-body" style="text-align:center">
-                        <h1 class="text-success">Your Appointment is Confirmed!</h1>
-                        <h3 class="text-muted">Appointment Details</h3>
-                        <p class="text-muted">
-                            Your appointment <strong>{{ event.name }}</strong> at <strong>{{ event.account.name }}</strong> with 
-                            <strong>{{ appointment.worker.user.first_name }} {{ appointment.worker.user.last_name }}</strong>
-                            is on <strong>{{ appointment.date }}</strong> at <strong>{{ appointment.time }}</strong>.
-                        </p>
-                        <p>You will receive a confirmation email at <strong>{{ invitee.email }}</strong></p>
-                    </div>
-                    <div class="mt-4" style="text-align:center">
-                        <h4 class="text-muted d-inline">Booking ID:</h4>
-                        <h2 class="d-inline ms-2">#{{ appointment.id }}</h2>
-                    </div>
+                <div class="card-body" style="text-align:center">
+                    <h1 class="text-success">{% translate "Your Appointment is Confirmed!" %}</h1>
+                    <h3 class="text-muted">{% translate "Appointment Details" %}</h3>
+                    <p class="text-muted">
+                        {% translate "Your appointment" %} <strong>{{ event.name }}</strong> {% translate "at" %} <strong>{{ event.account.name }}</strong> {% translate "with" %}
+                        <strong>{{ appointment.worker.user.first_name }} {{ appointment.worker.user.last_name }}</strong>
+                        {% translate "is on" %} <strong>{{ appointment.date }}</strong> {% translate "at" %} <strong>{{ appointment.time }}</strong>.
+                    </p>
+                    <p>{% translate "You will receive a confirmation email at" %} <strong>{{ invitee.email }}</strong></p>
+                </div>
+                <div class="mt-4" style="text-align:center">
+                    <h4 class="text-muted d-inline">{% translate "Booking ID:" %}</h4>
+                    <h2 class="d-inline ms-2">#{{ appointment.id }}</h2>
+                </div>
             </div>
         </div>
     </div>

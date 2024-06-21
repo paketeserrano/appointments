@@ -1,101 +1,102 @@
 {% extends './home_base.html' %}
+{% load i18n %}
 
-{% block title %}Home - ReservaClick{% endblock %}
+{% block title %}{% translate "Home - ReservaClick" %}{% endblock %}
 
 {% block content %}
 <div class="container rk-container">
     <div class="rk-hero">
-        <h1>Your Website and Online Booking in Less than 15 Minutes</h1>
-        <p>Transform your business with a professional online presence and an efficient booking system designed for autonomos in Spain.</p>
-        <button class="btn-primary">Get Started for Free</button>
+        <h1>{% translate "Your Website and Online Booking in Less than 15 Minutes" %}</h1>
+        <p>{% translate "Transform your business with a professional online presence and an efficient booking system designed for autonomos in Spain." %}</p>
+        <button class="btn-primary">{% translate "Get Started for Free" %}</button>
     </div>
 
     <div class="rk-section">
-        <h2>Why Choose ReservaClick?</h2>
+        <h2>{% translate "Why Choose ReservaClick?" %}</h2>
         <div class="rk-features">
             <div class="rk-card">
-                <h3>Simple and Quick Setup</h3>
-                <p>Get your website and booking calendar ready in under 15 minutes.</p>
+                <h3>{% translate "Simple and Quick Setup" %}</h3>
+                <p>{% translate "Get your website and booking calendar ready in under 15 minutes." %}</p>
             </div>
             <div class="rk-card">
-                <h3>Cost-Effective</h3>
-                <p>Start with our free tier and upgrade as your business grows.</p>
+                <h3>{% translate "Cost-Effective" %}</h3>
+                <p>{% translate "Start with our free tier and upgrade as your business grows." %}</p>
             </div>
             <div class="rk-card">
-                <h3>Tailored for You</h3>
-                <p>Fully customizable websites to match your branding.</p>
+                <h3>{% translate "Tailored for You" %}</h3>
+                <p>{% translate "Fully customizable websites to match your branding." %}</p>
             </div>
             <div class="rk-card">
-                <h3>Payment Processing</h3>
-                <p>Secure and easy payment solutions for your clients.</p>
+                <h3>{% translate "Payment Processing" %}</h3>
+                <p>{% translate "Secure and easy payment solutions for your clients." %}</p>
             </div>
             <div class="rk-card">
-                <h3>Client Management</h3>
-                <p>Keep track of appointments and client details effortlessly.</p>
+                <h3>{% translate "Client Management" %}</h3>
+                <p>{% translate "Keep track of appointments and client details effortlessly." %}</p>
             </div>
             <div class="rk-card">
-                <h3>Reminders & Notifications</h3>
-                <p>Automated reminders to reduce no-shows and keep your schedule organized.</p>
+                <h3>{% translate "Reminders & Notifications" %}</h3>
+                <p>{% translate "Automated reminders to reduce no-shows and keep your schedule organized." %}</p>
             </div>
         </div>
     </div>
 
     <div class="rk-section-background">
-        <h2 class="rk-section-title">Autonomo, sabemos que no tienes tiempo. Por eso te damos tu calendario de citas online y pagina web en menos de 15 minutos</h2>
+        <h2 class="rk-section-title">{% translate "Autonomo, sabemos que no tienes tiempo. Por eso te damos tu calendario de citas online y pagina web en menos de 15 minutos" %}</h2>
     </div>
 
     <div class="rk-section" style="background-color: teal;">
-        <h2>How It Works</h2>
+        <h2>{% translate "How It Works" %}</h2>
         <div class="rk-features">
             <div class="rk-card">
-                <h3>Sign Up for Free</h3>
-                <p>Create your account and access our free tier to start setting up your services.</p>
+                <h3>{% translate "Sign Up for Free" %}</h3>
+                <p>{% translate "Create your account and access our free tier to start setting up your services." %}</p>
             </div>
             <div class="rk-card">
-                <h3>Customize Your Website</h3>
-                <p>Use our simple tools to add your branding, services, and booking preferences.</p>
+                <h3>{% translate "Customize Your Website" %}</h3>
+                <p>{% translate "Use our simple tools to add your branding, services, and booking preferences." %}</p>
             </div>
             <div class="rk-card">
-                <h3>Set Up Your Booking Calendar</h3>
-                <p>Define your availability and let clients book appointments seamlessly.</p>
+                <h3>{% translate "Set Up Your Booking Calendar" %}</h3>
+                <p>{% translate "Define your availability and let clients book appointments seamlessly." %}</p>
             </div>
             <div class="rk-card">
-                <h3>Start Booking Clients</h3>
-                <p>Go live and start accepting appointments online.</p>
+                <h3>{% translate "Start Booking Clients" %}</h3>
+                <p>{% translate "Go live and start accepting appointments online." %}</p>
             </div>
         </div>
     </div>
 
     <div class="rk-section">
-        <h2>Testimonials</h2>
+        <h2>{% translate "Testimonials" %}</h2>
         <div class="rk-testimonials">
             <div class="rk-card">
-                <p>"ReservaClick has revolutionized my business. Setting up my website and booking system was a breeze, and my clients love the convenience!" - Ana, Hair Stylist</p>
+                <p>{% translate "\"ReservaClick has revolutionized my business. Setting up my website and booking system was a breeze, and my clients love the convenience!\" - Ana, Hair Stylist" %}</p>
             </div>
             <div class="rk-card">
-                <p>"Finally, a solution that understands the needs of small business owners. ReservaClick saved me time and helped me attract more clients." - Juan, Personal Trainer</p>
+                <p>{% translate "\"Finally, a solution that understands the needs of small business owners. ReservaClick saved me time and helped me attract more clients.\" - Juan, Personal Trainer" %}</p>
             </div>
         </div>
     </div>
 
     <div class="rk-section" style="background-color: teal;">
-        <h2>FAQs</h2>
+        <h2>{% translate "FAQs" %}</h2>
         <div class="rk-faq">
             <div class="rk-faq-item">
-                <h3>Q: How long does it take to set up my website and booking calendar?</h3>
-                <p>A: With ReservaClick, you can have everything up and running in less than 15 minutes.</p>
+                <h3>{% translate "Q: How long does it take to set up my website and booking calendar?" %}</h3>
+                <p>{% translate "A: With ReservaClick, you can have everything up and running in less than 15 minutes." %}</p>
             </div>
             <div class="rk-faq-item">
-                <h3>Q: Is there a free tier available?</h3>
-                <p>A: Yes, we offer a free tier so you can start using our services without any initial cost.</p>
+                <h3>{% translate "Q: Is there a free tier available?" %}</h3>
+                <p>{% translate "A: Yes, we offer a free tier so you can start using our services without any initial cost." %}</p>
             </div>
             <div class="rk-faq-item">
-                <h3>Q: Can I accept payments through my website?</h3>
-                <p>A: Yes, we provide secure payment processing for your clients.</p>
+                <h3>{% translate "Q: Can I accept payments through my website?" %}</h3>
+                <p>{% translate "A: Yes, we provide secure payment processing for your clients." %}</p>
             </div>
             <div class="rk-faq-item">
-                <h3>Q: How customizable are the websites?</h3>
-                <p>A: Our websites are fully customizable to match your branding and preferences.</p>
+                <h3>{% translate "Q: How customizable are the websites?" %}</h3>
+                <p>{% translate "A: Our websites are fully customizable to match your branding and preferences." %}</p>
             </div>
         </div>
     </div>
