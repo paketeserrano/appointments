@@ -99,7 +99,7 @@ class AccountInvitation(models.Model):
         return f"{self.business.name} - {self.recipient_email}"
     
 def account_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/events/<account_id>/header_image_<filename>
+    # file will be uploaded to MEDIA_ROOT/business/<account_id>/header_image_<filename>
     return f'businesses/{instance.business.id}/header_image_{filename}'
     
 class AccountUI(models.Model):
@@ -300,6 +300,10 @@ class BusinessAppearance(models.Model):
     def __str__(self):
         return f"UI Configuration for Header Color {self.header_bar_color}" 
     
+def blog_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/blogs/<blog_id>/header_image_<filename>
+    return f'blogs/{instance.id}/header_image_{filename}'
+
 class Blog(models.Model):
     account_ui = models.ForeignKey(AccountUI, on_delete=models.CASCADE, related_name='blogs')
     title = models.CharField(max_length=200)
@@ -308,6 +312,7 @@ class Blog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    blog_image = models.ImageField(upload_to=blog_directory_path, blank=True, null=True, default='blogs/placeholder.jpg')
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -316,6 +321,10 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
+
+def post_header_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/blogs/<blog_id>/<post_id>/header_image_<filename>
+    return f'blogs/{instance.blog.id}/{instance.id}header_image_{filename}'
 
 class Post(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='posts')
@@ -327,6 +336,7 @@ class Post(models.Model):
     is_published = models.BooleanField(default=False)
     published_at = models.DateTimeField(blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
+    post_header_image = models.ImageField(upload_to=post_header_directory_path, blank=True, null=True, default='posts/placeholder.jpg')
 
     def save(self, *args, **kwargs):
         if self.is_published and not self.published_at:

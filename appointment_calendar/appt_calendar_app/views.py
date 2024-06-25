@@ -2229,7 +2229,7 @@ class BlogDetailView(View):
 
     def post(self, request, slug):
         blog = get_object_or_404(Blog, slug=slug)
-        form = BlogForm(request.POST, instance=blog)
+        form = BlogForm(request.POST, request.FILES, instance=blog)
         if form.is_valid():
             form.save()
             return redirect('blog_detail', slug=slug)
@@ -2252,7 +2252,7 @@ class BlogPostView(View):
         blog = get_object_or_404(Blog, slug=slug)
         if post_slug:
             post = get_object_or_404(Post, blog=blog, slug=post_slug)
-            form = PostForm(request.POST, instance=post)
+            form = PostForm(request.POST, request.FILES, instance=post)
         else:
             post = None
             form = PostForm(request.POST)
@@ -2270,3 +2270,28 @@ class BlogPostView(View):
             return redirect('edit_post', slug=slug, post_slug=new_post.slug)
         
         return render(request, self.template_name, {'form': form, 'blog': blog, 'post': post})
+    
+    def delete(self, request, slug, post_slug):
+        blog = get_object_or_404(Blog, slug=slug)
+        post = get_object_or_404(Post, blog=blog, slug=post_slug)
+        
+        post.delete()
+        
+        return JsonResponse({'success': True})
+    
+class BlogView(ListView):
+    model = Post
+    template_name = 'web/view_blog.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.blog = get_object_or_404(Blog, slug=self.kwargs['slug'], account_ui__business__handler=self.kwargs['business_handler'])
+        self.business = self.blog.account_ui.business
+        return Post.objects.filter(blog=self.blog).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['blog'] = self.blog
+        context['business'] = self.business
+        return context

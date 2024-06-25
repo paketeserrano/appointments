@@ -1,4 +1,5 @@
 {% extends 'base2.html' %}
+{% load static %}
 {% load i18n %}
 {% block content %}
 <nav aria-label="breadcrumb" class="mobile-margin-top">
@@ -10,19 +11,23 @@
 </nav>
 <div class="container mt-5">
     <h1 class="mb-4">{{ blog.title }}</h1>
-    <form method="post" action="{% url 'blog_detail' blog.slug %}">
+    <form method="post" action="{% url 'blog_detail' blog.slug %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="mb-3">
             <label for="id_title" class="form-label">{% translate "Title" %}</label>
             {{ form.title }}
         </div>
-        <div class="mb-3">
-            <label for="id_description" class="form-label">{% translate "Description" %}</label>
-            {{ form.description }}
-        </div>
         <div class="form-check mb-3">
             {{ form.is_active }}
             <label class="form-check-label" for="id_is_active">{% translate "Is Active" %}</label>
+        </div>
+        <div class="mb-3">
+            <label for="id_blog_image" class="form-label">{% translate "Blog Image" %}</label>            
+            {{ form.blog_image }}            
+        </div>
+        <div class="mb-3">
+            <label for="id_description" class="form-label">{% translate "Description" %}</label>
+            {{ form.description }}
         </div>
         <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
         <a href="{% url 'blog_detail' blog.slug %}" class="btn btn-secondary">{% translate "Cancel" %}</a>
@@ -33,7 +38,7 @@
     <h3>Posts</h3>
     <div class="list-group">
         {% for post in blog.posts.all %}
-        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center post-row" data-post-id="{{ post.id }}">
             <div>
                 <h5 class="mb-1">{{ post.title }}</h5>
                 <small>{{ post.author.get_full_name }} — <a href="{% url 'blog_detail' blog.slug %}">{{ blog.title }}</a></small>
@@ -45,7 +50,7 @@
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
                     <li><a class="dropdown-item" href="{% url 'edit_post' blog.slug post.slug %}">{% translate "View" %}</a></li>
-                    <li><a class="dropdown-item delete-post" href="#">{% translate "Delete" %}</a></li>
+                    <li><a class="dropdown-item delete-post" href="#" data-delete-url="{% url 'edit_post' blog.slug post.slug %}">{% translate "Delete" %}</a></li>
                 </ul>
             </div>
         </div>
@@ -53,4 +58,76 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deletePostModal" tabindex="-1" aria-labelledby="deletePostModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePostModalLabel">{% translate "Confirm Deletion" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% translate "Are you sure you want to delete this post?" %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                <button type="button" class="btn btn-danger" id="confirmDeletePost">{% translate "Delete" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    $(document).ready(function() {
+        var urlToDelete, postRow;
+        
+        $('.delete-post').on('click', function() {
+            urlToDelete = $(this).data('delete-url');
+            postRow = $(this).closest('.post-row');
+            $('#deletePostModal').modal('show');
+        });
+
+
+        $('#confirmDeletePost').on('click', function() {
+            $.ajax({
+                url: urlToDelete,
+                type: 'DELETE',
+                headers: {
+                      'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        postRow.remove();
+                        $('#deletePostModal').modal('hide');
+                        alert('Post deleted successfully.');
+                    } else {
+                        alert('Error deleting post.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('An error occurred while deleting the post.');
+                }
+            });
+        });
+
+        // Image preview logic
+        const imageInput = document.getElementById('id_blog_image');
+        const imagePreview = document.getElementById('image-preview');
+
+        if (imageInput && imagePreview) {
+            imageInput.addEventListener('change', function(event) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            });
+        }
+
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,20 @@
+{% load static %}
+<div class="mb-3">
+    {% if widget.is_initial %}
+        <div class="mb-2">
+            <img src="{{ widget.value.url }}" alt="" class="img-thumbnail" style="max-width: 200px; max-height: 200px;" id="image-preview">
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}">
+            <label class="form-check-label" for="{{ widget.checkbox_id }}">
+                Clear
+            </label>
+        </div>
+    {% else %}
+        <div class="mb-2">
+            <img src="{% static 'img/blogs/placeholder.jpg' %}" alt="" class="img-thumbnail" style="max-width: 200px; max-height: 200px;" id="image-preview">
+        </div>
+    {% endif %}
+    <label class="form-label" for="{{ widget.attrs.id }}">{{ widget.attrs.label }}</label>
+    <input class="form-control" type="file" name="{{ widget.name }}" id="{{ widget.attrs.id }}">
+</div>

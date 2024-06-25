@@ -95,6 +95,7 @@ urlpatterns = [
     path("web/<str:business_handler>/", views.ViewBusiness.as_view(show_web = True), name='web_business'),    
     path('web/<str:business_handler>/service/<str:event_handler>/', views.ServiceView.as_view(), name='service_view'),
     path('web/<str:business_handler>/user/<int:user_id>/', views.UserProfileView.as_view(show_web = True), name='web_user_profile'),
+    path('web/<str:business_handler>/blog/<slug:slug>/', views.BlogView.as_view(), name='view_blog'),
 
     # Website home pages
     path('', views.home, name='home'),

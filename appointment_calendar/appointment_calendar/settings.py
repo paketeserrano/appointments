@@ -76,9 +76,10 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'appointment_calendar.urls'
 
 TEMPLATES = [
-    {
+    {   
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'appointment_calendar/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'appointment_calendar/templates'),
+                 os.path.join(BASE_DIR, 'appt_calendar_app/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

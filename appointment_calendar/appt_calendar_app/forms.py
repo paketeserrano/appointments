@@ -364,22 +364,27 @@ class AppointmentSearchForm(forms.Form):
             self.fields['user'].queryset = users
             self.fields['user'].initial = user
 
+class CustomClearableFileInput(forms.ClearableFileInput):
+    template_name = 'widgets/custom_clearable_file_input.html'
+
 class BlogForm(forms.ModelForm):
     class Meta:
         model = Blog
-        fields = ['title', 'description', 'is_active']
+        fields = ['title', 'description', 'is_active', 'blog_image']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter blog title'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Enter blog description'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'blog_image': CustomClearableFileInput(attrs={'label': 'Upload Image'}),
         }
 
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'is_published']
+        fields = ['title', 'content', 'is_published', 'post_header_image']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
             'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'post_header_image': CustomClearableFileInput(attrs={'label': 'Upload Image'}),
         }

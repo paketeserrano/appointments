@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container mt-5">
     <h1>{{ post.title|default:"New Post" }}</h1>
-    <form method="post" action="">
+    <form method="post" action="" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="mb-3">
             <label for="id_title" class="form-label">{% translate "Title" %}</label>
@@ -18,6 +18,10 @@
             {{ form.is_published }}
             <label class="form-check-label" for="id_is_published">{% translate "Is Published" %}</label>
         </div>
+        <div class="mb-3">
+            <label for="id_post_header_image" class="form-label">{% translate "Post Header Image" %}</label>
+            {{ form.post_header_image }}
+        </div>
         <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
             <a href="{% url 'blog_detail' blog.slug %}" class="btn btn-secondary">{% translate "Cancel" %}</a>
@@ -25,3 +29,23 @@
     </form>
 </div>
 {% endblock %}
+
+<script>
+    $(document).ready(function() {
+        // Image preview logic
+        const imageInput = document.getElementById('id_post_header_image');
+        const imagePreview = document.getElementById('image-preview');
+
+        if (imageInput && imagePreview) {
+            imageInput.addEventListener('change', function(event) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            });
+        }
+    });
+
+</script>

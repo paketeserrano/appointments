@@ -109,7 +109,9 @@
 
         <div class="sidebar main-manu-background-color" id="mySidebar">
             <a class="appearance-main-menu-font-color" href="{% url 'web_business' business_handler=business.handler %}">{% translate "Home" %}</a>
-            <a class="appearance-main-menu-font-color" href="#">{% translate "Blog" %}</a>
+            {% if business.ui.blogs.first%}
+                <a class="appearance-main-menu-font-color" href="{% url 'view_blog' business_handler=business.handler slug=business.ui.blogs.first.slug %}">{% translate "Blog" %}</a>
+            {% endif %}
             <form method="post" action="{% url 'set_language' %}" class="form-inline my-2 my-lg-0">
                 {% csrf_token %}
                 <div class="input-group mx-2"  style="width: 60%;">
