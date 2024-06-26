@@ -8,6 +8,7 @@ from .models import Account, Event, Appointment, Invitee, Address, BusinessAppea
                     Blog, Post
 import json
 from django.utils import timezone
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 class EventQuestionForm(forms.ModelForm):
     class Meta:
@@ -384,7 +385,9 @@ class PostForm(forms.ModelForm):
         fields = ['title', 'content', 'is_published', 'post_header_image']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'content': CKEditor5Widget(
+                  attrs={"class": "django_ckeditor_5"}, config_name="default"
+              ),
             'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'post_header_image': CustomClearableFileInput(attrs={'label': 'Upload Image'}),
         }

@@ -9,7 +9,7 @@ import uuid
 import os
 from .libs import utils
 from django.conf import settings
-
+from django_ckeditor_5.fields import CKEditor5Field
 
 # Create your models here.
 
@@ -329,7 +329,7 @@ def post_header_directory_path(instance, filename):
 class Post(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='posts')
     title = models.CharField(max_length=200)
-    content = models.TextField()
+    content = CKEditor5Field('Text', config_name='default')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

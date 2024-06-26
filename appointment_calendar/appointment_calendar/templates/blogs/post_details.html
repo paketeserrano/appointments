@@ -1,6 +1,9 @@
 {% extends 'base2.html' %}
 {% load static %}
 {% load i18n %}
+{% block header %}
+{{ form.media }}
+{% endblock %}
 {% block content %}
 <div class="container mt-5">
     <h1>{{ post.title|default:"New Post" }}</h1>
@@ -30,12 +33,15 @@
 </div>
 {% endblock %}
 
+{% block extra_script %}
+
 <script>
+    
     $(document).ready(function() {
         // Image preview logic
         const imageInput = document.getElementById('id_post_header_image');
         const imagePreview = document.getElementById('image-preview');
-
+        
         if (imageInput && imagePreview) {
             imageInput.addEventListener('change', function(event) {
                 const reader = new FileReader();
@@ -49,3 +55,4 @@
     });
 
 </script>
+{% endblock %}

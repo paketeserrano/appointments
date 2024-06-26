@@ -41,6 +41,7 @@ from django.core.paginator import Paginator
 from .tasks import send_email_with_retries
 from django.utils import translation
 from django.utils.translation import gettext as _
+import uuid
 
 def user_owns_resource(function):
     @wraps(function)
@@ -2295,3 +2296,26 @@ class BlogView(ListView):
         context['blog'] = self.blog
         context['business'] = self.business
         return context
+    
+def custom_upload_file(request):
+    if request.method == 'POST':
+        upload = request.FILES['upload']
+        file_uuid = uuid.uuid4()
+        file_name = f'{file_uuid}_{upload.name}'
+        upload_directory = os.path.join(settings.MEDIA_ROOT, 'uploads')
+
+        if not os.path.exists(upload_directory):
+            os.makedirs(upload_directory)
+
+        file_path = os.path.join(upload_directory, file_name)
+        with open(file_path, 'wb+') as destination:
+            for chunk in upload.chunks():
+                destination.write(chunk)
+
+        file_url = f'{settings.MEDIA_URL}uploads/{file_name}'
+        return JsonResponse({
+            'url': file_url
+        })
+    return JsonResponse({
+        'error': 'Invalid request method'
+    }, status=400)

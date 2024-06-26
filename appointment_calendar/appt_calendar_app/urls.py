@@ -97,6 +97,8 @@ urlpatterns = [
     path('web/<str:business_handler>/user/<int:user_id>/', views.UserProfileView.as_view(show_web = True), name='web_user_profile'),
     path('web/<str:business_handler>/blog/<slug:slug>/', views.BlogView.as_view(), name='view_blog'),
 
+    path('ckeditor5/upload1/', views.custom_upload_file, name="custom_upload_file"),
+
     # Website home pages
     path('', views.home, name='home'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
